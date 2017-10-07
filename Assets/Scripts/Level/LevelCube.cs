@@ -39,6 +39,7 @@ public class LevelCube : MonoBehaviour {
             else
             {
                 step = -1;
+                StopCoroutine(GoToStart());
             }
         }
     }

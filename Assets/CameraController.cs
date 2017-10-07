@@ -16,18 +16,18 @@ public class CameraController : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            StartCoroutine(RotateCam());
+            StartCoroutine(RotateCam(0.25f));
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            StartCoroutine(RotateCam());
+            StartCoroutine(RotateCam(-0.25f));
         }
     }
 
-    public IEnumerator RotateCam()
+    public IEnumerator RotateCam(float val)
     {
-        iTween.RotateBy(gameObject, iTween.Hash("y", .25, "easeType", "easeInOutBack" , "delay", .4));
+        iTween.RotateBy(gameObject, iTween.Hash("y", val, "easeType", "easeInOutQuad" , "delay", .1));
         yield return null;
     }
 }

@@ -58,7 +58,7 @@ public class Interactor_Behaviour : MonoBehaviour {
 
                     _unit = _hit.transform.gameObject.GetComponent<Unit>();
                     _unit.UnitSelected();
-                    Debug.Log("Unit - " + _unit.unitName + " | Slot1 - " + _unit.slot1.buffName + " | Slot2 - " + _unit.slot1.buffName + " | Race - " + _unit.raceType._unitRace + " | Class - " + _unit.classType._unitClass);
+                    Debug.Log("Unit - " + _unit.unitName + " | Slot1 - " + _unit.slot1.buffName + " | Slot2 - " + _unit.slot2.buffName + " | Race - " + _unit.raceType._unitRace + " | Class - " + _unit.classType._unitClass);
                 }
             }
         }

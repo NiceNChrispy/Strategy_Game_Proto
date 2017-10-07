@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: TestSlot2
   m_EditorClassIdentifier: 
   slotIcon: {fileID: 0}
-  buffName: Damage  Buff
+  buffName: Damage Buff
   _cost: 5
   _health: 0
   _Damage: 3
