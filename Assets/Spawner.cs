@@ -14,6 +14,11 @@ public class Spawner : MonoBehaviour {
     public GameObject[] undeadPrefabs;
     public GameObject[] dwarfPrefabs;
 
+    public GameObject squadPlynths;
+
+    public int maxPlayers;
+    public int currentPlynth;
+
     // Use this for initialization
     void Start () {
 		
@@ -55,6 +60,21 @@ public class Spawner : MonoBehaviour {
 
             default:
                 break;
+        }
+    }
+
+    public void RotatePlynths(float val)
+    {
+        iTween.RotateBy(squadPlynths, iTween.Hash("y", val, "easeType", "easeInOutQuad", "delay", .1));
+        if (val < 0)
+        {
+            currentPlynth--;
+            
+        }
+        else
+        {
+            currentPlynth++;
+            
         }
     }
 }
