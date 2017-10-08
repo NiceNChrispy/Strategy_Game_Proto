@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
+    public static GameController instance;
+    public enum GameState {Menu, Game, Paused, Builder }
+    public GameState _gameState;
     public UIController uiController;
 
     [Header("Timer")]
@@ -16,6 +19,7 @@ public class GameController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        _gameState = GameState.Menu;
         StopAllCoroutines();
         StartCoroutine(TurnCountdown());
 	}
@@ -65,6 +69,32 @@ public class GameController : MonoBehaviour {
         else
         {
             _playerTurn = PlayerTurn.Player1;
+        }
+    }
+
+    public void SetState(int state)
+    {
+        switch (state)
+        {
+            case 0:
+                _gameState = GameState.Menu;
+                break;
+
+            case 1:
+                _gameState = GameState.Game;
+                break;
+
+            case 2:
+                _gameState = GameState.Paused;
+                break;
+
+            case 3:
+                _gameState = GameState.Builder;
+                break;
+
+            default:
+                _gameState = GameState.Menu;
+                break;
         }
     }
 }

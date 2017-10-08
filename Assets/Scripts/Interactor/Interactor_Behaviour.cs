@@ -9,7 +9,7 @@ public class Interactor_Behaviour : MonoBehaviour {
     public Unit _unit;
 
     RaycastHit _hit;
-
+    public Camera _cam;
 
     void Start () {
 		
@@ -17,51 +17,59 @@ public class Interactor_Behaviour : MonoBehaviour {
 	
 	void FixedUpdate ()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Input.GetMouseButtonDown(0))
+        if (_cam != null)
         {
-            if (Physics.Raycast(ray, out _hit, 100.0f))
+            Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
+        }
+
+        if (GameController.instance._gameState == GameController.GameState.Game)
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                if (_hit.transform.gameObject.GetComponent<LevelCube>())
+                if (Physics.Raycast(ray, out _hit, 100.0f))
                 {
-                    if (tile != null)
+                    if (_hit.transform.gameObject.GetComponent<LevelCube>())
                     {
-                        tile.TileDeselect();
-                    }
+                        if (tile != null)
+                        {
+                            tile.TileDeselect();
+                        }
 
-                    if (_unit != null)
-                    {
-                        _unit.UnitDeselect();
-                    }
+                        if (_unit != null)
+                        {
+                            _unit.UnitDeselect();
+                        }
 
-                    tile = _hit.transform.gameObject.GetComponent<LevelCube>();
-                    tile.TileSelected();
-                    Debug.Log("Tile - " + "Grid Pos " + _hit.transform.position.x + "," + _hit.transform.position.z + " Status - " + tile.status);
-                    
+                        tile = _hit.transform.gameObject.GetComponent<LevelCube>();
+                        tile.TileSelected();
+                        Debug.Log("Tile - " + "Grid Pos " + _hit.transform.position.x + "," + _hit.transform.position.z + " Status - " + tile.status);
+
+                    }
                 }
-            }
 
-            if (Physics.Raycast(ray, out _hit, 100.0f))
-            {
-                if (_hit.transform.gameObject.GetComponent<Unit>())
+                if (Physics.Raycast(ray, out _hit, 100.0f))
                 {
-                    if (_unit != null)
+                    if (_hit.transform.gameObject.GetComponent<Unit>())
                     {
-                        _unit.UnitDeselect();
-                    }
+                        if (_unit != null)
+                        {
+                            _unit.UnitDeselect();
+                        }
 
-                    if (tile != null)
-                    {
-                        tile.TileDeselect();
-                    }
+                        if (tile != null)
+                        {
+                            tile.TileDeselect();
+                        }
 
-                    _unit = _hit.transform.gameObject.GetComponent<Unit>();
-                    _unit.UnitSelected();
-                    Debug.Log("Unit - " + _unit.unitName + " | Slot1 - " + _unit.slot1.buffName + " | Slot2 - " + _unit.slot2.buffName + " | Race - " + _unit.raceType._unitRace + " | Class - " + _unit.classType._unitClass);
+                        _unit = _hit.transform.gameObject.GetComponent<Unit>();
+                        _unit.UnitSelected();
+                        Debug.Log("Unit - " + _unit.unitName + " | Slot1 - " + _unit.slot1.buffName + " | Slot2 - " + _unit.slot2.buffName + " | Race - " + _unit.raceType._unitRace + " | Class - " + _unit.classType._unitClass);
+                    }
                 }
             }
         }
         
 	}
+
+   
 }

@@ -7,6 +7,7 @@ public class Unit : MonoBehaviour {
 
     public bool unitSelected;
     public string unitName;
+    public GameObject unitPrefab;
     public SlotItem slot1;
     public SlotItem slot2;
 
