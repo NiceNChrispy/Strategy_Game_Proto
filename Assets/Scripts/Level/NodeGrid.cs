@@ -7,6 +7,12 @@ public class NodeGrid : MonoBehaviour
     private Node<Vector3>[,] m_TileNodes;
     [SerializeField] int m_Width, m_Height;
 
+    Node<Vector3>[] m_Accessible;
+
+    [SerializeField] private int xPos, yPos;
+    [SerializeField] private float minRange, maxRange;
+    [SerializeField] private bool isManhatten;
+
     private Node<Vector3> this[int x, int y]
     {
         get
@@ -24,6 +30,11 @@ public class NodeGrid : MonoBehaviour
     {
         Create();
         Connect();
+    }
+
+    private void Update()
+    {
+        m_Accessible = GetAccessable(xPos, yPos, minRange, maxRange, isManhatten);
     }
 
     public void Create()
@@ -75,6 +86,48 @@ public class NodeGrid : MonoBehaviour
                     }
                 }
             }
+
+            Gizmos.color = Color.red;
+
+            for (int i = 0; i < m_Accessible.Length; i++)
+            {
+                Gizmos.DrawSphere(m_Accessible[i].Data, 0.2f);
+            }
+
         }
+    }
+
+    public Node<Vector3>[] GetAccessable(int x, int y, int min, int max)
+    {
+        List<Node<Vector3>> accessible = new List<Node<Vector3>>();
+        for (int iy = 0; iy < m_Height; iy++)
+        {
+            for (int ix = 0; ix < m_Width; ix++)
+            {
+                int distance = Mathf.Abs(ix - x) + Mathf.Abs(iy - y);
+                if(distance >= min && distance <= max)
+                {
+                    accessible.Add(this[ix, iy]);
+                }
+            }
+        }
+        return accessible.ToArray();
+    }
+
+    public Node<Vector3>[] GetAccessable(int x, int y, float min, float max, bool manhatten = true)
+    {
+        List<Node<Vector3>> accessible = new List<Node<Vector3>>();
+        for (int iy = 0; iy < m_Height; iy++)
+        {
+            for (int ix = 0; ix < m_Width; ix++)
+            {
+                float distance = manhatten ? Mathf.Abs(ix - x) + Mathf.Abs(iy - y) : Vector2.Distance(new Vector2(x,y), new Vector2(ix,iy));
+                if (distance >= min && distance <= max)
+                {
+                    accessible.Add(this[ix, iy]);
+                }
+            }
+        }
+        return accessible.ToArray();
     }
 }
