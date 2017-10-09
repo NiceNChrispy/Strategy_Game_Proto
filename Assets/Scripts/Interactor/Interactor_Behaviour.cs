@@ -17,10 +17,11 @@ public class Interactor_Behaviour : MonoBehaviour {
 	
 	void FixedUpdate ()
     {
-        if (_cam != null)
+        if (_cam == null)
         {
-            Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
+            return;
         }
+        Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
 
         if (GameController.instance._gameState == GameController.GameState.Game)
         {
