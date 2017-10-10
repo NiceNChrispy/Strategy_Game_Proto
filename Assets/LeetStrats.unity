@@ -382,18 +382,21 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 156840026}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca6e6133e1f3c0f44968b9850a44cb8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Width: 20
   m_Height: 20
-  xPos: 8
-  yPos: 8
-  minRange: 5
+  xPos: 0
+  yPos: 0
+  xPosEnd: 19
+  yPosEnd: 19
+  minRange: 1
   maxRange: 7
   isManhatten: 0
+  D: 1
 --- !u!4 &156840028
 Transform:
   m_ObjectHideFlags: 0
