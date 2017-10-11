@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System;
 
 public class NodeGrid : MonoBehaviour
@@ -9,12 +7,24 @@ public class NodeGrid : MonoBehaviour
     private PathNode[] m_PathNodes;
     [SerializeField] int m_Width, m_Height;
 
-    PathNode[] m_Accessible;
+    private Dictionary<PathNode, Agent> m_OccupiedNodes;
 
-    [SerializeField] private int xPos, yPos;
-    [SerializeField] private int xPosEnd, yPosEnd;
+    public int Width
+    {
+        get
+        {
+            return m_Width;
+        }
+    }
+    public int Height
+    {
+        get
+        {
+            return m_Height;
+        }
+    }
 
-    private PathNode this[int x, int y]
+    public PathNode this[int x, int y]
     {
         get
         {
@@ -27,25 +37,12 @@ public class NodeGrid : MonoBehaviour
         }
     }
 
-    private void Awake()
+    private void OnEnable()
     {
-        Create();
+        Init();
     }
 
-    private void Update()
-    {
-        m_Accessible = GetPath(xPos, yPos, xPosEnd, yPosEnd).ToArray();
-        //m_Accessible = GetAccessable(xPos, yPos, minRange, maxRange, isManhatten);
-
-        //m_Accessible = m_TileNodes.Where(x =>
-        //{
-        //    float distance = isManhatten ? Mathf.Abs(x.Data.x - xPos) + Mathf.Abs(x.Data.z - yPos) : Vector2.Distance(new Vector2(xPos, yPos), new Vector2(x.Data.x, x.Data.z));
-        //    return (distance >= minRange && distance <= maxRange);
-        //}
-        //).ToArray();
-    }
-
-    public void Create()
+    public void Init()
     {
         m_PathNodes = new PathNode[m_Width * m_Height];
 
@@ -53,10 +50,11 @@ public class NodeGrid : MonoBehaviour
         {
             for (int x = 0; x < m_Width; x++)
             {
-                this[x, y] = new PathNode();
-                this[x, y].Position = new Vector3(x, 1, y);
-                this[x, y].IsTraversible = true;
-
+                this[x, y] = new PathNode()
+                {
+                    Position = new Vector3(x, 1, y),
+                    IsTraversible = true
+                };
             }
         }
     }
@@ -105,7 +103,7 @@ public class NodeGrid : MonoBehaviour
         return GetNeighbours(x, y);
     }
 
-    public void OnDrawGizmosSelected()
+    public void OnDrawGizmos()
     {
         if(Application.isPlaying && enabled)
         {
@@ -113,32 +111,44 @@ public class NodeGrid : MonoBehaviour
             {
                 for (int x = 0; x < m_Width; x++)
                 {
+                    if(!this[x,y].IsTraversible)
+                    {
+                        continue;
+                    }
                     PathNode[] neighbours = GetNeighbours(x, y);
 
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < neighbours.Length; i++)
                     {
                         PathNode node = neighbours[i];
 
-                        if (node != null)
+                        if (node != null && node.IsTraversible)
                         {
-                            Gizmos.DrawRay(this[x, y].Position, (node.Position - this[x, y].Position).normalized * 0.5f);
+                            Gizmos.DrawRay(this[x, y].Position, ((node.Position - this[x, y].Position)) * 0.5f);
                         }
                     }
                 }
             }
 
-            Gizmos.color = Color.red;
+            //Gizmos.color = Color.red;
 
-            if (m_Accessible != null)
-            {
-                for(int i = 0; i < m_Accessible.Length; i++)
-                {
-                    if(m_Accessible[i] != null)
-                    {
-                        Gizmos.DrawSphere(m_Accessible[i].Position, 0.2f);
-                    }
-                }
-            }
+            //if (m_Accessible != null)
+            //{
+            //    for(int i = 0; i < m_Accessible.Length; i++)
+            //    {
+            //        if(m_Accessible[i] != null)
+            //        {
+            //            Gizmos.DrawSphere((Vector2)m_Accessible[i].Position, 0.2f);
+
+            //        }
+            //    }
+            //    for (int i = 0; i < m_Accessible.Length - 1; i++)
+            //    {
+            //        if (m_Accessible[i] != null)
+            //        {
+            //            Gizmos.DrawLine((Vector2)m_Accessible[i].Position, (Vector2)m_Accessible[i + 1].Position);
+            //        }
+            //    }
+            //}
         }
     }
 
@@ -147,6 +157,11 @@ public class NodeGrid : MonoBehaviour
         PathNode fromNode = this[xFrom, yFrom];
         PathNode toNode = this[xTo, yTo];
 
+        return GetPath(fromNode, toNode);
+    }
+
+    public List<PathNode> GetPath(PathNode fromNode, PathNode toNode)
+    {
         Heap<PathNode> openSet = new Heap<PathNode>(m_Width * m_Height);
         HashSet<PathNode> closedSet = new HashSet<PathNode>();
 
@@ -186,7 +201,7 @@ public class NodeGrid : MonoBehaviour
                     }
                     else
                     {
-                        //openSet.UpdateItem(neighbour);
+                        openSet.UpdateItem(neighbour);
                     }
                 }
             }
@@ -204,33 +219,52 @@ public class NodeGrid : MonoBehaviour
             path.Add(currentNode);
             currentNode = currentNode.Parent;
         }
+        path.Add(startNode);
         path.Reverse();
 
         return path;
     }
 
-    float GetDistance(PathNode nodeA, PathNode nodeB)
+    float GetDistance(PathNode from, PathNode to)
     {
-        int aIndex = Array.IndexOf(m_PathNodes, nodeA);
-        int aX = aIndex / m_Width;
-        int aY = aIndex % m_Height;
+        int fromIndex = Array.IndexOf(m_PathNodes, from);
+        int fromX = fromIndex / m_Width;
+        int fromY = fromIndex % m_Height;
 
-        int bIndex = Array.IndexOf(m_PathNodes, nodeB);
-        int bX = bIndex / m_Width;
-        int bY = bIndex % m_Height;
+        int toIndex = Array.IndexOf(m_PathNodes, to);
+        int toX = toIndex / m_Width;
+        int toY = toIndex % m_Height;
 
-        //int aX = Mathf.RoundToInt(nodeA.Position.z);
-        //int aY = Mathf.RoundToInt(nodeA.Position.x);
-        //int bX = Mathf.RoundToInt(nodeB.Position.z);
-        //int bY = Mathf.RoundToInt(nodeB.Position.x);
-
-        int dstX = Mathf.Abs(aX - bX);
-        int dstY = Mathf.Abs(aY - bY);
+        int dstX = Mathf.Abs(fromX - toX);
+        int dstY = Mathf.Abs(fromY - toY);
 
         if (dstX >= dstY)
         {
             return 1.4f * dstY + (dstX - dstY);
         }
         return 1.4f * dstX + (dstY - dstX);
+    }
+
+    //public bool AddAgent(Agent agent, int x, int y)
+    //{
+    //    PathNode node = this[x, y];
+    //    if (m_OccupiedNodes.ContainsKey(node))
+    //    {
+    //        return false;
+    //    }
+    //    m_OccupiedNodes.Add(node, agent);
+    //    return true;
+    //}
+
+    public PathNode Occupy(int x, int y)
+    {
+        PathNode node = this[x, y];
+
+        if(node.IsTraversible)
+        {
+            node.IsTraversible = false;
+            return node;
+        }
+        return null;
     }
 }

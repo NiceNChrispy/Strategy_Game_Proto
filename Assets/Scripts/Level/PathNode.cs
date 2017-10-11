@@ -21,11 +21,11 @@ public class PathNode : IHeapItem<PathNode>
 
     public int CompareTo(PathNode other)
     {
-        int compare = FCost.CompareTo(other.FCost);
-        if (compare == 0)
-        {
-            compare = HCost.CompareTo(other.HCost);
-        }
+        //int compare = FCost.CompareTo(other.FCost);
+        //if (compare == 0)
+        //{
+            int compare = HCost.CompareTo(other.HCost);
+        //}
         return -compare;
     }
 }
