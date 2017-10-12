@@ -2,12 +2,10 @@
 using UnityEngine;
 using System;
 
-public class NodeGrid : MonoBehaviour
+public class NavGrid : MonoBehaviour
 {
-    private PathNode[] m_PathNodes;
+    private NavNode[] m_NavigationNodes;
     [SerializeField] int m_Width, m_Height;
-
-    private Dictionary<PathNode, Agent> m_OccupiedNodes;
 
     public int Width
     {
@@ -24,16 +22,16 @@ public class NodeGrid : MonoBehaviour
         }
     }
 
-    public PathNode this[int x, int y]
+    public NavNode this[int x, int y]
     {
         get
         {
-            return (x >= 0 && x < m_Width && y >= 0 && y < m_Height) ? m_PathNodes[(x * m_Height) + y] : null;
+            return (x >= 0 && x < m_Width && y >= 0 && y < m_Height) ? m_NavigationNodes[(x * m_Height) + y] : null;
         }
 
         set
         {
-            m_PathNodes[(x * m_Height) + y] = value;
+            m_NavigationNodes[(x * m_Height) + y] = value;
         }
     }
 
@@ -44,13 +42,13 @@ public class NodeGrid : MonoBehaviour
 
     public void Init()
     {
-        m_PathNodes = new PathNode[m_Width * m_Height];
+        m_NavigationNodes = new NavNode[m_Width * m_Height];
 
         for (int y = 0; y < m_Height; y++)
         {
             for (int x = 0; x < m_Width; x++)
             {
-                this[x, y] = new PathNode()
+                this[x, y] = new NavNode()
                 {
                     Position = new Vector3(x, 1, y),
                     IsTraversible = true
@@ -87,20 +85,20 @@ public class NodeGrid : MonoBehaviour
     //                             this[x - 1, y + 1]};
     //}
 
-    public PathNode[] GetNeighbours(int x, int y)
+    public NavNode[] GetConnected(int x, int y)
     {
-        return new PathNode[4] { this[x,     y + 1],
+        return new NavNode[4] { this[x,     y + 1],
                                  this[x + 1, y    ],
                                  this[x    , y - 1],
                                  this[x - 1, y    ] };
     }
 
-    public PathNode[] GetNeighbours(PathNode node)
+    public NavNode[] GetConnected(NavNode node)
     {
-        int index = Array.IndexOf(m_PathNodes, node);
+        int index = Array.IndexOf(m_NavigationNodes, node);
         int x = index / m_Width;
         int y = index % m_Height;
-        return GetNeighbours(x, y);
+        return GetConnected(x, y);
     }
 
     public void OnDrawGizmos()
@@ -115,11 +113,11 @@ public class NodeGrid : MonoBehaviour
                     {
                         continue;
                     }
-                    PathNode[] neighbours = GetNeighbours(x, y);
+                    NavNode[] neighbours = GetConnected(x, y);
 
                     for (int i = 0; i < neighbours.Length; i++)
                     {
-                        PathNode node = neighbours[i];
+                        NavNode node = neighbours[i];
 
                         if (node != null && node.IsTraversible)
                         {
@@ -128,50 +126,29 @@ public class NodeGrid : MonoBehaviour
                     }
                 }
             }
-
-            //Gizmos.color = Color.red;
-
-            //if (m_Accessible != null)
-            //{
-            //    for(int i = 0; i < m_Accessible.Length; i++)
-            //    {
-            //        if(m_Accessible[i] != null)
-            //        {
-            //            Gizmos.DrawSphere((Vector2)m_Accessible[i].Position, 0.2f);
-
-            //        }
-            //    }
-            //    for (int i = 0; i < m_Accessible.Length - 1; i++)
-            //    {
-            //        if (m_Accessible[i] != null)
-            //        {
-            //            Gizmos.DrawLine((Vector2)m_Accessible[i].Position, (Vector2)m_Accessible[i + 1].Position);
-            //        }
-            //    }
-            //}
         }
     }
 
-    public List<PathNode> GetPath(int xFrom, int yFrom, int xTo, int yTo)
+    public List<NavNode> GetPath(int xFrom, int yFrom, int xTo, int yTo)
     {
-        PathNode fromNode = this[xFrom, yFrom];
-        PathNode toNode = this[xTo, yTo];
+        NavNode fromNode = this[xFrom, yFrom];
+        NavNode toNode = this[xTo, yTo];
 
         return GetPath(fromNode, toNode);
     }
 
-    public List<PathNode> GetPath(PathNode fromNode, PathNode toNode)
+    public List<NavNode> GetPath(NavNode fromNode, NavNode toNode)
     {
-        Heap<PathNode> openSet = new Heap<PathNode>(m_Width * m_Height);
-        HashSet<PathNode> closedSet = new HashSet<PathNode>();
+        Heap<NavNode> openSet = new Heap<NavNode>(m_Width * m_Height);
+        HashSet<NavNode> closedSet = new HashSet<NavNode>();
 
         openSet.Add(fromNode);
 
-        List<PathNode> path = new List<PathNode>();
+        List<NavNode> path = new List<NavNode>();
 
         while (openSet.Count > 0)
         {
-            PathNode currentNode = openSet.RemoveFirst();
+            NavNode currentNode = openSet.RemoveFirst();
 
             closedSet.Add(currentNode);
 
@@ -180,28 +157,28 @@ public class NodeGrid : MonoBehaviour
                 return RetracePath(fromNode, toNode);
             }
 
-            foreach (PathNode neighbour in GetNeighbours(currentNode))
+            foreach (NavNode connected in GetConnected(currentNode))
             {
-                if (neighbour == null || !neighbour.IsTraversible || closedSet.Contains(neighbour))
+                if (connected == null || !connected.IsTraversible || closedSet.Contains(connected))
                 {
                     continue;
                 }
 
-                float newMovementCostToNeighbour = currentNode.GCost + GetDistance(currentNode, neighbour);
+                float movementCost = currentNode.GCost + GetDistance(currentNode, connected);
 
-                if (newMovementCostToNeighbour < neighbour.GCost || !openSet.Contains(neighbour))
+                if (movementCost < connected.GCost || !openSet.Contains(connected))
                 {
-                    neighbour.GCost = newMovementCostToNeighbour;
-                    neighbour.HCost = GetDistance(neighbour, toNode);
-                    neighbour.Parent = currentNode;
+                    connected.GCost = movementCost;
+                    connected.HCost = GetDistance(connected, toNode);
+                    connected.Parent = currentNode;
 
-                    if (!openSet.Contains(neighbour))
+                    if (!openSet.Contains(connected))
                     {
-                        openSet.Add(neighbour);
+                        openSet.Add(connected);
                     }
                     else
                     {
-                        openSet.UpdateItem(neighbour);
+                        openSet.UpdateItem(connected);
                     }
                 }
             }
@@ -209,10 +186,10 @@ public class NodeGrid : MonoBehaviour
         return null;
     }
 
-    List<PathNode> RetracePath(PathNode startNode, PathNode endNode)
+    List<NavNode> RetracePath(NavNode startNode, NavNode endNode)
     {
-        List<PathNode> path = new List<PathNode>();
-        PathNode currentNode = endNode;
+        List<NavNode> path = new List<NavNode>();
+        NavNode currentNode = endNode;
 
         while (currentNode != startNode)
         {
@@ -225,13 +202,13 @@ public class NodeGrid : MonoBehaviour
         return path;
     }
 
-    float GetDistance(PathNode from, PathNode to)
+    float GetDistance(NavNode from, NavNode to)
     {
-        int fromIndex = Array.IndexOf(m_PathNodes, from);
+        int fromIndex = Array.IndexOf(m_NavigationNodes, from);
         int fromX = fromIndex / m_Width;
         int fromY = fromIndex % m_Height;
 
-        int toIndex = Array.IndexOf(m_PathNodes, to);
+        int toIndex = Array.IndexOf(m_NavigationNodes, to);
         int toX = toIndex / m_Width;
         int toY = toIndex % m_Height;
 
@@ -245,26 +222,15 @@ public class NodeGrid : MonoBehaviour
         return 1.4f * dstX + (dstY - dstX);
     }
 
-    //public bool AddAgent(Agent agent, int x, int y)
-    //{
-    //    PathNode node = this[x, y];
-    //    if (m_OccupiedNodes.ContainsKey(node))
-    //    {
-    //        return false;
-    //    }
-    //    m_OccupiedNodes.Add(node, agent);
-    //    return true;
-    //}
-
-    public PathNode Occupy(int x, int y)
+    public NavNode GetRandom()
     {
-        PathNode node = this[x, y];
+        NavNode node = this[UnityEngine.Random.Range(0, m_Width), UnityEngine.Random.Range(0, m_Height)];
 
-        if(node.IsTraversible)
+        while(!node.IsTraversible)
         {
-            node.IsTraversible = false;
-            return node;
+            node = this[UnityEngine.Random.Range(0, m_Width), UnityEngine.Random.Range(0, m_Height)];
         }
-        return null;
+
+        return node;
     }
 }

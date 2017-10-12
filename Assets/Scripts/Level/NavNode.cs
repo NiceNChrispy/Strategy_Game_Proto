@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PathNode : IHeapItem<PathNode>
+public class NavNode : IHeapItem<NavNode>
 {
     public Vector3 Position;
     public float GCost;
@@ -17,9 +17,9 @@ public class PathNode : IHeapItem<PathNode>
         set;        
     }
 
-    public PathNode Parent;
+    public NavNode Parent;
 
-    public int CompareTo(PathNode other)
+    public int CompareTo(NavNode other)
     {
         //int compare = FCost.CompareTo(other.FCost);
         //if (compare == 0)

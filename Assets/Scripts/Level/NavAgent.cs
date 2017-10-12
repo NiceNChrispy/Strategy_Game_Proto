@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Agent : MonoBehaviour
+public class NavAgent : MonoBehaviour
 {
-    [SerializeField] private NodeGrid m_Grid;
+    [SerializeField] private NavGrid m_Grid;
     [SerializeField] private float m_MoveSpeed;
     [SerializeField] private float m_TurnSpeed;
 
     [SerializeField] private int x, y;
 
-    List<PathNode> path;
+    List<NavNode> path;
 
-    PathNode m_ActiveNode;
+    NavNode m_ActiveNode;
 
     bool isMoving;
 
     private void Start()
     {
-        path = new List<PathNode>();
-        m_ActiveNode = m_Grid.Occupy(x, y);
+        path = new List<NavNode>();
+        m_ActiveNode = m_Grid[x, y];
         transform.parent = m_Grid.transform;
 
         if(m_ActiveNode == null)
@@ -37,21 +37,21 @@ public class Agent : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.P))
         {
-            int randX = Random.Range(0, m_Grid.Width);
-            int randY = Random.Range(0, m_Grid.Height);
-            UpdatePath(m_Grid[randX, randY]);
+            UpdatePath(m_Grid.GetRandom());
             StartCoroutine(Move(path));
         }
     }
 
-    IEnumerator Move(List<PathNode> path)
+    IEnumerator Move(List<NavNode> path)
     {
         isMoving = true;
 
         for (int i = 0; i < path.Count; i++)
         {
             float t = 0;
-            Vector3 direction = path[i].Position - m_ActiveNode.Position;
+            Vector3 vector = path[i].Position - m_ActiveNode.Position;
+            Vector3 direction = vector.normalized;
+            float distance = vector.magnitude;
 
             if (m_ActiveNode != path[i] && transform.forward != direction)
             {
@@ -69,35 +69,21 @@ public class Agent : MonoBehaviour
             t = 0;
             while (t < 1.0f)
             {
-                t += Time.deltaTime * m_MoveSpeed;
+                t += Time.deltaTime * (m_MoveSpeed / distance);
                 transform.localPosition = Vector3.Lerp(m_ActiveNode.Position, path[i].Position, t);
                 yield return new WaitForEndOfFrame();
             }
+            m_ActiveNode.IsTraversible = true;
             m_ActiveNode = path[i];
+            m_ActiveNode.IsTraversible = false;
         }
-
         isMoving = false;
     }
 
-    IEnumerator Turn(PathNode node)
-    {
-        float t = 0;
-        Quaternion from = Quaternion.LookRotation(node.Position - m_ActiveNode.Position, Vector3.up);
-        Quaternion to = transform.localRotation;
-
-        while (t < 1.0f)
-        {
-            t += Time.deltaTime;
-            transform.localRotation = Quaternion.Lerp(from, to, t);
-            yield return new WaitForEndOfFrame();
-        }
-    }
-
-    void UpdatePath(PathNode targetNode)
+    void UpdatePath(NavNode targetNode)
     {
         path.Clear();
         path = m_Grid.GetPath(m_ActiveNode, targetNode);
-        //print(path.Count);
     }
 
     private void OnDrawGizmosSelected()
