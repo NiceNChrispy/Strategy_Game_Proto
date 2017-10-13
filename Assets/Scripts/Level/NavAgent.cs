@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,15 +11,15 @@ public class NavAgent : MonoBehaviour
 
     [SerializeField] private int x, y;
 
-    List<NavNode> path;
-
     NavNode m_ActiveNode;
 
-    bool isMoving;
+    public event Action OnPathUpdated = delegate { };
+    public event Action OnPathingStarted = delegate { };
+    public event Action OnPathingFinished = delegate { };
 
     private void Start()
     {
-        path = new List<NavNode>();
+        
         m_ActiveNode = m_Grid[x, y];
         transform.parent = m_Grid.transform;
 
@@ -37,65 +38,73 @@ public class NavAgent : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.P))
         {
-            UpdatePath(m_Grid.GetRandom());
-            StartCoroutine(Move(path));
+            StartCoroutine(PathTo(m_Grid.GetRandom()));
         }
     }
 
-    IEnumerator Move(List<NavNode> path)
+    IEnumerator PathTo(NavNode targetNode)
     {
-        isMoving = true;
+        List<NavNode> path = new List<NavNode>();
+        path = m_Grid.GetPath(m_ActiveNode, targetNode);
+        OnPathUpdated.Invoke();
+        OnPathingStarted.Invoke();
 
         for (int i = 0; i < path.Count; i++)
         {
-            float t = 0;
             Vector3 vector = path[i].Position - m_ActiveNode.Position;
             Vector3 direction = vector.normalized;
-            float distance = vector.magnitude;
 
             if (m_ActiveNode != path[i] && transform.forward != direction)
             {
-                Quaternion from = transform.localRotation;
-                Quaternion to = Quaternion.LookRotation(direction, Vector3.up);
-
-                while (t < 1.0f)
-                {
-                    t += Time.deltaTime * m_TurnSpeed;
-                    transform.localRotation = Quaternion.Lerp(from, to, t);
-                    yield return new WaitForEndOfFrame();
-                }
+                yield return StartCoroutine(Turn(direction));
             }
 
-            t = 0;
-            while (t < 1.0f)
-            {
-                t += Time.deltaTime * (m_MoveSpeed / distance);
-                transform.localPosition = Vector3.Lerp(m_ActiveNode.Position, path[i].Position, t);
-                yield return new WaitForEndOfFrame();
-            }
+            yield return StartCoroutine(Move(path[i].Position));
+
             m_ActiveNode.IsTraversible = true;
             m_ActiveNode = path[i];
             m_ActiveNode.IsTraversible = false;
         }
-        isMoving = false;
+        OnPathingFinished.Invoke();
     }
 
-    void UpdatePath(NavNode targetNode)
+    IEnumerator Move(Vector3 position)
     {
-        path.Clear();
-        path = m_Grid.GetPath(m_ActiveNode, targetNode);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-
-        if (path != null && path.Count > 1)
+        float distance = (position - m_ActiveNode.Position).magnitude;
+        float t = 0;
+        while (t < 1.0f)
         {
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                Gizmos.DrawLine(path[i].Position + Vector3.up, path[i + 1].Position + Vector3.up);
-            }
+            t += Time.deltaTime * (m_MoveSpeed / distance);
+            transform.localPosition = Vector3.Lerp(m_ActiveNode.Position, position, t);
+            yield return new WaitForEndOfFrame();
         }
     }
+
+    IEnumerator Turn(Vector3 direction)
+    {
+        float t = 0;
+
+        Quaternion from = transform.localRotation;
+        Quaternion to = Quaternion.LookRotation(direction, Vector3.up);
+
+        while (t < 1.0f)
+        {
+            t += Time.deltaTime * m_TurnSpeed;
+            transform.localRotation = Quaternion.Lerp(from, to, t);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    //private void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.red;
+
+    //    if (path != null && path.Count > 1)
+    //    {
+    //        for (int i = 0; i < path.Count - 1; i++)
+    //        {
+    //            Gizmos.DrawLine(path[i].Position + Vector3.up, path[i + 1].Position + Vector3.up);
+    //        }
+    //    }
+    //}
 }
