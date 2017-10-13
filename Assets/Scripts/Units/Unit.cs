@@ -11,9 +11,6 @@ public class Unit : MonoBehaviour {
     public SlotItem slot1;
     public SlotItem slot2;
 
-    public ClassSo classType;
-    public RaceSO raceType;
-
     [Header("Stats")]
     public int _health; // Health of the unit
     public int _damage; // Attack of the unit
@@ -29,17 +26,16 @@ public class Unit : MonoBehaviour {
     // Use this for initialization
     void Awake ()
     {
-        _health += classType._health + raceType._health + slot1._health + slot2._health;
-        _damage += classType._Damage + raceType._Damage + slot1._health + slot2._health;
-        _critChance += classType._CritChance + raceType._CritChance + slot1._CritChance + slot2._CritChance;
-        _movement += classType._Movement + raceType._Movement + slot1._Movement + slot2._Movement;
-        _armour += classType._Armour + raceType._Armour + slot1._Armour + slot2._Armour;
-        _sight += classType._Sight + raceType._Sight + slot1._Sight + slot2._Sight;
-        _shield += classType._Shield + raceType._Shield + slot1._Shield + slot2._Shield;
-        _resistMelee += classType._ResistMelee + raceType._ResistMelee + slot1._ResistMelee + slot2._ResistMelee;
-        _resistRanged += classType._ResistRanged + raceType._ResistRanged + slot1._ResistRanged + slot2._ResistRanged;
-        _resistMagic += classType._ResistMagic + raceType._ResistMagic + slot1._ResistMagic + slot2._ResistMagic;
-        unitName = raceType._unitRace.ToString() + " " + classType._unitClass.ToString();
+        _health += slot1._health + slot2._health;
+        _damage += slot1._health + slot2._health;
+        _critChance += slot1._CritChance + slot2._CritChance;
+        _movement += slot1._Movement + slot2._Movement;
+        _armour += slot1._Armour + slot2._Armour;
+        _sight += slot1._Sight + slot2._Sight;
+        _shield += slot1._Shield + slot2._Shield;
+        _resistMelee += slot1._ResistMelee + slot2._ResistMelee;
+        _resistRanged += slot1._ResistRanged + slot2._ResistRanged;
+        _resistMagic += slot1._ResistMagic + slot2._ResistMagic;
     }
 	
 	// Update is called once per frame

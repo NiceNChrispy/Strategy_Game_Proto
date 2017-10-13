@@ -5,7 +5,6 @@ using UnityEngine;
 public class SquadBuilder : MonoBehaviour {
 
     public List<GameObject> squadList;
-    public List<GameObject> plynthList;
 
     public void GetSavedSquad()
     {
