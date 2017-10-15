@@ -50,7 +50,7 @@ public class NavGrid : MonoBehaviour
             {
                 this[x, y] = new NavNode()
                 {
-                    Position = new Vector3(x, 1, y),
+                    Position = new Vector3(x, 0, y),
                     IsTraversible = true
                 };
             }

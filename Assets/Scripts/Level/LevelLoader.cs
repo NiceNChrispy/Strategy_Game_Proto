@@ -27,10 +27,11 @@ public class LevelLoader : MonoBehaviour {
         for (int x = 0; x < _width; x++)
         {
             yield return new WaitForSeconds(0.005f);
+
             for (int z = 0; z < _depth; z++)
             {
                 yield return new WaitForSeconds(0.005f);
-                GameObject levelObj = Instantiate(levelCube, new Vector3(x, 5, z), Quaternion.identity);
+                GameObject levelObj = Instantiate(levelCube, new Vector3(x, 0, z), Quaternion.identity);
                 levelObj.transform.parent = levelHolder;
             }
         //yield return new WaitForSeconds(0.1f);

@@ -9,8 +9,6 @@ public class NavAgent : MonoBehaviour
     [SerializeField] private float m_MoveSpeed;
     [SerializeField] private float m_TurnSpeed;
 
-    [SerializeField] private int x, y;
-
     NavNode m_ActiveNode;
 
     public event Action OnPathUpdated = delegate { };
@@ -19,9 +17,12 @@ public class NavAgent : MonoBehaviour
 
     private void Start()
     {
-        
-        m_ActiveNode = m_Grid[x, y];
         transform.parent = m_Grid.transform;
+
+        int x = Mathf.RoundToInt(transform.position.x);
+        int y = Mathf.RoundToInt(transform.position.z);
+
+        m_ActiveNode = m_Grid[x, y];
 
         if(m_ActiveNode == null)
         {
@@ -30,7 +31,7 @@ public class NavAgent : MonoBehaviour
         }
         else
         {
-            transform.localPosition = new Vector3(x, 1, y);
+            transform.localPosition = new Vector3(x, m_Grid.transform.position.y, y);
         }
     }
 
