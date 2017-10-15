@@ -1,12 +1,13 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SelectableObject : MonoBehaviour
 {
-    public event Action OnSelect = delegate { };
-    public event Action OnDeselect = delegate { };
-    public event Action OnTarget = delegate { };
-    public event Action OnUnTarget = delegate { };
+    public UnityEvent OnSelect;
+    public UnityEvent OnDeselect;
+    public UnityEvent OnTarget;
+    public UnityEvent OnUnTarget;
 
     public void Target()
     {

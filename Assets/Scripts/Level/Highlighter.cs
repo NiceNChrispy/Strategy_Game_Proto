@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class Highlighter : MonoBehaviour
 {
-    [SerializeField] private Transform m_HighlightObject;
+    [SerializeField] private Transform m_TargetTransform;
 
-    [SerializeField, ReadOnly] private string m_HighlightedUnitName;
-
-    void Highlight(Unit2 unit, bool highlight)
+    void SetTarget()
     {
-        m_HighlightedUnitName = highlight ? unit.name : "NONE";
-        m_HighlightObject.transform.position = unit.transform.position;
-        m_HighlightObject.gameObject.SetActive(highlight);
+        if(m_TargetTransform)
+        {
+
+        }
     }
 }
