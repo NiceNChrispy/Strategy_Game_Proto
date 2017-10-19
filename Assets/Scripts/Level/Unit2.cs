@@ -2,7 +2,7 @@
 
 public class Unit2 : MonoBehaviour
 {
-    public void Print()
+    public void OnSelect()
     {
         print(1);
     }

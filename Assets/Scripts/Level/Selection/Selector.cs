@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Selector : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class Selector : MonoBehaviour
     [SerializeField] private Camera m_Camera;
 
     [Space(5), ReadOnly, SerializeField] private string m_Current;
-    [ ReadOnly, SerializeField]          private string m_Selected;
+    [ReadOnly, SerializeField]           private string m_Selected;
 
     public SelectableObject CurrentObject
     {
@@ -67,6 +68,20 @@ public class Selector : MonoBehaviour
         {
             CurrentObject.UnTarget();
             CurrentObject = null;
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (SelectedObject != null)
+        {
+            SelectedObject.Deselect();
+            SelectedObject = null;
+        }
+        if (CurrentObject)
+        {
+            SelectedObject = CurrentObject;
+            SelectedObject.Select();
         }
     }
 }
