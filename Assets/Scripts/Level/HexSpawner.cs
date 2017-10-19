@@ -8,6 +8,7 @@ public class HexSpawner : MonoBehaviour
     [SerializeField] private int m_Rows, m_Columns;
     [SerializeField] private Vector2 m_Dimensions;
     [SerializeField] private Vector2 m_RelativeOffset;
+    [SerializeField] private float levelGenSpeed;
 
     HexTile[,] spawnedTiles;
 
@@ -27,7 +28,7 @@ public class HexSpawner : MonoBehaviour
                 spawnedTile.SetPosition(y, x);
                 spawnedTile.transform.parent = transform;
                 spawnedTiles[x, y] = spawnedTile;
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(levelGenSpeed);
             }
         }
     }
