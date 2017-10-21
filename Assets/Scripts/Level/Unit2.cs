@@ -1,17 +1,16 @@
-﻿using UnityEngine;
+﻿using Navigation;
+using UnityEngine;
 
 public class Unit2 : MonoBehaviour
 {
     [SerializeField] private Navigation.NavAgent m_NavAgent;
 
-    public NavNode ActiveNode
+    public NavAgent Agent
     {
-        get { return m_NavAgent.ActiveNode; }
-    }
-
-    public bool HasPath
-    {
-        get { return m_NavAgent.HasPath; }
+        get
+        {
+            return m_NavAgent;
+        }
     }
 
     public void Select()
@@ -21,7 +20,6 @@ public class Unit2 : MonoBehaviour
 
     public void MoveTo(NavNode targetNavNode)
     {
-        print("MOVING");
         StartCoroutine(m_NavAgent.PathTo(targetNavNode));
     }
 }

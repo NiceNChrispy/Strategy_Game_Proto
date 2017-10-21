@@ -5,7 +5,6 @@ using UnityEngine;
 public class HexSpawner : MonoBehaviour
 {
     [SerializeField] private HexTile m_HexTilePrefab;
-    [SerializeField] private int m_Rows, m_Columns;
     [SerializeField] private Vector2 m_Dimensions;
     [SerializeField] private Vector2 m_RelativeOffset;
     [SerializeField] private float levelGenSpeed;
@@ -14,18 +13,15 @@ public class HexSpawner : MonoBehaviour
 
     private void Start()
     {
-        spawnedTiles = new HexTile[m_Rows, m_Columns];
         StartCoroutine(Spawn());
     }
 
     public IEnumerator Spawn()
     {
-        for (int y = 0; y < m_Columns; y++)
         {
-            for (int x = 0; x < m_Rows; x++)
             {
                 HexTile spawnedTile = Instantiate(m_HexTilePrefab, HexPosFromGrid(x, y), Quaternion.identity);
-                spawnedTile.SetPosition(y, x);
+                spawnedTile.SetPosition(x, y);
                 spawnedTile.transform.parent = transform;
                 spawnedTiles[x, y] = spawnedTile;
                 yield return new WaitForSeconds(levelGenSpeed);
@@ -56,18 +52,15 @@ public class HexSpawner : MonoBehaviour
     //    return pos;
     //}
 
-    Vector3 HexPosFromGrid(int row, int col)
     {
-        float x = (col * 0.866f) + (0.433f * (row & 1));
-        float z = row * 0.75f;
 
-        return new Vector3(x, 0, z);
+        return new Vector3(xPos, 0, zPos);
     }
 
-    Vector2Int HexPosFromGrid(Vector3Int position)
-    {
-        int col = position.x + (position.z - (position.z & 1)) / 2;
-        int row = position.z;
-        return new Vector2Int(col, row);
-    }
+    //Vector2Int HexPosFromGrid(Vector3Int position)
+    //{
+    //    int col = position.x + (position.z - (position.z & 1)) / 2;
+    //    int row = position.z;
+    //    return new Vector2Int(col, row);
+    //}
 }

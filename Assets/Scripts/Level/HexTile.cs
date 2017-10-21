@@ -33,6 +33,8 @@ public class HexTile : MonoBehaviour
     {
         this.x = x;
         this.y = y;
+
+        name = string.Format("{0},{1}", x, y);
     }
 
     public void Select()

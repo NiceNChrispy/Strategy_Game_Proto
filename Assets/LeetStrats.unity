@@ -687,7 +687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca6e6133e1f3c0f44968b9850a44cb8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Width: 10
+  m_Width: 20
   m_Height: 10
 --- !u!4 &156840028
 Transform:
@@ -3179,8 +3179,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HexTilePrefab: {fileID: 114611926171708608, guid: 0912c12df0c938e4381cc2dd512d71f6,
     type: 2}
-  m_Rows: 10
-  m_Columns: 10
+  m_Width: 20
+  m_Height: 10
   m_Dimensions: {x: 0.866, y: 1}
   m_RelativeOffset: {x: 1, y: 0.75}
   levelGenSpeed: 0.01

@@ -28,9 +28,9 @@ namespace Navigation
         {
             get
             {
+                //return m_NavigationNodes[(x * m_Height) + y];
                 return (x >= 0 && x < m_Width && y >= 0 && y < m_Height) ? m_NavigationNodes[(x * m_Height) + y] : null;
             }
-
             set
             {
                 m_NavigationNodes[(x * m_Height) + y] = value;
@@ -52,7 +52,7 @@ namespace Navigation
                 {
                     this[x, y] = new NavNode()
                     {
-                        Position = GetNodePosition(x, y),
+                        Position = HexSpawner.HexPosFromGrid(x, y),
                         IsTraversible = true
                     };
                 }
@@ -63,14 +63,6 @@ namespace Navigation
         //{
         //    return new Vector3(x, 0, y);
         //}
-
-        public Vector3 GetNodePosition(int row, int col)
-        {
-            float x = (col * 0.866f) + (0.433f * (row & 1));
-            float z = row * 0.75f;
-
-            return new Vector3(x, 0, z);
-        }
 
         //public NavNode GetNodeAt(Vector3 position)
         //{
@@ -120,33 +112,46 @@ namespace Navigation
 
         public NavNode[] GetConnected(int x, int y)
         {
-            if(x % 2 == 0)
+            if((y & 1) == 0)
             {
-                return new NavNode[6] { this[x + 1, y    ],
-                                        this[x - 1, y - 1], // - -
-                                        this[x    , y - 1],
-                                        this[x - 1, y    ],
-                                        this[x + 1, y - 1], // + -
-                                        this[x    , y + 1] 
+                return new NavNode[6]
+                {
+                    this[x + 1, y    ],
+                    this[x,     y + 1],
+                    this[x - 1, y    ],
+                    this[x,     y - 1],
+                    this[x - 1, y + 1],
+                    this[x - 1, y - 1]
                 };
             }
             else
             {
-                return new NavNode[6] { this[x + 1, y    ],
-                                        this[x + 1, y + 1], // + +
-                                        this[x    , y - 1],
-                                        this[x - 1, y    ],
-                                        this[x - 1, y + 1], // - +
-                                        this[x    , y + 1]};
+                return new NavNode[6] 
+                {
+                    this[x + 1, y    ],
+                    this[x    , y + 1],
+                    this[x - 1, y    ],
+                    this[x    , y - 1],
+                    this[x + 1, y + 1],
+                    this[x + 1, y - 1]
+                };
             }
         }
 
         public NavNode[] GetConnected(NavNode node)
         {
+            Vector2Int index = IndexOf(node);
+            print(node.Position + ", " + index);
+
+            return GetConnected(index.x, index.y);
+        }
+
+        public Vector2Int IndexOf(NavNode node)
+        {
             int index = Array.IndexOf(m_NavigationNodes, node);
-            int x = index / m_Width;
-            int y = index % m_Height;
-            return GetConnected(x, y);
+            //Vector2Int indices = new Vector2Int(index & m_Width, index / m_Width);
+            Vector2Int indices = new Vector2Int(index / m_Height, index % m_Height);
+            return indices;
         }
 
         public void OnDrawGizmos()
@@ -247,6 +252,7 @@ namespace Navigation
                 path.Add(currentNode);
                 currentNode = currentNode.Parent;
             }
+
             path.Add(startNode);
             path.Reverse();
 
@@ -255,16 +261,11 @@ namespace Navigation
 
         float GetDistance(NavNode from, NavNode to)
         {
-            int fromIndex = Array.IndexOf(m_NavigationNodes, from);
-            int fromX = fromIndex / m_Width;
-            int fromY = fromIndex % m_Height;
+            Vector2Int fromIndex = IndexOf(from);
+            Vector2Int toIndex =   IndexOf(to);
 
-            int toIndex = Array.IndexOf(m_NavigationNodes, to);
-            int toX = toIndex / m_Width;
-            int toY = toIndex % m_Height;
-
-            int dstX = Mathf.Abs(fromX - toX);
-            int dstY = Mathf.Abs(fromY - toY);
+            int dstX = Mathf.Abs(fromIndex.x - toIndex.x);
+            int dstY = Mathf.Abs(fromIndex.y - toIndex.y);
 
             if (dstX >= dstY)
             {

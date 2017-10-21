@@ -24,26 +24,27 @@ public class Game_Manager : Singleton<Game_Manager>
         }
     }
 
-    public void DeselectUnit()
-    {
-        m_TileTargeterTransform.gameObject.SetActive(false);
-        m_HighlighterTransform.gameObject.SetActive(false);
-    }
-
     public void TargetTile(HexTile tile)
     {
-        if(m_SelectedUnit && tile != m_SelectedTile)
+        if (m_SelectedUnit && tile != m_SelectedTile)
         {
             m_SelectedTile = tile;
 
-            NavNode unitNode = m_SelectedUnit.ActiveNode;
+            NavNode unitNode = m_SelectedUnit.Agent.ActiveNode;
+            NavNode tileNode = m_NavGraph[tile.X, tile.Y];
 
-            List<NavNode> path = m_NavGraph.GetPath(unitNode, m_NavGraph[tile.Y, tile.X]);
+            m_NavGraph.IndexOf(tileNode);
 
-            m_LineRenderer.positionCount = path.Count;
-            for (int i = 0; i < path.Count; i++)
+            List<NavNode> path = m_NavGraph.GetPath(unitNode, tileNode);
+
+            if (path != null)
             {
-                m_LineRenderer.SetPosition(i, path[i].Position + (Vector3.up * 0.01f));
+                m_LineRenderer.positionCount = path.Count;
+
+                for (int i = 0; i < path.Count; i++)
+                {
+                    m_LineRenderer.SetPosition(i, path[i].Position + (Vector3.up * 0.01f));
+                }
             }
 
             m_TileTargeterTransform.gameObject.SetActive(true);
@@ -59,15 +60,15 @@ public class Game_Manager : Singleton<Game_Manager>
     {
         if(m_SelectedUnit)
         {
-            m_SelectedUnit.MoveTo(m_NavGraph[tile.Y, tile.X]);
+            m_SelectedUnit.MoveTo(m_NavGraph[tile.X, tile.Y]);
         }
     }
 
     public void Update()
     {
-        if(m_SelectedUnit != null && m_SelectedUnit.HasPath)
+        if(m_SelectedUnit != null && m_SelectedUnit.Agent.HasPath)
         {
-
+            
         }
     }
 }
