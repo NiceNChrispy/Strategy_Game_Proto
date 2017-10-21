@@ -5,6 +5,7 @@ using UnityEngine;
 public class HexSpawner : MonoBehaviour
 {
     [SerializeField] private HexTile m_HexTilePrefab;
+    [SerializeField] private int m_Columns, m_Rows;
     [SerializeField] private Vector2 m_Dimensions;
     [SerializeField] private Vector2 m_RelativeOffset;
     [SerializeField] private float levelGenSpeed;
@@ -13,12 +14,15 @@ public class HexSpawner : MonoBehaviour
 
     private void Start()
     {
+        spawnedTiles = new HexTile[m_Columns, m_Rows];
         StartCoroutine(Spawn());
     }
 
     public IEnumerator Spawn()
     {
+        for (int y = 0; y < m_Rows; y++)
         {
+            for (int x = 0; x < m_Columns; x++)
             {
                 HexTile spawnedTile = Instantiate(m_HexTilePrefab, HexPosFromGrid(x, y), Quaternion.identity);
                 spawnedTile.SetPosition(x, y);
@@ -52,7 +56,10 @@ public class HexSpawner : MonoBehaviour
     //    return pos;
     //}
 
+    public static Vector3 HexPosFromGrid(int row, int col)
     {
+        float xPos = (row * 0.866f) + (0.433f * (col & 1));
+        float zPos = col * 0.75f;
 
         return new Vector3(xPos, 0, zPos);
     }
