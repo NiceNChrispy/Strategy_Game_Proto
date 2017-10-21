@@ -12,10 +12,25 @@ namespace Navigation
         [SerializeField] private float m_TurnSpeed;
 
         NavNode m_ActiveNode;
+        List<NavNode> m_ActivePath;
 
         public event Action OnPathUpdated = delegate { };
         public event Action OnPathingStarted = delegate { };
         public event Action OnPathingFinished = delegate { };
+
+
+        public bool HasPath
+        {
+            get { return m_ActivePath.Count > 0; }
+        }
+
+        public NavNode ActiveNode
+        {
+            get
+            {
+                return m_ActiveNode;
+            }
+        }
 
         private void Start()
         {
@@ -26,6 +41,8 @@ namespace Navigation
 
             m_ActiveNode = m_Graph[x, y];
 
+            m_ActivePath = new List<NavNode>();
+
             if (m_ActiveNode == null)
             {
                 Debug.LogError(string.Format("Node {0},{1} is already occupied or is not traversible", x, y));
@@ -33,7 +50,7 @@ namespace Navigation
             }
             else
             {
-                transform.localPosition = new Vector3(x, m_Graph.transform.position.y, y);
+                transform.localPosition = m_ActiveNode.Position;
             }
         }
 
@@ -45,27 +62,26 @@ namespace Navigation
             }
         }
 
-        IEnumerator PathTo(NavNode targetNode)
+        public IEnumerator PathTo(NavNode targetNode)
         {
-            List<NavNode> path = new List<NavNode>();
-            path = m_Graph.GetPath(m_ActiveNode, targetNode);
+            m_ActivePath = m_Graph.GetPath(m_ActiveNode, targetNode);
             OnPathUpdated.Invoke();
             OnPathingStarted.Invoke();
 
-            for (int i = 0; i < path.Count; i++)
+            for (int i = 0; i < m_ActivePath.Count; i++)
             {
-                Vector3 vector = path[i].Position - m_ActiveNode.Position;
+                Vector3 vector = m_ActivePath[i].Position - m_ActiveNode.Position;
                 Vector3 direction = vector.normalized;
 
-                if (m_ActiveNode != path[i] && transform.forward != direction)
+                if (m_ActiveNode != m_ActivePath[i] && transform.forward != direction)
                 {
                     yield return StartCoroutine(Turn(direction));
                 }
 
-                yield return StartCoroutine(Move(path[i].Position));
+                yield return StartCoroutine(Move(m_ActivePath[i].Position));
 
                 m_ActiveNode.IsTraversible = true;
-                m_ActiveNode = path[i];
+                m_ActiveNode = m_ActivePath[i];
                 m_ActiveNode.IsTraversible = false;
             }
             OnPathingFinished.Invoke();
@@ -98,17 +114,21 @@ namespace Navigation
             }
         }
 
-        //private void OnDrawGizmosSelected()
-        //{
-        //    Gizmos.color = Color.red;
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.red;
 
-        //    if (path != null && path.Count > 1)
-        //    {
-        //        for (int i = 0; i < path.Count - 1; i++)
-        //        {
-        //            Gizmos.DrawLine(path[i].Position + Vector3.up, path[i + 1].Position + Vector3.up);
-        //        }
-        //    }
-        //}
+            if (HasPath)
+            {
+                for (int i = 0; i < m_ActivePath.Count - 1; i++)
+                {
+                    Gizmos.DrawLine(m_ActivePath[i].Position, m_ActivePath[i + 1].Position);
+                }
+                for (int i = 0; i < m_ActivePath.Count; i++)
+                {
+                    Gizmos.DrawSphere(m_ActivePath[i].Position, 0.2f);
+                }
+            }
+        }
     }
 }

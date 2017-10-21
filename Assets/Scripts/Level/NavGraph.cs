@@ -72,6 +72,16 @@ namespace Navigation
             return new Vector3(x, 0, z);
         }
 
+        //public NavNode GetNodeAt(Vector3 position)
+        //{
+        //    int x = Mathf.RoundToInt(position.z + (position.x - (Mathf.RoundToInt(position.x) & 1)) / 2.0f);
+        //    int y = Mathf.RoundToInt(position.x);
+
+        //    print(x + " " + y);
+
+        //    return this[x, y];
+        //}
+
         //public void Connect()
         //{
         //    for (int y = 0; y < m_Height; y++)
