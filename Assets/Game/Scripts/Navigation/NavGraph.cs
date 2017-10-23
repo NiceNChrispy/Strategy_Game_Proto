@@ -141,8 +141,6 @@ namespace Navigation
         public NavNode[] GetConnected(NavNode node)
         {
             Vector2Int index = IndexOf(node);
-            print(node.Position + ", " + index);
-
             return GetConnected(index.x, index.y);
         }
 

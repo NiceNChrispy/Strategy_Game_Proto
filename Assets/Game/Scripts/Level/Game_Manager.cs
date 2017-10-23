@@ -1,15 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Navigation;
 
 public class Game_Manager : Singleton<Game_Manager>
 {
-    [SerializeField] Transform m_HighlighterTransform;
-    [SerializeField] Transform m_TileTargeterTransform;
-
+    [SerializeField] private Transform m_HighlighterTransform;
+    [SerializeField] private Transform m_TileTargeterTransform;
     [SerializeField] private LineRenderer m_LineRenderer;
-
-    [SerializeField] private Navigation.NavGraph m_NavGraph;
+    [SerializeField] private NavGraph m_NavGraph;
 
     Unit2 m_SelectedUnit;
     HexTile m_SelectedTile;
