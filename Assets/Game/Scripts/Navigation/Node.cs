@@ -2,7 +2,7 @@
 
 namespace Navigation
 {
-    public class NavNode : IHeapItem<NavNode>
+    public class Node : IHeapItem<Node>
     {
         public Vector3 Position;
         public float GCost;
@@ -16,9 +16,9 @@ namespace Navigation
             set;
         }
 
-        public NavNode Parent;
+        public Node Parent;
 
-        public int CompareTo(NavNode other)
+        public int CompareTo(Node other)
         {
             int compare = FCost.CompareTo(other.FCost);
             if (compare == 0)

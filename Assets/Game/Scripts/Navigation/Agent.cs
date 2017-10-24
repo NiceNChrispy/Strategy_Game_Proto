@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace Navigation
 {
-    public class NavAgent : MonoBehaviour
+    public class Agent : MonoBehaviour
     {
-        [SerializeField] private NavGraph m_Graph;
+        [SerializeField] private Map m_Map;
         [SerializeField] private float m_MoveSpeed;
         [SerializeField] private float m_TurnSpeed;
 
-        NavNode m_ActiveNode;
-        List<NavNode> m_ActivePath;
+        Node m_ActiveNode;
+        List<Node> m_Path;
 
         public event Action OnStepComplete = delegate { };
         public event Action OnPathUpdated = delegate { };
@@ -21,10 +21,10 @@ namespace Navigation
 
         public bool HasPath
         {
-            get { return m_ActivePath != null && m_ActivePath.Count > 1; }
+            get { return m_Path != null && m_Path.Count > 1; }
         }
 
-        public NavNode ActiveNode
+        public Node ActiveNode
         {
             get
             {
@@ -34,9 +34,9 @@ namespace Navigation
 
         private void Start()
         {
-            transform.parent = m_Graph.transform;
+            transform.parent = m_Map.transform;
 
-            m_ActiveNode = m_Graph[1, 1];
+            m_ActiveNode = m_Map[1, 1];
             m_ActiveNode.IsTraversible = false;
 
             if (m_ActiveNode == null)
@@ -54,18 +54,18 @@ namespace Navigation
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
-                StartCoroutine(PathTo(m_Graph.GetRandom()));
+                StartCoroutine(PathTo(m_Map.GetRandom()));
             }
         }
 
-        public IEnumerator PathTo(NavNode targetNode)
+        public IEnumerator PathTo(Node targetNode)
         {
             if(targetNode == null)
             {
                 Debug.LogError("Target node is null");
                 yield break;
             }
-            m_ActivePath = m_Graph.GetPath(m_ActiveNode, targetNode);
+            m_Path = m_Map.GetPath(m_ActiveNode, targetNode);
 
             if (!HasPath)
             {
@@ -75,20 +75,20 @@ namespace Navigation
             OnPathUpdated.Invoke();
             OnPathingStarted.Invoke();
 
-            for (int i = 0; i < m_ActivePath.Count; i++)
+            for (int i = 0; i < m_Path.Count; i++)
             {
-                Vector3 vector = m_ActivePath[i].Position - m_ActiveNode.Position;
+                Vector3 vector = m_Path[i].Position - m_ActiveNode.Position;
                 Vector3 direction = vector.normalized;
 
-                if (m_ActiveNode != m_ActivePath[i] && transform.forward != direction)
+                if (m_ActiveNode != m_Path[i] && transform.forward != direction)
                 {
                     yield return StartCoroutine(Turn(direction));
                 }
 
-                yield return StartCoroutine(Move(m_ActivePath[i].Position));
+                yield return StartCoroutine(Move(m_Path[i].Position));
 
                 m_ActiveNode.IsTraversible = true;
-                m_ActiveNode = m_ActivePath[i];
+                m_ActiveNode = m_Path[i];
                 OnStepComplete.Invoke();
                 m_ActiveNode.IsTraversible = false;
             }
@@ -128,13 +128,13 @@ namespace Navigation
 
             if (HasPath)
             {
-                for (int i = 0; i < m_ActivePath.Count - 1; i++)
+                for (int i = 0; i < m_Path.Count - 1; i++)
                 {
-                    Gizmos.DrawLine(m_ActivePath[i].Position, m_ActivePath[i + 1].Position);
+                    Gizmos.DrawLine(m_Path[i].Position, m_Path[i + 1].Position);
                 }
-                for (int i = 0; i < m_ActivePath.Count; i++)
+                for (int i = 0; i < m_Path.Count; i++)
                 {
-                    Gizmos.DrawSphere(m_ActivePath[i].Position, 0.2f);
+                    Gizmos.DrawSphere(m_Path[i].Position, 0.2f);
                 }
             }
         }

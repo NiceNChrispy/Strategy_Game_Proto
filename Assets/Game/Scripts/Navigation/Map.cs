@@ -4,9 +4,9 @@ using System;
 
 namespace Navigation
 {
-    public class NavGraph : MonoBehaviour
+    public class Map : MonoBehaviour
     {
-        private NavNode[] m_NavigationNodes;
+        private Node[] m_Nodes;
         [SerializeField] int m_Width, m_Height;
 
         public int Width
@@ -24,16 +24,16 @@ namespace Navigation
             }
         }
 
-        public NavNode this[int x, int y]
+        public Node this[int x, int y]
         {
             get
             {
                 //return m_NavigationNodes[(x * m_Height) + y];
-                return (x >= 0 && x < m_Width && y >= 0 && y < m_Height) ? m_NavigationNodes[(x * m_Height) + y] : null;
+                return (x >= 0 && x < m_Width && y >= 0 && y < m_Height) ? m_Nodes[(x * m_Height) + y] : null;
             }
             set
             {
-                m_NavigationNodes[(x * m_Height) + y] = value;
+                m_Nodes[(x * m_Height) + y] = value;
             }
         }
 
@@ -44,13 +44,13 @@ namespace Navigation
 
         public void Init()
         {
-            m_NavigationNodes = new NavNode[m_Width * m_Height];
+            m_Nodes = new Node[m_Width * m_Height];
 
             for (int y = 0; y < m_Height; y++)
             {
                 for (int x = 0; x < m_Width; x++)
                 {
-                    this[x, y] = new NavNode()
+                    this[x, y] = new Node()
                     {
                         Position = HexSpawner.HexPosFromGrid(x, y),
                         IsTraversible = true
@@ -110,11 +110,11 @@ namespace Navigation
         //                        this[x - 1, y    ] };
         //}
 
-        public NavNode[] GetConnected(int x, int y)
+        public Node[] GetConnected(int x, int y)
         {
             if((y & 1) == 0)
             {
-                return new NavNode[6]
+                return new Node[6]
                 {
                     this[x + 1, y    ],
                     this[x,     y + 1],
@@ -126,7 +126,7 @@ namespace Navigation
             }
             else
             {
-                return new NavNode[6] 
+                return new Node[6] 
                 {
                     this[x + 1, y    ],
                     this[x    , y + 1],
@@ -138,15 +138,15 @@ namespace Navigation
             }
         }
 
-        public NavNode[] GetConnected(NavNode node)
+        public Node[] GetConnected(Node node)
         {
             Vector2Int index = IndexOf(node);
             return GetConnected(index.x, index.y);
         }
 
-        public Vector2Int IndexOf(NavNode node)
+        public Vector2Int IndexOf(Node node)
         {
-            int index = Array.IndexOf(m_NavigationNodes, node);
+            int index = Array.IndexOf(m_Nodes, node);
             //Vector2Int indices = new Vector2Int(index & m_Width, index / m_Width);
             Vector2Int indices = new Vector2Int(index / m_Height, index % m_Height);
             return indices;
@@ -160,7 +160,7 @@ namespace Navigation
                 {
                     for (int x = 0; x < m_Width; x++)
                     {
-                        NavNode node = this[x, y];
+                        Node node = this[x, y];
 
                         if (!node.IsTraversible)
                         {
@@ -169,7 +169,7 @@ namespace Navigation
 
                         Gizmos.DrawSphere(node.Position, 0.2f);
 
-                        NavNode[] neighbours = GetConnected(x, y);
+                        Node[] neighbours = GetConnected(x, y);
 
                         for (int i = 0; i < neighbours.Length; i++)
                         {
@@ -183,26 +183,26 @@ namespace Navigation
             }
         }
 
-        public List<NavNode> GetPath(int xFrom, int yFrom, int xTo, int yTo)
+        public List<Node> GetPath(int xFrom, int yFrom, int xTo, int yTo)
         {
-            NavNode fromNode = this[xFrom, yFrom];
-            NavNode toNode = this[xTo, yTo];
+            Node fromNode = this[xFrom, yFrom];
+            Node toNode = this[xTo, yTo];
 
             return GetPath(fromNode, toNode);
         }
 
-        public List<NavNode> GetPath(NavNode fromNode, NavNode toNode)
+        public List<Node> GetPath(Node fromNode, Node toNode)
         {
-            Heap<NavNode> openSet = new Heap<NavNode>(m_Width * m_Height);
-            HashSet<NavNode> closedSet = new HashSet<NavNode>();
+            Heap<Node> openSet = new Heap<Node>(m_Width * m_Height);
+            HashSet<Node> closedSet = new HashSet<Node>();
 
             openSet.Add(fromNode);
 
-            List<NavNode> path = new List<NavNode>();
+            List<Node> path = new List<Node>();
 
             while (openSet.Count > 0)
             {
-                NavNode currentNode = openSet.RemoveFirst();
+                Node currentNode = openSet.RemoveFirst();
 
                 closedSet.Add(currentNode);
 
@@ -211,7 +211,7 @@ namespace Navigation
                     return RetracePath(fromNode, toNode);
                 }
 
-                foreach (NavNode connected in GetConnected(currentNode))
+                foreach (Node connected in GetConnected(currentNode))
                 {
                     if (connected == null || !connected.IsTraversible || closedSet.Contains(connected))
                     {
@@ -240,10 +240,10 @@ namespace Navigation
             return null;
         }
 
-        List<NavNode> RetracePath(NavNode startNode, NavNode endNode)
+        List<Node> RetracePath(Node startNode, Node endNode)
         {
-            List<NavNode> path = new List<NavNode>();
-            NavNode currentNode = endNode;
+            List<Node> path = new List<Node>();
+            Node currentNode = endNode;
 
             while (currentNode != startNode)
             {
@@ -257,7 +257,7 @@ namespace Navigation
             return path;
         }
 
-        float GetDistance(NavNode from, NavNode to)
+        float GetDistance(Node from, Node to)
         {
             Vector2Int fromIndex = IndexOf(from);
             Vector2Int toIndex =   IndexOf(to);
@@ -272,9 +272,9 @@ namespace Navigation
             return 1.4f * dstX + (dstY - dstX);
         }
 
-        public NavNode GetRandom()
+        public Node GetRandom()
         {
-            NavNode node = this[UnityEngine.Random.Range(0, m_Width), UnityEngine.Random.Range(0, m_Height)];
+            Node node = this[UnityEngine.Random.Range(0, m_Width), UnityEngine.Random.Range(0, m_Height)];
 
             while (!node.IsTraversible)
             {

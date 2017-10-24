@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Unit2 : MonoBehaviour
 {
-    [SerializeField] private Navigation.NavAgent m_NavAgent;
+    [SerializeField] private Agent m_Agent;
 
-    public NavAgent Agent
+    public Agent Agent
     {
         get
         {
-            return m_NavAgent;
+            return m_Agent;
         }
     }
 
@@ -18,8 +18,8 @@ public class Unit2 : MonoBehaviour
         Game_Manager.Instance.SelectUnit(this);
     }
 
-    public void MoveTo(NavNode targetNavNode)
+    public void MoveTo(Node targetNavNode)
     {
-        StartCoroutine(m_NavAgent.PathTo(targetNavNode));
+        StartCoroutine(m_Agent.PathTo(targetNavNode));
     }
 }
