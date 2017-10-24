@@ -6,10 +6,13 @@ using UnityEngine.UI;
 public class Unit : MonoBehaviour {
 
     public bool unitSelected;
+    [Multiline]
     public string unitName;
     public GameObject unitPrefab;
     public SlotItem slot1;
     public SlotItem slot2;
+    public enum UnitClass {Ranger, Knight, Rogue, Wizard, Cleric }
+    public UnitClass _unitClass;
 
     [Header("Stats")]
     public int _health; // Health of the unit
@@ -40,7 +43,7 @@ public class Unit : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+        unitName = _unitClass + "," + slot1.name + "," + slot2.name;
 	}
 
     public void UnitSelected()
@@ -51,5 +54,10 @@ public class Unit : MonoBehaviour {
     public void UnitDeselect()
     {
         unitSelected = false;
+    }
+
+    public void UnitSaveInfo()
+    {
+
     }
 }

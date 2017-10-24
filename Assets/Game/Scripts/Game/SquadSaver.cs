@@ -6,14 +6,19 @@ using UnityEditor;
 
 public class SquadSaver : MonoBehaviour {
 
-    public string squadDataTest;
+    public string squadData;
     public string fileName;
     public string _path;
     public string file;
     public bool overwrite;
 
+    public SquadBuilder builder;
+
+    private string newLine = "\r\n";
+
     private void Awake()
     {
+        builder = GetComponentInChildren<SquadBuilder>();
         _path = Application.persistentDataPath + "/" + "Squads";
     }
 
@@ -23,6 +28,11 @@ public class SquadSaver : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.S))
         {
             CreateSquad();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ReadSquadAndSave();
         }
 
         if (Input.GetKeyDown(KeyCode.D))
@@ -36,7 +46,8 @@ public class SquadSaver : MonoBehaviour {
          CheckDirectory();
         if (CheckFile())
         {
-            File.WriteAllText(file, squadDataTest);
+            //ReadSquadAndSave();
+            File.WriteAllText(file, squadData);
         }
     }
 
@@ -66,14 +77,22 @@ public class SquadSaver : MonoBehaviour {
     {
         if (!File.Exists(file))
         {
-            //Debug.Log("Creating file" + file);
+            Debug.Log("Creating file" + file);
             File.Create(file);
             return false;
         }
         else
         {
-            //Debug.Log("File Exists" + file);
+            Debug.Log("File Exists" + file);
             return true;
+        }
+    }
+
+     public void ReadSquadAndSave()
+    {
+        foreach (GameObject unit in builder.squadList)
+        {
+            squadData += unit.GetComponent<Unit>().unitName + newLine;
         }
     }
 }

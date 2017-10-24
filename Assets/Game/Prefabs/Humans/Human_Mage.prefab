@@ -1304,10 +1304,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitSelected: 0
   unitName: 
+  unitPrefab: {fileID: 0}
   slot1: {fileID: 11400000, guid: e5773234e108a7a47a0610dce5ae111e, type: 2}
   slot2: {fileID: 11400000, guid: 4a108a271c976e74ca773edfef225f77, type: 2}
-  classType: {fileID: 11400000, guid: c2eaada26e8b05249a38fa53a7fcb805, type: 2}
-  raceType: {fileID: 11400000, guid: f1c345524474ba2419855de6c3de249b, type: 2}
+  _unitClass: 3
   _health: 0
   _damage: 0
   _critChance: 0
