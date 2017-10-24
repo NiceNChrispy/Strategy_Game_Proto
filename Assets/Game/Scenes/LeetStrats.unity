@@ -1734,7 +1734,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44e7ab5bba199aa4a86545dc6565b03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Graph: {fileID: 156840027}
+  m_Map: {fileID: 0}
   m_MoveSpeed: 2
   m_TurnSpeed: 4
 --- !u!23 &1034271023
@@ -1814,7 +1814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f0786ef265c2b4aab38ffb1d0d73f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NavAgent: {fileID: 1034271022}
+  m_Agent: {fileID: 0}
 --- !u!114 &1034271028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2324,6 +2324,8 @@ MonoBehaviour:
   - {fileID: 1329281251123248, guid: 0a6bc5e7d590bd844978300931dd546c, type: 2}
   - {fileID: 1329281251123248, guid: ef03cc6f5c2374c4d8b282b0f5cb5e92, type: 2}
   path: 
+  saver: {fileID: 633240999}
+  builder: {fileID: 408587568}
 --- !u!1 &1177077177
 GameObject:
   m_ObjectHideFlags: 0
@@ -3829,7 +3831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f0786ef265c2b4aab38ffb1d0d73f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NavAgent: {fileID: 1659006369}
+  m_Agent: {fileID: 0}
 --- !u!114 &1659006369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3841,7 +3843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44e7ab5bba199aa4a86545dc6565b03f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Graph: {fileID: 156840027}
+  m_Map: {fileID: 0}
   m_MoveSpeed: 2
   m_TurnSpeed: 4
 --- !u!23 &1659006370

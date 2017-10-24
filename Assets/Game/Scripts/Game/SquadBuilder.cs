@@ -15,4 +15,10 @@ public class SquadBuilder : MonoBehaviour {
     {
 
     }
+
+    public void ClearSquad()
+    {
+        squadList.Clear();
+
+    }
 }
