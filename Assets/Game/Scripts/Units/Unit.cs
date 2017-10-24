@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
 public class Unit : MonoBehaviour {
 
     public bool unitSelected;
-    [Multiline]
+
+
     public string unitName;
+
     public GameObject unitPrefab;
-    public SlotItem slot1;
-    public SlotItem slot2;
+    //public SlotItem slot1;
+    //public SlotItem slot2;
     public enum UnitClass {Ranger, Knight, Rogue, Wizard, Cleric }
     public UnitClass _unitClass;
 
@@ -29,35 +32,21 @@ public class Unit : MonoBehaviour {
     // Use this for initialization
     void Awake ()
     {
-        _health += slot1._health + slot2._health;
-        _damage += slot1._health + slot2._health;
-        _critChance += slot1._CritChance + slot2._CritChance;
-        _movement += slot1._Movement + slot2._Movement;
-        _armour += slot1._Armour + slot2._Armour;
-        _sight += slot1._Sight + slot2._Sight;
-        _shield += slot1._Shield + slot2._Shield;
-        _resistMelee += slot1._ResistMelee + slot2._ResistMelee;
-        _resistRanged += slot1._ResistRanged + slot2._ResistRanged;
-        _resistMagic += slot1._ResistMagic + slot2._ResistMagic;
+        //_health += slot1._health + slot2._health;
+        //_damage += slot1._health + slot2._health;
+        //_critChance += slot1._CritChance + slot2._CritChance;
+        //_movement += slot1._Movement + slot2._Movement;
+        //_armour += slot1._Armour + slot2._Armour;
+        //_sight += slot1._Sight + slot2._Sight;
+        //_shield += slot1._Shield + slot2._Shield;
+        //_resistMelee += slot1._ResistMelee + slot2._ResistMelee;
+        //_resistRanged += slot1._ResistRanged + slot2._ResistRanged;
+        //_resistMagic += slot1._ResistMagic + slot2._ResistMagic;
     }
 	
 	// Update is called once per frame
 	void Update () {
-        unitName = _unitClass + "," + slot1.name + "," + slot2.name;
-	}
-
-    public void UnitSelected()
-    {
-        unitSelected = true;
-    }
-
-    public void UnitDeselect()
-    {
-        unitSelected = false;
-    }
-
-    public void UnitSaveInfo()
-    {
-
+        //unitName = _unitClass + "," + slot1.name + "," + slot2.name;
+        unitName = _unitClass.ToString();
     }
 }

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Spawner : MonoBehaviour {
+public class SquadLoader : MonoBehaviour {
 
-    public Unit baseUnit;
+    public GameObject[] characterPrefabs;
+
+    public string path;
+
+    SquadSaver saver;
 
     // Use this for initialization
     void Start () {
@@ -17,4 +21,8 @@ public class Spawner : MonoBehaviour {
 		
 	}
 
+    public void LoadSquad()
+    {
+
+    }
 }

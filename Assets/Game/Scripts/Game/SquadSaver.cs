@@ -6,7 +6,6 @@ using UnityEditor;
 
 public class SquadSaver : MonoBehaviour {
 
-    public string squadData;
     public string fileName;
     public string _path;
     public string file;
@@ -14,23 +13,19 @@ public class SquadSaver : MonoBehaviour {
 
     public SquadBuilder builder;
 
-    private string newLine = "\r\n";
-
     private void Awake()
     {
-        builder = GetComponentInChildren<SquadBuilder>();
         _path = Application.persistentDataPath + "/" + "Squads";
+        file = _path + "/" + fileName + ".txt";
+        CheckDirectory();
+        CheckFile();
     }
 
     private void Update()
     {
         file = _path + "/" + fileName + ".txt";
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            CreateSquad();
-        }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.S))
         {
             ReadSquadAndSave();
         }
@@ -38,16 +33,6 @@ public class SquadSaver : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.D))
         {
             DeleteFile();
-        }
-    }
-
-    public void CreateSquad()
-    {
-         CheckDirectory();
-        if (CheckFile())
-        {
-            //ReadSquadAndSave();
-            File.WriteAllText(file, squadData);
         }
     }
 
@@ -90,9 +75,18 @@ public class SquadSaver : MonoBehaviour {
 
      public void ReadSquadAndSave()
     {
-        foreach (GameObject unit in builder.squadList)
+        //Debug.Log("Knobs");
+        StreamWriter sw;
+        sw = new StreamWriter(file, true);
+        if (builder.squadList != null)
         {
-            squadData += unit.GetComponent<Unit>().unitName + newLine;
+            foreach (Unit unit in builder.squadList)
+            {
+                //print("Bitches");
+                sw.WriteLine(JsonUtility.ToJson(unit));
+                //print(JsonUtility.ToJson(unit));
+            }
         }
+        sw.Close();
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SquadBuilder : MonoBehaviour {
 
-    public List<GameObject> squadList;
+    public List<Unit> squadList;
 
     public void GetSavedSquad()
     {
