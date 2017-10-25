@@ -3,19 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum UnitClass {Ranger, Knight, Rogue, Wizard, Cleric }
+
 [System.Serializable]
-public class Unit : MonoBehaviour {
-
-    public bool unitSelected;
-
-
-    public string unitName;
-
-    public GameObject unitPrefab;
-    //public SlotItem slot1;
-    //public SlotItem slot2;
-    public enum UnitClass {Ranger, Knight, Rogue, Wizard, Cleric }
-    public UnitClass _unitClass;
+public class UnitData
+{
+    public UnitClass _class;
 
     [Header("Stats")]
     public int _health; // Health of the unit
@@ -28,10 +21,35 @@ public class Unit : MonoBehaviour {
     public int _resistMelee; //Resistance against melee attacks
     public int _resistRanged; //Resistance against ranged attacks
     public int _resistMagic; //Resistance against magic attacks
+}
 
-    // Use this for initialization
-    void Awake ()
+[System.Serializable]
+public class Unit : MonoBehaviour
+{
+    public bool unitSelected;
+    public string unitName;
+
+    public GameObject unitPrefab;
+    //public SlotItem slot1;
+    //public SlotItem slot2;
+
+    private UnitData m_UnitData;
+    public UnitData UnitData
     {
+        get
+        {
+            return m_UnitData;
+        }
+
+        set
+        {
+            m_UnitData = value;
+        }
+    }
+
+    void Awake()
+    {
+        m_UnitData = new UnitData() { _class = (UnitClass)Random.Range(0,5), _armour = 10, _critChance = 0.2f, _health = 100, _movement = 2 };
         //_health += slot1._health + slot2._health;
         //_damage += slot1._health + slot2._health;
         //_critChance += slot1._CritChance + slot2._CritChance;
@@ -44,9 +62,9 @@ public class Unit : MonoBehaviour {
         //_resistMagic += slot1._ResistMagic + slot2._ResistMagic;
     }
 	
-	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
         //unitName = _unitClass + "," + slot1.name + "," + slot2.name;
-        unitName = _unitClass.ToString();
+        unitName = UnitData._class.ToString();
     }
 }

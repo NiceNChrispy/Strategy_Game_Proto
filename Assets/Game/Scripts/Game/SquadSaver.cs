@@ -27,7 +27,7 @@ public class SquadSaver : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            ReadSquadAndSave();
+            Save();
         }
 
         if (Input.GetKeyDown(KeyCode.D))
@@ -74,20 +74,18 @@ public class SquadSaver : MonoBehaviour {
     }
 
     [NaughtyAttributes.Button("SAVE SQUAD")]
-    public void ReadSquadAndSave()
+    public void Save()
     {
-        //Debug.Log("Knobs");
-        StreamWriter sw;
-        sw = new StreamWriter(file, true);
+        StreamWriter streamWriter;
+        streamWriter = new StreamWriter(file, true);
+
         if (builder.squadList != null)
         {
             foreach (Unit unit in builder.squadList)
             {
-                //print("Bitches");
-                sw.WriteLine(JsonUtility.ToJson(unit));
-                //print(JsonUtility.ToJson(unit));
+                streamWriter.WriteLine(JsonUtility.ToJson(unit.UnitData));
             }
         }
-        sw.Close();
+        streamWriter.Close();
     }
 }

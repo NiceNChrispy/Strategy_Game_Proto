@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using System.IO;
+using System;
 
 public class SquadLoader : MonoBehaviour {
 
-    public GameObject[] characterPrefabs;
+    public Unit[] unitPrefabs;
 
     //public List<string> squad;
 
@@ -24,21 +22,33 @@ public class SquadLoader : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            LoadSquad();
+            Load();
         }
 	}
 
     [NaughtyAttributes.Button("LOAD SQUAD")]
-    public void LoadSquad()
+    public void Load()
     {
         builder.ClearSquad();
-        StreamReader sr;
+        StreamReader streamReader;
         //sr = new StreamReader(path + "/" + fileName + ".txt");
-        sr = new StreamReader(saver.file);
-        for (int i = 0; i < 7; i++)
+        streamReader = new StreamReader(saver.file);
+
+        string fileData = streamReader.ReadToEnd();
+        string[] squadData = fileData.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+        for (int i = 0; i < squadData.Length; i++)
         {
-            Unit temp = JsonUtility.FromJson<Unit>(sr.ReadLine());
-            builder.squadList.Add(temp);
+            if(squadData[i] != string.Empty)
+            {
+                UnitData unitData = JsonUtility.FromJson<UnitData>(squadData[i]);
+                Unit temp = Instantiate(unitPrefabs[(int)unitData._class]);
+                builder.squadList.Add(temp);
+                Debug.Log(string.Format("LOADED {0} SUCCESSFULLY", unitData._class.ToString()));
+            }
         }
+        streamReader.Close();
+
+        Debug.Log((string.Format("{0} UNITS LOADED INTO SQUAD", builder.squadList.Count)));
     }
 }
