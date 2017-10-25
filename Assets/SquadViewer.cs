@@ -29,6 +29,6 @@ public class SquadViewer : MonoBehaviour {
     [NaughtyAttributes.Button("Next")]
     public void CharacterSelect(float value)
     {
-        iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo", "loopType", "pingPong", "delay", .1));
+        iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo", "delay", .1));
     }
 }
