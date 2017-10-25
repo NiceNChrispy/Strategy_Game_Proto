@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SquadViewer : MonoBehaviour {
 
@@ -8,18 +9,25 @@ public class SquadViewer : MonoBehaviour {
     public float _angle = 360 / 7;
     public int activeUnit;
 
-    [ReadOnly]
-    public int squad; 
+    public Button[] navButtons;
 
 	// Use this for initialization
 	void Start () {
         Setup();
-        squad = squadViewerPos.Length;
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
+        if (iTween.Count() > 0)
+        {
+            navButtons[0].interactable = false;
+            navButtons[1].interactable = false;
+        }
+        else
+        {
+            navButtons[0].interactable = true;
+            navButtons[1].interactable = true;
+        }
 	}
 
     public void Setup()

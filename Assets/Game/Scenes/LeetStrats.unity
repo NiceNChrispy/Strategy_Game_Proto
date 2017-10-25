@@ -4050,6 +4050,10 @@ MonoBehaviour:
   - {fileID: 1174006136}
   - {fileID: 1171726043}
   _angle: 51
+  activeUnit: 0
+  navButtons:
+  - {fileID: 1806010507}
+  - {fileID: 1053681438}
 --- !u!1 &1863605829
 GameObject:
   m_ObjectHideFlags: 0
