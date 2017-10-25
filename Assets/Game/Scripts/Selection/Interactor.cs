@@ -25,11 +25,14 @@ public class Interactor : Singleton<Interactor>
     public void UpdateSelection()
     {
         RaycastHit hit;
-        Vector3 direction = m_Camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1.0f)) - transform.position;
+        Vector3 direction = m_Camera.orthographic ? m_Camera.transform.forward :
+                            m_Camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_Camera.nearClipPlane)) - transform.position;
 
-        if (Physics.Raycast(transform.position, direction, out hit, m_Range, m_Layer))
+        Vector3 position = m_Camera.orthographic ? m_Camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_Camera.nearClipPlane)) : transform.position;
+
+        if (Physics.Raycast(position, direction, out hit, m_Range, m_Layer))
         {
-            Debug.DrawLine(transform.position, hit.point, Color.green);
+            Debug.DrawLine(position, hit.point, Color.green);
 
             if (hit.collider != m_PreviousCollider)
             {
@@ -46,7 +49,7 @@ public class Interactor : Singleton<Interactor>
         {
             ClearCurrent();
             m_PreviousCollider = null;
-            Debug.DrawRay(transform.position, direction * m_Range, Color.red);
+            Debug.DrawRay(position, direction * m_Range, Color.red);
         }
 
         if (Input.GetMouseButtonDown(0) && Current)
