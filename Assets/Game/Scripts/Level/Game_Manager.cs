@@ -12,28 +12,41 @@ public class Game_Manager : Singleton<Game_Manager>
 
     Unit2 m_SelectedUnit;
     HexTile m_SelectedTile;
+    HexTile m_TileUnderCursor;
+
+    bool hasOrder;
 
     public void SelectUnit(Unit2 unit)
     {
         if (unit != m_SelectedUnit)
         {
+            hasOrder = false;
             m_SelectedUnit = unit;
             m_HighlighterTransform.gameObject.SetActive(true);
             m_HighlighterTransform.position = unit.transform.position + (Vector3.up * 0.01f);
         }
     }
 
-    public void TargetTile(HexTile tile)
+    public void UpdateTileUnderCursor(HexTile tile)
     {
-        if (m_SelectedUnit && tile != m_SelectedTile)
+        if (m_SelectedUnit && tile != m_TileUnderCursor)
         {
-            m_SelectedTile = tile;
+            m_TileUnderCursor = tile;
+            TargetTile();
+        }
+    }
 
-            Node unitNode = m_SelectedUnit.Agent.ActiveNode;
-            Node tileNode = m_NavMap[tile.X, tile.Y];
+    void TargetTile()
+    {
+        m_SelectedTile = m_TileUnderCursor;
 
-            m_NavMap.IndexOf(tileNode);
+        Node unitNode = m_SelectedUnit.Agent.ActiveNode;
+        Node tileNode = m_NavMap[m_SelectedTile.X, m_SelectedTile.Y];
 
+        m_NavMap.IndexOf(tileNode);
+
+        if (!hasOrder)
+        {
             Path path = m_NavMap.GetPath(unitNode, tileNode);
 
             if (path != null)
@@ -45,14 +58,14 @@ public class Game_Manager : Singleton<Game_Manager>
                     m_LineRenderer.SetPosition(i, path[i].Position + (Vector3.up * 0.01f));
                 }
             }
-
-            m_TileTargeterTransform.gameObject.SetActive(true);
-            m_TileTargeterTransform.position = m_SelectedTile.transform.position;
-
-            m_HighlighterTransform.gameObject.SetActive(false);
-
-            m_LineRenderer.enabled = true;
         }
+
+        m_TileTargeterTransform.gameObject.SetActive(true);
+        m_TileTargeterTransform.position = m_SelectedTile.transform.position;
+
+        m_HighlighterTransform.gameObject.SetActive(false);
+
+        m_LineRenderer.enabled = true;
     }
 
     public void TileAction(HexTile tile)
@@ -60,14 +73,52 @@ public class Game_Manager : Singleton<Game_Manager>
         if(m_SelectedUnit)
         {
             m_SelectedUnit.MoveTo(m_NavMap[tile.X, tile.Y]);
+            hasOrder = true;
+            m_SelectedUnit.Agent.OnPathingFinished += ClearOrder;
         }
     }
 
     public void Update()
     {
-        if(m_SelectedUnit != null && m_SelectedUnit.Agent.HasPath)
+        if(m_SelectedUnit != null && hasOrder)
         {
-            
+            DrawUnitPath();
+        }
+    }
+
+    private void ClearOrder()
+    {
+        hasOrder = false;
+        TargetTile();
+    }
+
+    public void DrawUnitPath()
+    {
+        if (!m_SelectedUnit.Agent.HasPath)
+        {
+            return;
+        }
+
+        Path unitPath = m_SelectedUnit.Agent.Path;
+
+        int startIndex = 0;
+
+        for (int i = 0; i < unitPath.Count; i++)
+        {
+            if(unitPath[i] == m_SelectedUnit.Agent.NextNode)
+            {
+                startIndex = i;
+                break;
+            }
+        }
+
+        m_LineRenderer.positionCount = unitPath.Count - startIndex + 1;
+
+        m_LineRenderer.SetPosition(0, m_SelectedUnit.transform.position + (Vector3.up * 0.01f));
+
+        for (int i = startIndex; i < unitPath.Count; i++)
+        {
+            m_LineRenderer.SetPosition(i - startIndex + 1, unitPath[i].Position + (Vector3.up * 0.01f));
         }
     }
 }

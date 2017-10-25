@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Interactor : MonoBehaviour
+public class Interactor : Singleton<Interactor>
 {
     [SerializeField] private float m_Range = 2.5f;
     [SerializeField] private LayerMask m_Layer;
@@ -17,7 +17,12 @@ public class Interactor : MonoBehaviour
 
     private Collider m_PreviousCollider;
 
-    public void Update()
+    private void Update()
+    {
+        UpdateSelection();   
+    }
+
+    public void UpdateSelection()
     {
         RaycastHit hit;
         Vector3 direction = m_Camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1.0f)) - transform.position;

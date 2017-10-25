@@ -39,7 +39,7 @@ public class HexTile : MonoBehaviour
 
     public void Select()
     {
-        Game_Manager.Instance.TargetTile(this);
+        Game_Manager.Instance.UpdateTileUnderCursor(this);
     }
 
     public void Interact()

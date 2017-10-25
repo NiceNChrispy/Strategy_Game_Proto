@@ -32,6 +32,13 @@ namespace Navigation
                 return m_ActiveNode;
             }
         }
+        public Node NextNode
+        {
+            get
+            {
+                return m_NextNode;
+            }
+        }
 
         public float StepCompletionPercent
         {
@@ -42,6 +49,14 @@ namespace Navigation
                     return Mathf.InverseLerp(m_ActiveNode.Position.sqrMagnitude, m_NextNode.Position.sqrMagnitude, transform.position.sqrMagnitude);
                 }
                 return 0;
+            }
+        }
+
+        public Path Path
+        {
+            get
+            {
+                return m_Path;
             }
         }
 
