@@ -81,10 +81,10 @@ namespace Navigation
         [NaughtyAttributes.Button("Path To Random")]
         private void Debug_PathToRandom()
         {
-            StartCoroutine(PathTo(m_Map.GetRandom()));
+            StartCoroutine(PathTo(m_Map.GetRandom(), delegate {}));
         }
 
-        public IEnumerator PathTo(Node targetNode)
+        public IEnumerator PathTo(Node targetNode, Action callback)
         {
             if (targetNode == null)
             {
@@ -121,6 +121,7 @@ namespace Navigation
                 m_ActiveNode.IsTraversible = false;
             }
             OnPathingFinished.Invoke();
+            callback.Invoke();
         }
 
         IEnumerator Move(Vector3 position)

@@ -1,4 +1,5 @@
 ﻿using Navigation;
+using System;
 using UnityEngine;
 
 public class Unit2 : MonoBehaviour
@@ -18,8 +19,8 @@ public class Unit2 : MonoBehaviour
         Game_Manager.Instance.SelectUnit(this);
     }
 
-    public void MoveTo(Node targetNavNode)
+    public void MoveTo(Node targetNavNode, Action callback)
     {
-        StartCoroutine(m_Agent.PathTo(targetNavNode));
+        StartCoroutine(m_Agent.PathTo(targetNavNode, callback));
     }
 }

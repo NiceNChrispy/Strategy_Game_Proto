@@ -46,4 +46,9 @@ public class HexTile : MonoBehaviour
     {
         Game_Manager.Instance.TileAction(this);
     }
+
+    public void Deselect()
+    {
+        Game_Manager.Instance.ClearTile();
+    }
 }

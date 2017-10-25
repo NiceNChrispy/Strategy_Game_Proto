@@ -10,9 +10,9 @@ public class Game_Manager : Singleton<Game_Manager>
     [SerializeField] private LineRenderer m_LineRenderer;
     [SerializeField] private Map m_NavMap;
 
-    Unit2 m_SelectedUnit;
-    HexTile m_SelectedTile;
-    HexTile m_TileUnderCursor;
+    [SerializeField] Unit2 m_SelectedUnit;
+    [SerializeField] HexTile m_SelectedTile;
+    [SerializeField] HexTile m_TileUnderCursor;
 
     bool hasOrder;
 
@@ -36,8 +36,22 @@ public class Game_Manager : Singleton<Game_Manager>
         }
     }
 
+    public void ClearTile()
+    {
+        m_SelectedTile = null;
+        m_TileUnderCursor = null;
+
+        m_TileTargeterTransform.gameObject.SetActive(false);
+
+        if(!hasOrder)
+        {
+            m_LineRenderer.positionCount = 0;
+        }
+    }
+
     void TargetTile()
     {
+        bool isNull = m_SelectedTile == null;
         m_SelectedTile = m_TileUnderCursor;
 
         Node unitNode = m_SelectedUnit.Agent.ActiveNode;
@@ -58,13 +72,11 @@ public class Game_Manager : Singleton<Game_Manager>
                     m_LineRenderer.SetPosition(i, path[i].Position + (Vector3.up * 0.01f));
                 }
             }
+            m_TileTargeterTransform.gameObject.SetActive(true);
+            m_TileTargeterTransform.position = m_SelectedTile.transform.position;
         }
 
-        m_TileTargeterTransform.gameObject.SetActive(true);
-        m_TileTargeterTransform.position = m_SelectedTile.transform.position;
-
         m_HighlighterTransform.gameObject.SetActive(false);
-
         m_LineRenderer.enabled = true;
     }
 
@@ -72,9 +84,10 @@ public class Game_Manager : Singleton<Game_Manager>
     {
         if(m_SelectedUnit)
         {
-            m_SelectedUnit.MoveTo(m_NavMap[tile.X, tile.Y]);
+            m_SelectedUnit.MoveTo(m_NavMap[tile.X, tile.Y], ClearOrder);
             hasOrder = true;
-            m_SelectedUnit.Agent.OnPathingFinished += ClearOrder;
+            m_HighlighterTransform.gameObject.SetActive(false);
+            m_TileTargeterTransform.gameObject.SetActive(false);
         }
     }
 
