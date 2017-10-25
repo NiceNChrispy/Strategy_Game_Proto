@@ -24,11 +24,12 @@ public class SquadLoader : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            LoadSquad("Butts");
+            LoadSquad();
         }
 	}
 
-    public void LoadSquad(string fileName)
+    [NaughtyAttributes.Button("LOAD SQUAD")]
+    public void LoadSquad()
     {
         builder.ClearSquad();
         StreamReader sr;

@@ -73,7 +73,8 @@ public class SquadSaver : MonoBehaviour {
         }
     }
 
-     public void ReadSquadAndSave()
+    [NaughtyAttributes.Button("SAVE SQUAD")]
+    public void ReadSquadAndSave()
     {
         //Debug.Log("Knobs");
         StreamWriter sw;
