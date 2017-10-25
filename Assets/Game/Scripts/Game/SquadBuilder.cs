@@ -10,12 +10,12 @@ public class SquadBuilder : MonoBehaviour {
 
     public Unit[] unitPrefabs;
 
-    public GameObject[] squadViewerPos;
-
     public string fileName;
     public string _path;
     public string file;
     public bool overwrite;
+
+    public SquadViewer squadViewer;
 
     private void Awake()
     {
@@ -84,9 +84,11 @@ public class SquadBuilder : MonoBehaviour {
         {
             if (squadData[i] != string.Empty)
             {
-                Vector3 spawn = new Vector3(squadViewerPos[i].transform.position.x, squadViewerPos[i].transform.position.y, squadViewerPos[i].transform.position.z);
+                Vector3 spawn = new Vector3(squadViewer.squadViewerPos[i].transform.position.x, squadViewer.squadViewerPos[i].transform.position.y, squadViewer.squadViewerPos[i].transform.position.z);
                 UnitData unitData = JsonUtility.FromJson<UnitData>(squadData[i]);
-                Unit temp = Instantiate(unitPrefabs[(int)unitData._class], spawn, Quaternion.identity);
+                Unit temp = Instantiate(unitPrefabs[(int)unitData._class], spawn, Quaternion.identity, squadViewer.gameObject.transform);
+                temp.gameObject.transform.rotation = new Quaternion(temp.gameObject.transform.rotation.x, temp.gameObject.transform.rotation.y + 180, temp.gameObject.transform.rotation.z, 0);
+                temp.gameObject.transform.localScale *= 5;
                 squadList.Add(temp);
                 Debug.Log(string.Format("LOADED {0} SUCCESSFULLY", unitData._class.ToString()));
             }
