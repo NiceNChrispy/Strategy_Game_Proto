@@ -32,6 +32,7 @@ public class Unit : MonoBehaviour
     public GameObject unitPrefab;
     //public SlotItem slot1;
     //public SlotItem slot2;
+    [SerializeField]
 
     private UnitData m_UnitData;
     public UnitData UnitData
@@ -49,7 +50,7 @@ public class Unit : MonoBehaviour
 
     void Awake()
     {
-        m_UnitData = new UnitData() { _class = (UnitClass)Random.Range(0,5), _armour = 10, _critChance = 0.2f, _health = 100, _movement = 2 };
+        //m_UnitData = new UnitData() { _class = (UnitClass)Random.Range(0,5), _armour = 10, _critChance = 0.2f, _health = 100, _movement = 2 };
         //_health += slot1._health + slot2._health;
         //_damage += slot1._health + slot2._health;
         //_critChance += slot1._CritChance + slot2._CritChance;

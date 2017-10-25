@@ -1305,17 +1305,18 @@ MonoBehaviour:
   unitSelected: 0
   unitName: Knight
   unitPrefab: {fileID: 0}
-  _unitClass: 1
-  _health: 0
-  _damage: 0
-  _critChance: 0
-  _movement: 0
-  _armour: 0
-  _sight: 0
-  _shield: 0
-  _resistMelee: 0
-  _resistRanged: 0
-  _resistMagic: 0
+  m_UnitData:
+    _class: 1
+    _health: 0
+    _damage: 0
+    _critChance: 0
+    _movement: 0
+    _armour: 0
+    _sight: 0
+    _shield: 0
+    _resistMelee: 0
+    _resistRanged: 0
+    _resistMagic: 0
 --- !u!137 &137800793813256842
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
