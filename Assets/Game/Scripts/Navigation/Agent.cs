@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Navigation
@@ -12,7 +11,9 @@ namespace Navigation
         [SerializeField] private float m_TurnSpeed;
 
         Node m_ActiveNode;
-        List<Node> m_Path;
+        Node m_NextNode;
+
+        Path m_Path;
 
         public event Action OnStepComplete = delegate { };
         public event Action OnPathUpdated = delegate { };
@@ -29,6 +30,18 @@ namespace Navigation
             get
             {
                 return m_ActiveNode;
+            }
+        }
+
+        public float StepCompletionPercent
+        {
+            get
+            {
+                if (HasPath)
+                {
+                    return Mathf.InverseLerp(m_ActiveNode.Position.sqrMagnitude, m_NextNode.Position.sqrMagnitude, transform.position.sqrMagnitude);
+                }
+                return 0;
             }
         }
 
@@ -50,21 +63,20 @@ namespace Navigation
             }
         }
 
-        private void Update()
+        [NaughtyAttributes.Button("Path To Random")]
+        private void Debug_PathToRandom()
         {
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                StartCoroutine(PathTo(m_Map.GetRandom()));
-            }
+            StartCoroutine(PathTo(m_Map.GetRandom()));
         }
 
         public IEnumerator PathTo(Node targetNode)
         {
-            if(targetNode == null)
+            if (targetNode == null)
             {
                 Debug.LogError("Target node is null");
                 yield break;
             }
+
             m_Path = m_Map.GetPath(m_ActiveNode, targetNode);
 
             if (!HasPath)
@@ -77,18 +89,19 @@ namespace Navigation
 
             for (int i = 0; i < m_Path.Count; i++)
             {
-                Vector3 vector = m_Path[i].Position - m_ActiveNode.Position;
+                m_NextNode = m_Path[i];
+                Vector3 vector = m_NextNode.Position - m_ActiveNode.Position;
                 Vector3 direction = vector.normalized;
 
-                if (m_ActiveNode != m_Path[i] && transform.forward != direction)
+                if (m_ActiveNode != m_NextNode && transform.forward != direction)
                 {
                     yield return StartCoroutine(Turn(direction));
                 }
 
-                yield return StartCoroutine(Move(m_Path[i].Position));
+                yield return StartCoroutine(Move(m_NextNode.Position));
 
                 m_ActiveNode.IsTraversible = true;
-                m_ActiveNode = m_Path[i];
+                m_ActiveNode = m_NextNode;
                 OnStepComplete.Invoke();
                 m_ActiveNode.IsTraversible = false;
             }
@@ -122,11 +135,11 @@ namespace Navigation
             }
         }
 
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.black;
 
-            if (HasPath)
+            if (m_Path != null)
             {
                 for (int i = 0; i < m_Path.Count - 1; i++)
                 {
@@ -134,7 +147,7 @@ namespace Navigation
                 }
                 for (int i = 0; i < m_Path.Count; i++)
                 {
-                    Gizmos.DrawSphere(m_Path[i].Position, 0.2f);
+                    Gizmos.DrawSphere(m_Path[i].Position, 0.15f);
                 }
             }
         }

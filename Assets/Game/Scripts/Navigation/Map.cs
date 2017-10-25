@@ -164,10 +164,12 @@ namespace Navigation
 
                         if (!node.IsTraversible)
                         {
+                            Gizmos.color = Color.gray;
+                            Gizmos.DrawSphere(node.Position, 0.1f);
                             continue;
                         }
-
-                        Gizmos.DrawSphere(node.Position, 0.2f);
+                        Gizmos.color = Color.white;
+                        Gizmos.DrawSphere(node.Position, 0.1f);
 
                         Node[] neighbours = GetConnected(x, y);
 
@@ -183,7 +185,7 @@ namespace Navigation
             }
         }
 
-        public List<Node> GetPath(int xFrom, int yFrom, int xTo, int yTo)
+        public Path GetPath(int xFrom, int yFrom, int xTo, int yTo)
         {
             Node fromNode = this[xFrom, yFrom];
             Node toNode = this[xTo, yTo];
@@ -191,14 +193,14 @@ namespace Navigation
             return GetPath(fromNode, toNode);
         }
 
-        public List<Node> GetPath(Node fromNode, Node toNode)
+        public Path GetPath(Node fromNode, Node toNode)
         {
             Heap<Node> openSet = new Heap<Node>(m_Width * m_Height);
             HashSet<Node> closedSet = new HashSet<Node>();
 
             openSet.Add(fromNode);
 
-            List<Node> path = new List<Node>();
+            Path path = new Path();
 
             while (openSet.Count > 0)
             {
@@ -240,9 +242,9 @@ namespace Navigation
             return null;
         }
 
-        List<Node> RetracePath(Node startNode, Node endNode)
+        Path RetracePath(Node startNode, Node endNode)
         {
-            List<Node> path = new List<Node>();
+            Path path = new Path();
             Node currentNode = endNode;
 
             while (currentNode != startNode)

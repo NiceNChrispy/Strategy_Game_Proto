@@ -8,7 +8,7 @@ public class Game_Manager : Singleton<Game_Manager>
     [SerializeField] private Transform m_HighlighterTransform;
     [SerializeField] private Transform m_TileTargeterTransform;
     [SerializeField] private LineRenderer m_LineRenderer;
-    [SerializeField] private Map m_NavGraph;
+    [SerializeField] private Map m_NavMap;
 
     Unit2 m_SelectedUnit;
     HexTile m_SelectedTile;
@@ -30,11 +30,11 @@ public class Game_Manager : Singleton<Game_Manager>
             m_SelectedTile = tile;
 
             Node unitNode = m_SelectedUnit.Agent.ActiveNode;
-            Node tileNode = m_NavGraph[tile.X, tile.Y];
+            Node tileNode = m_NavMap[tile.X, tile.Y];
 
-            m_NavGraph.IndexOf(tileNode);
+            m_NavMap.IndexOf(tileNode);
 
-            List<Node> path = m_NavGraph.GetPath(unitNode, tileNode);
+            Path path = m_NavMap.GetPath(unitNode, tileNode);
 
             if (path != null)
             {
@@ -59,7 +59,7 @@ public class Game_Manager : Singleton<Game_Manager>
     {
         if(m_SelectedUnit)
         {
-            m_SelectedUnit.MoveTo(m_NavGraph[tile.X, tile.Y]);
+            m_SelectedUnit.MoveTo(m_NavMap[tile.X, tile.Y]);
         }
     }
 
