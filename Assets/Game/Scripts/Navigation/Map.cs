@@ -263,15 +263,16 @@ namespace Navigation
         {
             Vector2Int fromIndex = IndexOf(from);
             Vector2Int toIndex =   IndexOf(to);
-
-            int dstX = Mathf.Abs(fromIndex.x - toIndex.x);
-            int dstY = Mathf.Abs(fromIndex.y - toIndex.y);
-
-            if (dstX >= dstY)
-            {
-                return 1.4f * dstY + (dstX - dstY);
-            }
-            return 1.4f * dstX + (dstY - dstX);
+            return Vector2Int.Distance(fromIndex, toIndex) * 10;
+            //
+            //int dstX = Mathf.Abs(fromIndex.x - toIndex.x);
+            //int dstY = Mathf.Abs(fromIndex.y - toIndex.y);
+            //
+            //if (dstX >= dstY)
+            //{
+            //    return 1.4f * dstY + (dstX - dstY);
+            //}
+            //return 1.4f * dstX + (dstY - dstX);
         }
 
         public Node GetRandom()

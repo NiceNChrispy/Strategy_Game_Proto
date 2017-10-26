@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class HexTile : MonoBehaviour
 {
     [SerializeField] private int x, y;
+    [SerializeField] private TextMesh m_Cost;
 
     public int X
     {
@@ -50,5 +52,10 @@ public class HexTile : MonoBehaviour
     public void Deselect()
     {
         Game_Manager.Instance.ClearTile();
+    }
+
+    private void Update()
+    {
+        m_Cost.text = Game_Manager.Instance.GetCost(X, Y);
     }
 }

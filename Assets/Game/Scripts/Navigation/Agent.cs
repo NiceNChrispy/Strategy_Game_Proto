@@ -64,7 +64,7 @@ namespace Navigation
         {
             transform.parent = m_Map.transform;
 
-            m_ActiveNode = m_Map[1, 1];
+            m_ActiveNode = m_Map[3, 3];
             m_ActiveNode.IsTraversible = false;
 
             if (m_ActiveNode == null)

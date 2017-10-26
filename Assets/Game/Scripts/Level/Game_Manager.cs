@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Navigation;
+using System;
 
 public class Game_Manager : Singleton<Game_Manager>
 {
@@ -34,6 +35,11 @@ public class Game_Manager : Singleton<Game_Manager>
             m_TileUnderCursor = tile;
             TargetTile();
         }
+    }
+
+    internal string GetCost(int x, int y)
+    {
+        return m_NavMap[x, y].FCost.ToString("F1");
     }
 
     public void ClearTile()
