@@ -1,31 +1,59 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Navigation
 {
-    public class Node : IHeapItem<Node>
+    [Serializable]
+    public class Node<T> : IHeapItem<Node<T>> where T : IComparable<T>
     {
-        public Vector3 Position;
-        public float GCost;
-        public float HCost;
-        public bool IsTraversible;
-
-        public float FCost { get { return GCost + HCost; } }
+        public T Data;
         public int HeapIndex
         {
             get;
             set;
         }
 
-        public Node Parent;
-
-        public int CompareTo(Node other)
+        public List<Node<T>> Connections
         {
-            int compare = FCost.CompareTo(other.FCost);
-            if (compare == 0)
+            get
             {
-                compare = HCost.CompareTo(other.HCost);
+                return connections;
             }
-            return -compare;
+
+            set
+            {
+                connections = value;
+            }
+        }
+        private List<Node<T>> connections;
+
+        public Node(T data)
+        {
+            CheckConnections();
+            Data = data;
+        }
+
+        void CheckConnections()
+        {
+            if(Connections == null)
+            {
+                Connections = new List<Node<T>>();
+            }
+        }
+
+        public virtual void AddConnection(Node<T> connection)
+        {
+            Connections.Add(connection);
+        }
+
+        public virtual void AddConnections(List<Node<T>> connections)
+        {
+            Connections.AddRange(connections);
+        }
+
+        public int CompareTo(Node<T> other)
+        {
+            return Data.CompareTo(other.Data);
         }
     }
 }

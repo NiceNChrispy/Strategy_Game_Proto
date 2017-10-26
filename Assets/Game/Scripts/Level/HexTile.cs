@@ -56,6 +56,6 @@ public class HexTile : MonoBehaviour
 
     private void Update()
     {
-        m_Cost.text = Game_Manager.Instance.GetCost(X, Y);
+        //m_Cost.text = Game_Manager.Instance.GetCost(X, Y);
     }
 }

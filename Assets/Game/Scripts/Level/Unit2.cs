@@ -19,7 +19,7 @@ public class Unit2 : MonoBehaviour
         Game_Manager.Instance.SelectUnit(this);
     }
 
-    public void MoveTo(Node targetNavNode, Action callback)
+    public void MoveTo(AStarNode targetNavNode, Action callback)
     {
         StartCoroutine(m_Agent.PathTo(targetNavNode, callback));
     }

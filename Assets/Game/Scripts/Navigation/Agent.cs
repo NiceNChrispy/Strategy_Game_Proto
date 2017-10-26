@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Navigation
@@ -10,10 +11,10 @@ namespace Navigation
         [SerializeField] private float m_MoveSpeed;
         [SerializeField] private float m_TurnSpeed;
 
-        Node m_ActiveNode;
-        Node m_NextNode;
+        AStarNode m_ActiveNode;
+        AStarNode m_NextNode;
 
-        Path m_Path;
+        List<AStarNode> m_Path;
 
         public event Action OnStepComplete = delegate { };
         public event Action OnPathUpdated = delegate { };
@@ -25,14 +26,14 @@ namespace Navigation
             get { return m_Path != null && m_Path.Count > 1; }
         }
 
-        public Node ActiveNode
+        public AStarNode ActiveNode
         {
             get
             {
                 return m_ActiveNode;
             }
         }
-        public Node NextNode
+        public AStarNode NextNode
         {
             get
             {
@@ -46,13 +47,13 @@ namespace Navigation
             {
                 if (HasPath)
                 {
-                    return Mathf.InverseLerp(m_ActiveNode.Position.sqrMagnitude, m_NextNode.Position.sqrMagnitude, transform.position.sqrMagnitude);
+                    return Mathf.InverseLerp(m_ActiveNode.Data.Position.sqrMagnitude, m_NextNode.Data.Position.sqrMagnitude, transform.position.sqrMagnitude);
                 }
                 return 0;
             }
         }
 
-        public Path Path
+        public List<AStarNode> Path
         {
             get
             {
@@ -65,7 +66,7 @@ namespace Navigation
             transform.parent = m_Map.transform;
 
             m_ActiveNode = m_Map[3, 3];
-            m_ActiveNode.IsTraversible = false;
+            m_ActiveNode.Data.IsTraversible = false;
 
             if (m_ActiveNode == null)
             {
@@ -74,7 +75,7 @@ namespace Navigation
             }
             else
             {
-                transform.localPosition = m_ActiveNode.Position;
+                transform.localPosition = m_ActiveNode.Data.Position;
             }
         }
 
@@ -84,7 +85,7 @@ namespace Navigation
             StartCoroutine(PathTo(m_Map.GetRandom(), delegate {}));
         }
 
-        public IEnumerator PathTo(Node targetNode, Action callback)
+        public IEnumerator PathTo(AStarNode targetNode, Action callback)
         {
             if (targetNode == null)
             {
@@ -105,7 +106,7 @@ namespace Navigation
             for (int i = 0; i < m_Path.Count; i++)
             {
                 m_NextNode = m_Path[i];
-                Vector3 vector = m_NextNode.Position - m_ActiveNode.Position;
+                Vector3 vector = m_NextNode.Data.Position - m_ActiveNode.Data.Position;
                 Vector3 direction = vector.normalized;
 
                 if (m_ActiveNode != m_NextNode && transform.forward != direction)
@@ -113,12 +114,12 @@ namespace Navigation
                     yield return StartCoroutine(Turn(direction));
                 }
 
-                yield return StartCoroutine(Move(m_NextNode.Position));
+                yield return StartCoroutine(Move(m_NextNode.Data.Position));
 
-                m_ActiveNode.IsTraversible = true;
+                m_ActiveNode.Data.IsTraversible = true;
                 m_ActiveNode = m_NextNode;
                 OnStepComplete.Invoke();
-                m_ActiveNode.IsTraversible = false;
+                m_ActiveNode.Data.IsTraversible = false;
             }
             OnPathingFinished.Invoke();
             callback.Invoke();
@@ -126,12 +127,12 @@ namespace Navigation
 
         IEnumerator Move(Vector3 position)
         {
-            float distance = (position - m_ActiveNode.Position).magnitude;
+            float distance = (position - m_ActiveNode.Data.Position).magnitude;
             float t = 0;
             while (t < 1.0f)
             {
                 t += Time.deltaTime * (m_MoveSpeed / distance);
-                transform.localPosition = Vector3.Lerp(m_ActiveNode.Position, position, t);
+                transform.localPosition = Vector3.Lerp(m_ActiveNode.Data.Position, position, t);
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -159,11 +160,11 @@ namespace Navigation
             {
                 for (int i = 0; i < m_Path.Count - 1; i++)
                 {
-                    Gizmos.DrawLine(m_Path[i].Position, m_Path[i + 1].Position);
+                    Gizmos.DrawLine(m_Path[i].Data.Position, m_Path[i + 1].Data.Position);
                 }
                 for (int i = 0; i < m_Path.Count; i++)
                 {
-                    Gizmos.DrawSphere(m_Path[i].Position, 0.15f);
+                    Gizmos.DrawSphere(m_Path[i].Data.Position, 0.15f);
                 }
             }
         }

@@ -37,10 +37,10 @@ public class Game_Manager : Singleton<Game_Manager>
         }
     }
 
-    internal string GetCost(int x, int y)
-    {
-        return m_NavMap[x, y].FCost.ToString("F1");
-    }
+    //internal string GetCost(int x, int y)
+    //{
+    //    //return m_NavMap[x, y].FCost.ToString("F1");
+    //}
 
     public void ClearTile()
     {
@@ -60,14 +60,12 @@ public class Game_Manager : Singleton<Game_Manager>
         bool isNull = m_SelectedTile == null;
         m_SelectedTile = m_TileUnderCursor;
 
-        Node unitNode = m_SelectedUnit.Agent.ActiveNode;
-        Node tileNode = m_NavMap[m_SelectedTile.X, m_SelectedTile.Y];
-
-        m_NavMap.IndexOf(tileNode);
+        AStarNode unitNode = m_SelectedUnit.Agent.ActiveNode;
+        AStarNode tileNode = m_NavMap[m_SelectedTile.X, m_SelectedTile.Y];
 
         if (!hasOrder)
         {
-            Path path = m_NavMap.GetPath(unitNode, tileNode);
+            List<AStarNode> path = m_NavMap.GetPath(unitNode, tileNode);
 
             if (path != null)
             {
@@ -75,7 +73,7 @@ public class Game_Manager : Singleton<Game_Manager>
 
                 for (int i = 0; i < path.Count; i++)
                 {
-                    m_LineRenderer.SetPosition(i, path[i].Position + (Vector3.up * 0.01f));
+                    m_LineRenderer.SetPosition(i, path[i].Data.Position + (Vector3.up * 0.01f));
                 }
             }
             m_TileTargeterTransform.gameObject.SetActive(true);
@@ -118,7 +116,7 @@ public class Game_Manager : Singleton<Game_Manager>
             return;
         }
 
-        Path unitPath = m_SelectedUnit.Agent.Path;
+        List<AStarNode> unitPath = m_SelectedUnit.Agent.Path;
 
         int startIndex = 0;
 
@@ -137,7 +135,7 @@ public class Game_Manager : Singleton<Game_Manager>
 
         for (int i = startIndex; i < unitPath.Count; i++)
         {
-            m_LineRenderer.SetPosition(i - startIndex + 1, unitPath[i].Position + (Vector3.up * 0.01f));
+            m_LineRenderer.SetPosition(i - startIndex + 1, unitPath[i].Data.Position + (Vector3.up * 0.01f));
         }
     }
 }
