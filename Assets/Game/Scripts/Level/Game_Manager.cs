@@ -57,7 +57,11 @@ public class Game_Manager : Singleton<Game_Manager>
 
     void TargetTile()
     {
-        bool isNull = m_SelectedTile == null;
+        if (m_TileUnderCursor == null)
+        {
+            return;
+        }
+
         m_SelectedTile = m_TileUnderCursor;
 
         AStarNode unitNode = m_SelectedUnit.Agent.ActiveNode;
