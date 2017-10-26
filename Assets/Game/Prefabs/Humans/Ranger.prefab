@@ -1302,20 +1302,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57b0e3e45f966d645bfc9224c4d698e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitSelected: 0
-  unitName: Ranger
   unitPrefab: {fileID: 0}
-  _unitClass: 0
-  _health: 0
-  _damage: 0
-  _critChance: 0
-  _movement: 0
-  _armour: 0
-  _sight: 0
-  _shield: 0
-  _resistMelee: 0
-  _resistRanged: 0
-  _resistMagic: 0
+  m_UnitData:
+    _class: 0
+    unitName: 
+    _health: 5
+    _damage: 2
+    _critChance: 7
+    _movement: 5
+    _armour: 2
+    _sight: 3
+    _shield: 7
+    _resistMelee: 6
+    _resistRanged: 7
+    _resistMagic: 0
 --- !u!137 &137915189732131234
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

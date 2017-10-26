@@ -94,7 +94,7 @@ public class SquadBuilder : MonoBehaviour {
             }
         }
         streamReader.Close();
-
+        LoadUnitInfo();
         Debug.Log((string.Format("{0} UNITS LOADED INTO SQUAD", squadList.Count)));
     }
     #endregion
@@ -116,4 +116,55 @@ public class SquadBuilder : MonoBehaviour {
         streamWriter.Close();
     }
     #endregion
+
+    #region DeleteUnit
+    public void DeleteUnit()
+    {
+        Destroy(squadList[squadViewer.activeUnit].gameObject);
+        squadList.RemoveAt(squadViewer.activeUnit);
+    }
+    #endregion
+
+    #region AddInUnit
+    public void AddUnit()
+    {
+        if (squadList[squadViewer.activeUnit] == null)
+        {
+
+        }
+    }
+    #endregion
+
+    #region LoadUnitData
+    public void LoadUnitInfo()
+    {
+        squadViewer.unitClass.text = squadList[squadViewer.activeUnit].UnitData._class.ToString();
+
+        if (squadList[squadViewer.activeUnit].UnitData.unitName == "")
+        {
+            squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData._class.ToString();
+        }
+        else
+        {
+            squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData.unitName;
+        }
+
+        squadViewer.health.text = "Health - " + squadList[squadViewer.activeUnit].UnitData._health.ToString();
+        squadViewer.damage.text = "Damage - " + squadList[squadViewer.activeUnit].UnitData._damage.ToString();
+        squadViewer.crit.text = "Crit Chance - " + squadList[squadViewer.activeUnit].UnitData._critChance.ToString();
+        squadViewer.movement.text = "Movement - " + squadList[squadViewer.activeUnit].UnitData._movement.ToString();
+        squadViewer.armour.text = "Armour - " + squadList[squadViewer.activeUnit].UnitData._armour.ToString();
+        squadViewer.sight.text = "Sight - " + squadList[squadViewer.activeUnit].UnitData._sight.ToString();
+        squadViewer.shield.text = "Shield - " + squadList[squadViewer.activeUnit].UnitData._shield.ToString();
+        squadViewer.resistMelee.text = "Resist Melee - " + squadList[squadViewer.activeUnit].UnitData._resistMelee.ToString();
+        squadViewer.resistRange.text = "Resist Ranged - " + squadList[squadViewer.activeUnit].UnitData._resistRanged.ToString();
+        squadViewer.resistMagic.text = "Resist Magic - " + squadList[squadViewer.activeUnit].UnitData._resistMagic.ToString();
+    }
+    #endregion
+
+    public void ChangeName()
+    {
+        squadList[squadViewer.activeUnit].UnitData.unitName = squadViewer.nameField.text;
+        squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData.unitName;
+    }
 }

@@ -11,6 +11,7 @@ public class UnitData
     public UnitClass _class;
 
     [Header("Stats")]
+    public string unitName;
     public int _health; // Health of the unit
     public int _damage; // Attack of the unit
     public float _critChance; //Chance of performing a critical hit
@@ -26,8 +27,6 @@ public class UnitData
 [System.Serializable]
 public class Unit : MonoBehaviour
 {
-    public bool unitSelected;
-    public string unitName;
 
     public GameObject unitPrefab;
     //public SlotItem slot1;
@@ -65,7 +64,6 @@ public class Unit : MonoBehaviour
 	
 	void Update ()
     {
-        //unitName = _unitClass + "," + slot1.name + "," + slot2.name;
-        unitName = UnitData._class.ToString();
+        
     }
 }

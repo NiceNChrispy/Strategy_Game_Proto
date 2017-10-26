@@ -11,6 +11,12 @@ public class SquadViewer : MonoBehaviour {
 
     public Button[] navButtons;
 
+    public Text unitClass;
+    public InputField nameField;
+    public Text health, damage, crit, movement, armour, sight, shield, resistMelee, resistRange, resistMagic;
+    public InputField SquadName;
+
+
 	// Use this for initialization
 	void Start () {
         Setup();
@@ -42,7 +48,7 @@ public class SquadViewer : MonoBehaviour {
 
         if (value < 0)
         {
-            if (activeUnit == squadViewerPos.Length)
+            if (activeUnit == squadViewerPos.Length - 1)
             {
                 iTween.MoveBy(gameObject, iTween.Hash("x", 78, "easeType", "easeInOutExpo"));
                 activeUnit = 0;
@@ -58,7 +64,7 @@ public class SquadViewer : MonoBehaviour {
             if (activeUnit == 0)
             {
                 iTween.MoveBy(gameObject, iTween.Hash("x", -78, "easeType", "easeInOutExpo"));
-                activeUnit = 7;
+                activeUnit = 6;
             }
             else
             {
