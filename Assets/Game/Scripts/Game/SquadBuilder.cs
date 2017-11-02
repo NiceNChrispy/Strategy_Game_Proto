@@ -90,12 +90,10 @@ public class SquadBuilder : MonoBehaviour {
                 temp.gameObject.transform.rotation = new Quaternion(temp.gameObject.transform.rotation.x, temp.gameObject.transform.rotation.y + 180, temp.gameObject.transform.rotation.z, 0);
                 temp.gameObject.transform.localScale *= 5;
                 squadList.Add(temp);
-                Debug.Log(string.Format("LOADED {0} SUCCESSFULLY", unitData._class.ToString()));
             }
         }
         streamReader.Close();
         LoadUnitInfo();
-        Debug.Log((string.Format("{0} UNITS LOADED INTO SQUAD", squadList.Count)));
     }
     #endregion
 
