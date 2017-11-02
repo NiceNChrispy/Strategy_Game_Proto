@@ -307,6 +307,7 @@ GameObject:
   - component: {fileID: 95110952956574266}
   - component: {fileID: 65716466282002068}
   - component: {fileID: 114173249899193020}
+  - component: {fileID: 114844852442387276}
   m_Layer: 0
   m_Name: Ranger
   m_TagString: Untagged
@@ -1316,6 +1317,38 @@ MonoBehaviour:
     _resistMelee: 6
     _resistRanged: 7
     _resistMagic: 0
+--- !u!114 &114844852442387276
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1329281251123248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 67
+    i1: 194
+    i2: 91
+    i3: 202
+    i4: 191
+    i5: 190
+    i6: 4
+    i7: 148
+    i8: 41
+    i9: 23
+    i10: 57
+    i11: 7
+    i12: 80
+    i13: 95
+    i14: 119
+    i15: 29
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!137 &137915189732131234
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

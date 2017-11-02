@@ -307,6 +307,7 @@ GameObject:
   - component: {fileID: 95110952956574266}
   - component: {fileID: 65716466282002068}
   - component: {fileID: 114173249899193020}
+  - component: {fileID: 114365038425548916}
   m_Layer: 0
   m_Name: Rogue
   m_TagString: Untagged
@@ -1316,6 +1317,38 @@ MonoBehaviour:
     _resistMelee: 4
     _resistRanged: 5
     _resistMagic: 1
+--- !u!114 &114365038425548916
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1329281251123248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 10
+    i1: 107
+    i2: 197
+    i3: 231
+    i4: 213
+    i5: 144
+    i6: 189
+    i7: 132
+    i8: 73
+    i9: 120
+    i10: 48
+    i11: 9
+    i12: 49
+    i13: 221
+    i14: 84
+    i15: 108
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!137 &137915189732131234
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

@@ -638,6 +638,7 @@ GameObject:
   - component: {fileID: 95522460436612032}
   - component: {fileID: 65902705507603048}
   - component: {fileID: 114034662372124744}
+  - component: {fileID: 114269314110572996}
   m_Layer: 0
   m_Name: Knight
   m_TagString: Untagged
@@ -1316,6 +1317,38 @@ MonoBehaviour:
     _resistMelee: 6
     _resistRanged: 0
     _resistMagic: 1
+--- !u!114 &114269314110572996
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1937016191687788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 56
+    i1: 227
+    i2: 100
+    i3: 58
+    i4: 53
+    i5: 134
+    i6: 201
+    i7: 180
+    i8: 121
+    i9: 214
+    i10: 14
+    i11: 65
+    i12: 52
+    i13: 32
+    i14: 245
+    i15: 58
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!137 &137800793813256842
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
