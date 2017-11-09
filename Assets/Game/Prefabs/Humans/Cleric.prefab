@@ -308,6 +308,7 @@ GameObject:
   - component: {fileID: 65716466282002068}
   - component: {fileID: 114173249899193020}
   - component: {fileID: 114038234594686124}
+  - component: {fileID: 114878159169132272}
   m_Layer: 0
   m_Name: Cleric
   m_TagString: Untagged
@@ -1349,6 +1350,27 @@ MonoBehaviour:
     _resistMelee: 3
     _resistRanged: 1
     _resistMagic: 1
+--- !u!114 &114878159169132272
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1329281251123248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 0
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!137 &137915189732131234
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

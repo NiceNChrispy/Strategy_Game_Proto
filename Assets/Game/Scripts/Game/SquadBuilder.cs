@@ -23,6 +23,7 @@ public class SquadBuilder : MonoBehaviour {
         file = _path + "/" + fileName + ".txt";
         CheckDirectory();
         CheckFile();
+        Load();
     }
 
     public void DisplaySquad(Unit unit, Transform pos)

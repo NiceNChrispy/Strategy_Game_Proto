@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Multiplayer.unity
+    guid: b54dfcaebc9f6d54d9e095298a6a824c
+  - enabled: 1
+    path: Assets/Game/Scenes/LeetStrats.unity
+    guid: 8562f5e61df4df141b7061e95b4214af
