@@ -12,6 +12,7 @@ public class Client : MonoBehaviour
     private NetworkStream stream;
     private StreamWriter writer;
     private StreamReader reader;
+    public bool isHost = false;
 
     public string clientName;
 
@@ -25,9 +26,7 @@ public class Client : MonoBehaviour
     public bool ConnectToServer(string host, int port)
     {
         if (socketReady)
-        {
             return false;
-        }
 
         try
         {
@@ -75,6 +74,7 @@ public class Client : MonoBehaviour
     private void OnIncomingData(string data)
     {
         Debug.Log("Client:" + data);
+
         string[] aData = data.Split('|');
         switch (aData[0])
         {
@@ -83,7 +83,7 @@ public class Client : MonoBehaviour
                 {
                     UserConnected(aData[i], false);
                 }
-                Send("CWHO|" + clientName);
+                Send("CWHO|" + clientName + "|" + ((isHost)?1:0).ToString());
                 break;
 
             case "SCNN":
@@ -98,6 +98,11 @@ public class Client : MonoBehaviour
         c.name = name;
 
         players.Add(c);
+
+        if (players.Count == 2)
+        {
+            GameManager.Instance.StartGame();
+        }
     }
 
     private void OnDisable()

@@ -14,14 +14,20 @@ public class GameController : MonoBehaviour {
     public float currentTime;
     float timePercent;
 
-    public enum PlayerTurn { Player1, Player2 }
-    public PlayerTurn _playerTurn;
+    private Client client;
+
+    //public enum PlayerTurn { Player1, Player2 }
+    //public PlayerTurn _playerTurn;
+
+    public bool playerTurn;
 
     // Use this for initialization
     void Start () {
         _gameState = GameState.Menu;
         StopAllCoroutines();
         StartCoroutine(TurnCountdown());
+        client = FindObjectOfType<Client>();
+        client.isHost = playerTurn;
 	}
 	
 	// Update is called once per frame
@@ -55,6 +61,12 @@ public class GameController : MonoBehaviour {
 
     public void EndTurn()
     {
+        //Commented out until we figure out what we are actually going to send to the server.
+        //string messageToServer = "CMOV|";
+        //messageToServer += "Move Infomation"; //Probably will need to watch the tutorial on how he does that earlier on in the series.
+
+        //client.Send(messageToServer);
+
         StopAllCoroutines();
         StartCoroutine(TurnCountdown());
         SwitchPlayerTurn();
@@ -62,14 +74,16 @@ public class GameController : MonoBehaviour {
 
     public void SwitchPlayerTurn()
     {
-        if (_playerTurn == PlayerTurn.Player1)
-        {
-            _playerTurn = PlayerTurn.Player2;
-        }
-        else
-        {
-            _playerTurn = PlayerTurn.Player1;
-        }
+        playerTurn = !playerTurn;
+
+        //if (_playerTurn == PlayerTurn.Player1)
+        //{
+        //    _playerTurn = PlayerTurn.Player2;
+        //}
+        //else
+        //{
+        //    _playerTurn = PlayerTurn.Player1;
+        //}
     }
 
     public void SetState(int state)

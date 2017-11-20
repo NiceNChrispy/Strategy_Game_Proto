@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour {
             s.Init();
             Client c = Instantiate(clientPrefab).GetComponent<Client>();
             c.clientName = nameInput.text;
+            c.isHost = true;
             if (c.clientName == "")
             {
                 c.clientName = "Host";
@@ -92,5 +94,10 @@ public class GameManager : MonoBehaviour {
         {
             Destroy(c.gameObject);
         }
+    }
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("Game");
     }
 }
