@@ -88,6 +88,15 @@ public class Client : MonoBehaviour
 
             case "SCNN":
                 UserConnected(aData[1], false);
+                //Hard coded squad info test
+                if (isHost)
+                {
+                    Send("SQINFO|,1,1,1,1,1,1,3");
+                }
+                else
+                {
+                    Send("SQINFO|,2,2,2,2,2,2,4");
+                }
                 break;
         }
     }

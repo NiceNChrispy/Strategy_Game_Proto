@@ -15,6 +15,9 @@ public class Server : MonoBehaviour
     private TcpListener server;
     private bool serverStarted;
 
+    public List<String> playerOneSquad;
+    public List<String> playerTwoSquad;
+
     public void Init()
     {
         DontDestroyOnLoad(gameObject);
@@ -152,12 +155,31 @@ public class Server : MonoBehaviour
     private void OnIncomingData(ServerClient c, string data)
     {
         string[] aData = data.Split('|');
+        
         switch (aData[0])
         {
             case "CWHO":
                 c.clientName = aData[1];
                 c.isHost = (aData[2] == "0") ? false : true;
                 Broadcast("SCNN|" + c.clientName, clients);
+                break;
+
+            case "SQINFO":
+                string[] sqData = data.Split(',');
+                if (c.isHost)
+                {
+                    for (int i = 1; i < sqData.Length; i++)
+                    {
+                        playerOneSquad.Add(sqData[i]);
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i < sqData.Length; i++)
+                    {
+                        playerTwoSquad.Add(sqData[i]);
+                    }
+                }
                 break;
         }
     }
