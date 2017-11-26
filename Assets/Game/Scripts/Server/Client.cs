@@ -84,19 +84,11 @@ public class Client : MonoBehaviour
                     UserConnected(aData[i], false);
                 }
                 Send("CWHO|" + clientName + "|" + ((isHost)?1:0).ToString());
+             
                 break;
 
             case "SCNN":
                 UserConnected(aData[1], false);
-                //Hard coded squad info test
-                if (isHost)
-                {
-                    Send("SQINFO|,1,1,1,1,1,1,3");
-                }
-                else
-                {
-                    Send("SQINFO|,2,2,2,2,2,2,4");
-                }
                 break;
         }
     }
@@ -107,6 +99,16 @@ public class Client : MonoBehaviour
         c.name = name;
 
         players.Add(c);
+
+        if (isHost)
+        {
+            Send("SQINFO|1,1,1,1,1,1,3");
+        }
+
+        else
+        {
+            Send("SQINFO|2,2,2,2,2,2,4");
+        }
 
         if (players.Count == 2)
         {

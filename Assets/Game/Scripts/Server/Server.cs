@@ -18,6 +18,8 @@ public class Server : MonoBehaviour
     public List<String> playerOneSquad;
     public List<String> playerTwoSquad;
 
+    string allUsers = "";
+
     public void Init()
     {
         DontDestroyOnLoad(gameObject);
@@ -90,7 +92,7 @@ public class Server : MonoBehaviour
     {
         TcpListener listener = (TcpListener)ar.AsyncState;
 
-        string allUsers = "";
+        
         foreach (ServerClient i in clients)
         {
             allUsers += i.clientName + '|';
@@ -154,6 +156,7 @@ public class Server : MonoBehaviour
     //Server Read
     private void OnIncomingData(ServerClient c, string data)
     {
+        Debug.Log("Recieved :" + data);
         string[] aData = data.Split('|');
         
         switch (aData[0])
@@ -165,17 +168,17 @@ public class Server : MonoBehaviour
                 break;
 
             case "SQINFO":
-                string[] sqData = data.Split(',');
+                string[] sqData = aData[1].Split(',');
                 if (c.isHost)
                 {
-                    for (int i = 1; i < sqData.Length; i++)
+                    for (int i = 0; i < sqData.Length; i++)
                     {
                         playerOneSquad.Add(sqData[i]);
                     }
                 }
-                else
+                else if(!c.isHost)
                 {
-                    for (int i = 1; i < sqData.Length; i++)
+                    for (int i = 0; i < sqData.Length; i++)
                     {
                         playerTwoSquad.Add(sqData[i]);
                     }
