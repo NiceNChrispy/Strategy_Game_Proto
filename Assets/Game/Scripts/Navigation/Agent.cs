@@ -11,6 +11,8 @@ namespace Navigation
         [SerializeField] private float m_MoveSpeed;
         [SerializeField] private float m_TurnSpeed;
 
+        public bool IsMoving { get; protected set; }
+
         AStarNode m_ActiveNode;
         AStarNode m_NextNode;
 
@@ -82,10 +84,18 @@ namespace Navigation
         [NaughtyAttributes.Button("Path To Random")]
         private void Debug_PathToRandom()
         {
-            StartCoroutine(PathTo(m_Map.GetRandom(), delegate {}));
+            StartCoroutine(PathRoutine(m_Map.GetRandom(), delegate {}));
         }
 
-        public IEnumerator PathTo(AStarNode targetNode, Action callback)
+        public void MoveTo(AStarNode targetNode, Action callback)
+        {
+            if(!IsMoving)
+            {
+                StartCoroutine(PathRoutine(targetNode, callback));
+            }
+        }
+
+        private IEnumerator PathRoutine(AStarNode targetNode, Action callback)
         {
             if (targetNode == null)
             {
@@ -99,6 +109,9 @@ namespace Navigation
             {
                 yield break;
             }
+
+
+            IsMoving = true;
 
             OnPathUpdated.Invoke();
             OnPathingStarted.Invoke();
@@ -121,8 +134,10 @@ namespace Navigation
                 OnStepComplete.Invoke();
                 m_ActiveNode.Data.IsTraversible = false;
             }
+            IsMoving = false;
             OnPathingFinished.Invoke();
             callback.Invoke();
+
         }
 
         IEnumerator Move(Vector3 position)

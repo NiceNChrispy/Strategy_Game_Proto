@@ -21,6 +21,6 @@ public class Unit2 : MonoBehaviour
 
     public void MoveTo(AStarNode targetNavNode, Action callback)
     {
-        StartCoroutine(m_Agent.PathTo(targetNavNode, callback));
+        m_Agent.MoveTo(targetNavNode, callback);
     }
 }
