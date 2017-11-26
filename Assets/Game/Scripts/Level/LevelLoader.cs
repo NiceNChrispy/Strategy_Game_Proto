@@ -1,40 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using System;
 
 public class LevelLoader : MonoBehaviour {
 
-    public GameObject levelCube;
-    public Transform levelHolder;
-    public int width;
-    public int depth;
+    public HexSpawner spawner;
 
-	// Use this for initialization
-	void Start () {
-        StartCoroutine(GenerateLevel(width, depth));
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            StartCoroutine(GenerateLevel(width, depth));
-        }
-	}
+    public string[] mapData;
+    public string fileName;
+    public string _path;
+    public string file;
 
-    public IEnumerator GenerateLevel(int _width, int _depth)
+    public void Awake()
     {
-        for (int x = 0; x < _width; x++)
-        {
-            yield return new WaitForSeconds(0.005f);
+        _path = Application.persistentDataPath + "/" + "Maps";
+        file = _path + "/" + fileName + ".txt";
+        ChooseMap();
+    }
 
-            for (int z = 0; z < _depth; z++)
-            {
-                yield return new WaitForSeconds(0.005f);
-                GameObject levelObj = Instantiate(levelCube, new Vector3(x, 0, z), Quaternion.identity);
-                levelObj.transform.parent = levelHolder;
-            }
-        //yield return new WaitForSeconds(0.1f);
-        }
+    public void ChooseMap()
+    {
+        StreamReader streamReader;
+        streamReader = new StreamReader(file);
+
+        string fileData = streamReader.ReadToEnd();
+        mapData = fileData.Split(',');
     }
 }

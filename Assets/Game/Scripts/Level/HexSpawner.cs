@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using System;
 
 public class HexSpawner : MonoBehaviour
 {
-    [SerializeField] private HexTile m_HexTilePrefab;
+    [SerializeField] private HexTile m_HexTilePrefabNormal, m_HexTilePrefabOther;
     [SerializeField] private int m_Columns, m_Rows;
     [SerializeField] private Vector2 m_Dimensions;
     [SerializeField] private Vector2 m_RelativeOffset;
@@ -12,26 +14,55 @@ public class HexSpawner : MonoBehaviour
 
     HexTile[,] spawnedTiles;
 
+    public LevelLoader mapLoader;
+
     private void Start()
     {
+
         spawnedTiles = new HexTile[m_Columns, m_Rows];
-        StartCoroutine(Spawn());
+        //StartCoroutine(Spawn());
     }
 
     public IEnumerator Spawn()
     {
-        for (int y = 0; y < m_Rows; y++)
+        HexTile spawnedTile;
+        for (int i = 0; i < mapLoader.mapData.Length; i += 0)
         {
-            for (int x = 0; x < m_Columns; x++)
+            for (int y = 0; y < m_Rows; y++)
             {
-                HexTile spawnedTile = Instantiate(m_HexTilePrefab, HexPosFromGrid(x, y), Quaternion.identity);
-                spawnedTile.SetPosition(x, y);
-                spawnedTile.transform.parent = transform;
-                spawnedTiles[x, y] = spawnedTile;
-                yield return new WaitForSeconds(levelGenSpeed);
+                for (int x = 0; x < m_Columns; x++)
+                {
+                    switch (mapLoader.mapData[i])
+                    {
+                        case "0":
+                            spawnedTile = Instantiate(m_HexTilePrefabNormal, HexPosFromGrid(x, y), Quaternion.identity);
+                            break;
+
+                        case "1":
+                             spawnedTile = Instantiate(m_HexTilePrefabOther, HexPosFromGrid(x, y), Quaternion.identity);
+                            break;
+
+                        default:
+                             spawnedTile = Instantiate(m_HexTilePrefabNormal, HexPosFromGrid(x, y), Quaternion.identity);
+                            break;
+                    }
+
+                    //HexTile spawnedTile = Instantiate(m_HexTilePrefabNormal, HexPosFromGrid(x, y), Quaternion.identity);
+                    spawnedTile.SetPosition(x, y);
+                    spawnedTile.transform.parent = transform;
+                    spawnedTiles[x, y] = spawnedTile;
+                    yield return new WaitForSeconds(levelGenSpeed);
+                    i++;
+                }
             }
         }
     }
+
+    public void MapSpawn()
+    {
+        StartCoroutine(Spawn());
+    }
+  
 
     //void Update()
     //{

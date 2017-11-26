@@ -7,6 +7,10 @@ public class GameController : MonoBehaviour {
     public static GameController instance;
     public enum GameState {Menu, Game, Paused, Builder }
     public GameState _gameState;
+
+    public enum GameType {Offline, Online }
+    public GameType _gameType;
+
     public UIController uiController;
 
     [Header("Timer")]
@@ -26,8 +30,12 @@ public class GameController : MonoBehaviour {
         _gameState = GameState.Menu;
         StopAllCoroutines();
         StartCoroutine(TurnCountdown());
-        client = FindObjectOfType<Client>();
-        client.isHost = playerTurn;
+
+        if (_gameType == GameType.Online)
+        {
+            client = FindObjectOfType<Client>();
+            client.isHost = playerTurn;
+        }
 	}
 	
 	// Update is called once per frame
