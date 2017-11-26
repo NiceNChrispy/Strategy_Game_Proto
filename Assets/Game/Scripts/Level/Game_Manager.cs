@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Navigation;
-using System;
 
 public class Game_Manager : Singleton<Game_Manager>
 {
@@ -13,7 +11,9 @@ public class Game_Manager : Singleton<Game_Manager>
 
     [SerializeField] Unit2 m_SelectedUnit;
     [SerializeField] HexTile m_SelectedTile;
+
     [SerializeField] HexTile m_TileUnderCursor;
+    [SerializeField] HexTile m_UnitUnderCursor;
 
     bool hasOrder;
 
@@ -36,11 +36,6 @@ public class Game_Manager : Singleton<Game_Manager>
             TargetTile();
         }
     }
-
-    //internal string GetCost(int x, int y)
-    //{
-    //    //return m_NavMap[x, y].FCost.ToString("F1");
-    //}
 
     public void ClearTile()
     {
@@ -67,32 +62,19 @@ public class Game_Manager : Singleton<Game_Manager>
         AStarNode unitNode = m_SelectedUnit.Agent.ActiveNode;
         AStarNode tileNode = m_NavMap[m_SelectedTile.X, m_SelectedTile.Y];
 
-        if (!hasOrder)
+        if(m_SelectedUnit != null && !m_SelectedUnit.Agent.IsPathing)
         {
-            List<AStarNode> path = m_NavMap.GetPath(unitNode, tileNode);
-
-            if (path != null)
-            {
-                m_LineRenderer.positionCount = path.Count;
-
-                for (int i = 0; i < path.Count; i++)
-                {
-                    m_LineRenderer.SetPosition(i, path[i].Data.Position + (Vector3.up * 0.01f));
-                }
-            }
-            m_TileTargeterTransform.gameObject.SetActive(true);
-            m_TileTargeterTransform.position = m_SelectedTile.transform.position;
+            m_SelectedUnit.Agent.SetDestination(tileNode);
         }
 
         m_HighlighterTransform.gameObject.SetActive(false);
-        m_LineRenderer.enabled = true;
     }
 
     public void TileAction(HexTile tile)
     {
-        if(m_SelectedUnit)
+        if(m_SelectedUnit && !m_SelectedUnit.Agent.IsPathing)
         {
-            m_SelectedUnit.MoveTo(m_NavMap[tile.X, tile.Y], ClearOrder);
+            m_SelectedUnit.Agent.BeginPathing();
             hasOrder = true;
             m_HighlighterTransform.gameObject.SetActive(false);
             m_TileTargeterTransform.gameObject.SetActive(false);
@@ -115,31 +97,36 @@ public class Game_Manager : Singleton<Game_Manager>
 
     public void DrawUnitPath()
     {
-        if (!m_SelectedUnit.Agent.HasPath)
-        {
-            return;
-        }
+        //if (!m_SelectedUnit.Agent.HasPath)
+        //{
+        //    return;
+        //}
+        //
+        //List<AStarNode> unitPath = m_SelectedUnit.Agent.Path;
+        //
+        //int startIndex = 0;
+        //
+        //for (int i = 0; i < unitPath.Count; i++)
+        //{
+        //    if(unitPath[i] == m_SelectedUnit.Agent.NextNode)
+        //    {
+        //        startIndex = i;
+        //        break;
+        //    }
+        //}
+        //
+        //m_LineRenderer.positionCount = unitPath.Count - startIndex + 1;
+        //
+        //m_LineRenderer.SetPosition(0, m_SelectedUnit.transform.position + (Vector3.up * 0.01f));
+        //
+        //for (int i = startIndex; i < unitPath.Count; i++)
+        //{
+        //    m_LineRenderer.SetPosition(i - startIndex + 1, unitPath[i].Data.Position + (Vector3.up * 0.01f));
+        //}
+    }
 
-        List<AStarNode> unitPath = m_SelectedUnit.Agent.Path;
+    void DrawUnitAttack()
+    {
 
-        int startIndex = 0;
-
-        for (int i = 0; i < unitPath.Count; i++)
-        {
-            if(unitPath[i] == m_SelectedUnit.Agent.NextNode)
-            {
-                startIndex = i;
-                break;
-            }
-        }
-
-        m_LineRenderer.positionCount = unitPath.Count - startIndex + 1;
-
-        m_LineRenderer.SetPosition(0, m_SelectedUnit.transform.position + (Vector3.up * 0.01f));
-
-        for (int i = startIndex; i < unitPath.Count; i++)
-        {
-            m_LineRenderer.SetPosition(i - startIndex + 1, unitPath[i].Data.Position + (Vector3.up * 0.01f));
-        }
     }
 }

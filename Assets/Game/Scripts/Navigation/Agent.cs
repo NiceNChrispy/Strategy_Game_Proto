@@ -11,128 +11,116 @@ namespace Navigation
         [SerializeField] private float m_MoveSpeed;
         [SerializeField] private float m_TurnSpeed;
 
-        AStarNode m_ActiveNode;
-        AStarNode m_NextNode;
-
-        List<AStarNode> m_Path;
-
         public event Action OnStepComplete = delegate { };
-        public event Action OnPathUpdated = delegate { };
         public event Action OnPathingStarted = delegate { };
         public event Action OnPathingFinished = delegate { };
 
         public bool HasPath
         {
-            get { return m_Path != null && m_Path.Count > 1; }
+            get { return Path != null && Path.Count > 1; }
         }
 
-        public AStarNode ActiveNode
-        {
-            get
-            {
-                return m_ActiveNode;
-            }
-        }
-        public AStarNode NextNode
-        {
-            get
-            {
-                return m_NextNode;
-            }
-        }
+        public bool HasDestination { get { return DestinationNode != null; } }
 
-        public float StepCompletionPercent
-        {
-            get
-            {
-                if (HasPath)
-                {
-                    return Mathf.InverseLerp(m_ActiveNode.Data.Position.sqrMagnitude, m_NextNode.Data.Position.sqrMagnitude, transform.position.sqrMagnitude);
-                }
-                return 0;
-            }
-        }
+        public AStarNode ActiveNode      { get; private set; }
+        public AStarNode NextNode        { get; private set; }
+        public AStarNode DestinationNode { get; private set; }
 
-        public List<AStarNode> Path
-        {
-            get
-            {
-                return m_Path;
-            }
-        }
+        public List<AStarNode> Path      { get; private set; }
+
+        public bool IsPathing { get; private set; }
 
         private void Start()
         {
             transform.parent = m_Map.transform;
 
-            m_ActiveNode = m_Map[3, 3];
-            m_ActiveNode.Data.IsTraversible = false;
+            ActiveNode = m_Map.GetRandom();
+            ActiveNode.Data.IsTraversible = false;
 
-            if (m_ActiveNode == null)
+            if (ActiveNode == null)
             {
-                //Debug.LogError(string.Format("Node {0},{1} is already occupied or is not traversible", x, y));
                 gameObject.SetActive(false);
             }
             else
             {
-                transform.localPosition = m_ActiveNode.Data.Position;
+                transform.localPosition = ActiveNode.Data.Position;
             }
         }
 
         [NaughtyAttributes.Button("Path To Random")]
         private void Debug_PathToRandom()
         {
-            StartCoroutine(PathTo(m_Map.GetRandom(), delegate {}));
+            SetDestination(m_Map.GetRandom());
+            BeginPathing();
         }
 
-        public IEnumerator PathTo(AStarNode targetNode, Action callback)
+        public void SetDestination(AStarNode targetNode)
         {
-            if (targetNode == null)
+            Path = m_Map.GetPath(ActiveNode, targetNode);
+
+            /* If the target node is inaccessible */
+            if(!HasPath)
             {
-                Debug.LogError("Target node is null");
-                yield break;
+                ClearDestination();
+                return;
             }
 
-            m_Path = m_Map.GetPath(m_ActiveNode, targetNode);
+            DestinationNode = targetNode;
+        }
 
-            if (!HasPath)
+        public void ClearDestination()
+        {
+            Path = null;
+            DestinationNode = null;
+        }
+
+        public void BeginPathing()
+        {
+            if(!HasPath)
             {
-                yield break;
+                return;
             }
+            StartCoroutine(PathRoutine());
+        }
 
-            OnPathUpdated.Invoke();
+        private IEnumerator PathRoutine()
+        {
+            IsPathing = true;
+
             OnPathingStarted.Invoke();
 
-            for (int i = 0; i < m_Path.Count; i++)
+            for (int i = 0; i < Path.Count; i++)
             {
-                m_NextNode = m_Path[i];
-                Vector3 vector = m_NextNode.Data.Position - m_ActiveNode.Data.Position;
+                NextNode = Path[i];
+                Vector3 vector = NextNode.Data.Position - ActiveNode.Data.Position;
                 Vector3 direction = vector.normalized;
 
-                if (m_ActiveNode != m_NextNode && transform.forward != direction)
+                if (ActiveNode != NextNode && transform.forward != direction)
                 {
                     yield return StartCoroutine(Turn(direction));
                 }
 
-                yield return StartCoroutine(Move(m_NextNode.Data.Position));
+                yield return StartCoroutine(Move(NextNode.Data.Position));
 
-                m_ActiveNode.Data.IsTraversible = true;
-                m_ActiveNode = m_NextNode;
+                ActiveNode.Data.IsTraversible = true;
+                ActiveNode = NextNode;
                 OnStepComplete.Invoke();
-                m_ActiveNode.Data.IsTraversible = false;
+                ActiveNode.Data.IsTraversible = false;
             }
+            IsPathing = false;
             OnPathingFinished.Invoke();
-            callback.Invoke();
         }
 
         IEnumerator Move(Vector3 position)
         {
-            float distance = (position - m_ActiveNode.Data.Position).magnitude;
+            float distance = (position - ActiveNode.Data.Position).magnitude;
             float t = 0;
+            float step = (m_MoveSpeed / distance);
+
             while (t < 1.0f)
             {
-                t += Time.deltaTime * (m_MoveSpeed / distance);
-                transform.localPosition = Vector3.Lerp(m_ActiveNode.Data.Position, position, t);
+                t += Time.deltaTime * step;
+                transform.localPosition = Vector3.Lerp(ActiveNode.Data.Position, position, t);
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -156,15 +144,15 @@ namespace Navigation
         {
             Gizmos.color = Color.black;
 
-            if (m_Path != null)
+            if (Path != null)
             {
-                for (int i = 0; i < m_Path.Count - 1; i++)
+                for (int i = 0; i < Path.Count - 1; i++)
                 {
-                    Gizmos.DrawLine(m_Path[i].Data.Position, m_Path[i + 1].Data.Position);
+                    Gizmos.DrawLine(Path[i].Data.Position, Path[i + 1].Data.Position);
                 }
-                for (int i = 0; i < m_Path.Count; i++)
+                for (int i = 0; i < Path.Count; i++)
                 {
-                    Gizmos.DrawSphere(m_Path[i].Data.Position, 0.15f);
+                    Gizmos.DrawSphere(Path[i].Data.Position, 0.15f);
                 }
             }
         }

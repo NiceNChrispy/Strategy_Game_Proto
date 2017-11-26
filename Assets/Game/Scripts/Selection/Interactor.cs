@@ -12,7 +12,7 @@ public class Interactor : Singleton<Interactor>
 
     public Interactable Current
     {
-        get; set;
+        get; private set;
     }
 
     private Collider m_PreviousCollider;
