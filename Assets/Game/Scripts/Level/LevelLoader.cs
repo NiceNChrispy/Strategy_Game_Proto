@@ -8,24 +8,37 @@ public class LevelLoader : MonoBehaviour {
 
     public HexSpawner spawner;
 
+    public enum LoadType {file, asset}
+    public LoadType _loadType;
+
+    //From file
     public string[] mapData;
     public string fileName;
     public string _path;
     public string file;
 
+    public Level _levelAsset;
+
     public void Awake()
     {
         _path = Application.persistentDataPath + "/" + "Maps";
         file = _path + "/" + fileName + ".txt";
-        ChooseMap();
     }
 
     public void ChooseMap()
     {
-        StreamReader streamReader;
-        streamReader = new StreamReader(file);
 
-        string fileData = streamReader.ReadToEnd();
-        mapData = fileData.Split(',');
+        if (_loadType == LoadType.file)
+        {
+            StreamReader streamReader;
+            streamReader = new StreamReader(file);
+
+            string fileData = streamReader.ReadToEnd();
+            mapData = fileData.Split(',');
+        }
+        else if (_loadType == LoadType.asset)
+        {
+            mapData = _levelAsset.levelInfo;
+        }
     }
 }
