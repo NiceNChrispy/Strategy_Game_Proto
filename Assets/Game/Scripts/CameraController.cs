@@ -16,12 +16,18 @@ public class CameraController : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            StartCoroutine(RotateCam(0.25f));
+            if (iTween.Count() == 0)
+            {
+                StartCoroutine(RotateCam(0.25f));
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            StartCoroutine(RotateCam(-0.25f));
+            if (iTween.Count() == 0)
+            {
+                StartCoroutine(RotateCam(-0.25f));
+            }
         }
     }
 

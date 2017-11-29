@@ -20,24 +20,24 @@ public class LevelSelect : MonoBehaviour {
 
     public void Next()
     {
-        chosenLevel++;
-        if (chosenLevel > _levels.Count - 1)
-        {
-            chosenLevel = 0;
+            chosenLevel++;
+            if (chosenLevel > _levels.Count - 1)
+            {
+                chosenLevel = 0;
+                levelName.text = _levels[chosenLevel].name;
+            }
             levelName.text = _levels[chosenLevel].name;
-        }
-        levelName.text = _levels[chosenLevel].name;
     }
 
     public void Previous()
     {
-        chosenLevel--;
-        if (chosenLevel < 0)
-        {
-            chosenLevel = _levels.Count - 1;
+            chosenLevel--;
+            if (chosenLevel < 0)
+            {
+                chosenLevel = _levels.Count - 1;
+                levelName.text = _levels[chosenLevel].name;
+            }
             levelName.text = _levels[chosenLevel].name;
-        }
-        levelName.text = _levels[chosenLevel].name;
     }
 
     public void SelectLevel()
