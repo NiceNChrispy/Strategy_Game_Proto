@@ -12,8 +12,7 @@ public class SquadViewer : MonoBehaviour {
     public Button[] navButtons;
 
     public Text unitClass;
-    public InputField nameField;
-    public Text health, damage, crit, movement, armour, sight, shield, resistMelee, resistRange, resistMagic;
+    public Text health, damage, crit, movement, armour, shield, resistMelee, resistRange, resistMagic;
     public InputField SquadName;
 
 

@@ -89,7 +89,7 @@ public class SquadBuilder : MonoBehaviour {
                 UnitData unitData = JsonUtility.FromJson<UnitData>(squadData[i]);
                 Unit temp = Instantiate(unitPrefabs[(int)unitData._class], spawn, Quaternion.identity, squadViewer.gameObject.transform);
                 temp.gameObject.transform.rotation = new Quaternion(temp.gameObject.transform.rotation.x, temp.gameObject.transform.rotation.y + 180, temp.gameObject.transform.rotation.z, 0);
-                temp.gameObject.transform.localScale *= 5;
+                temp.gameObject.transform.localScale *= 4;
                 squadList.Add(temp);
             }
         }
@@ -139,31 +139,16 @@ public class SquadBuilder : MonoBehaviour {
     {
         squadViewer.unitClass.text = squadList[squadViewer.activeUnit].UnitData._class.ToString();
 
-        if (squadList[squadViewer.activeUnit].UnitData.unitName == "")
-        {
-            squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData._class.ToString();
-        }
-        else
-        {
-            squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData.unitName;
-        }
 
         squadViewer.health.text = "Health - " + squadList[squadViewer.activeUnit].UnitData._health.ToString();
         squadViewer.damage.text = "Damage - " + squadList[squadViewer.activeUnit].UnitData._damage.ToString();
         squadViewer.crit.text = "Crit Chance - " + squadList[squadViewer.activeUnit].UnitData._critChance.ToString();
         squadViewer.movement.text = "Movement - " + squadList[squadViewer.activeUnit].UnitData._movement.ToString();
         squadViewer.armour.text = "Armour - " + squadList[squadViewer.activeUnit].UnitData._armour.ToString();
-        squadViewer.sight.text = "Sight - " + squadList[squadViewer.activeUnit].UnitData._sight.ToString();
         squadViewer.shield.text = "Shield - " + squadList[squadViewer.activeUnit].UnitData._shield.ToString();
         squadViewer.resistMelee.text = "Resist Melee - " + squadList[squadViewer.activeUnit].UnitData._resistMelee.ToString();
         squadViewer.resistRange.text = "Resist Ranged - " + squadList[squadViewer.activeUnit].UnitData._resistRanged.ToString();
         squadViewer.resistMagic.text = "Resist Magic - " + squadList[squadViewer.activeUnit].UnitData._resistMagic.ToString();
     }
     #endregion
-
-    public void ChangeName()
-    {
-        squadList[squadViewer.activeUnit].UnitData.unitName = squadViewer.nameField.text;
-        squadViewer.nameField.text = squadList[squadViewer.activeUnit].UnitData.unitName;
-    }
 }
