@@ -20,6 +20,8 @@ public class GameController : MonoBehaviour {
 
     private Client client;
 
+    public SquadBuilder builder;
+
     //public enum PlayerTurn { Player1, Player2 }
     //public PlayerTurn _playerTurn;
 
@@ -36,6 +38,7 @@ public class GameController : MonoBehaviour {
             client = FindObjectOfType<Client>();
             client.isHost = playerTurn;
         }
+        FindObjectOfType<SquadBuilder>();
 	}
 	
 	// Update is called once per frame
@@ -118,5 +121,10 @@ public class GameController : MonoBehaviour {
                 _gameState = GameState.Menu;
                 break;
         }
+    }
+
+    public void SpawnUnits()
+    {
+       
     }
 }

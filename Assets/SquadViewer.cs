@@ -14,6 +14,7 @@ public class SquadViewer : MonoBehaviour {
     public Text unitClass;
     public Text health, damage, crit, movement, armour, shield, resistMelee, resistRange, resistMagic;
     public InputField SquadName;
+    public Dropdown unitX, unitY;
 
 
 	// Use this for initialization

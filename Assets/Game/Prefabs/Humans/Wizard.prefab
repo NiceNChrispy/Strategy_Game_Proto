@@ -2730,17 +2730,9 @@ MonoBehaviour:
   unitPrefab: {fileID: 1658292020735134}
   m_UnitData:
     _class: 3
-    unitName: 
-    _health: 8
-    _damage: 5
-    _critChance: 5
-    _movement: 1
-    _armour: 6
-    _sight: 2
-    _shield: 2
-    _resistMelee: 6
-    _resistRanged: 3
-    _resistMagic: 4
+    _stats: {fileID: 11400000, guid: 88cb4f6c67a24fa48959cbd94a51d093, type: 2}
+    startX: 0
+    startY: 0
 --- !u!137 &137042397506021456
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
