@@ -27,7 +27,7 @@ namespace Prototype
                 new Vector3Int( 0, -1,  1),
             };
 
-            [NaughtyAttributes.Button("Create Grid")]
+            [NaughtyAttributes.Button("Create")]
             private void CreateMap()
             {
                 if (m_NodeDict != null && m_NodeDict.Count > 0)
@@ -64,7 +64,7 @@ namespace Prototype
                 }
             }
 
-            [NaughtyAttributes.Button("Clear Grid")]
+            [NaughtyAttributes.Button("Clear")]
             private void ClearPoints()
             {
                 if (m_NodeDict != null)

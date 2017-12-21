@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Prototype
 {
-    [CreateAssetMenu(menuName = "Pattern/HexPattern")]
+    [CreateAssetMenu(menuName = "Pattern/Hex")]
     public class HexPattern : Pattern
     {
         public int RingCount;

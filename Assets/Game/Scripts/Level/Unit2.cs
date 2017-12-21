@@ -26,20 +26,21 @@ public class Unit2 : MonoBehaviour
     {
         TargetUnit = target;
     }
-    
+
     public void ClearTarget()
     {
+        m_LineRenderer.positionCount = 0;
         TargetUnit = null;
     }
 
     private void Update()
     {
         m_LineRenderer.positionCount = 0;
-        if(TargetUnit != null)
+        if (TargetUnit != null)
         {
             DrawUnitTarget();
         }
-        if(Agent.HasPath)
+        if (Agent.HasPath)
         {
             DrawAgentPath();
         }
@@ -56,7 +57,7 @@ public class Unit2 : MonoBehaviour
             float t = i * step;
             float distance = Vector3.Distance(transform.position, TargetUnit.transform.position);
             m_LineRenderer.SetPosition(i, Vector3.Lerp(transform.position, TargetUnit.transform.position, t) +
-                                        (Vector3.Lerp(Vector3.up * 0.5f, Vector3.up * Mathf.Sqrt(distance) * 0.5f, Mathf.Sin(Mathf.LerpAngle(0, Mathf.PI, t)))));                                 
+                                        (Vector3.Lerp(Vector3.up * 0.5f, Vector3.up * Mathf.Sqrt(distance) * 0.5f, Mathf.Sin(Mathf.LerpAngle(0, Mathf.PI, t)))));
         }
     }
 
@@ -66,7 +67,7 @@ public class Unit2 : MonoBehaviour
 
         for (int i = 0; i < m_Agent.Path.Count; i++)
         {
-            if(m_Agent.Path[i] == m_Agent.ActiveNode)
+            if (m_Agent.Path[i] == m_Agent.ActiveNode)
             {
                 startIndex = i + 1;
                 break;

@@ -13,6 +13,11 @@ namespace Prototype
         {
             if (Input.GetMouseButtonDown(0))
             {
+                if(SelectedUnit)
+                {
+                    SelectedUnit.DisableLine();
+                }
+
                 SelectedUnit = Utility.ObjectOfTypeUnderCursor<Unit>();
             }
 

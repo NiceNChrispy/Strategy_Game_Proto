@@ -9,6 +9,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f21f9b25e9fc7544a44a7a23de6764b, type: 3}
-  m_Name: HexPattern
+  m_Name: Hex
   m_EditorClassIdentifier: 
   RingCount: 5

@@ -8,6 +8,7 @@ namespace Prototype
     {
         [SerializeField] private Agent m_Agent;
         [SerializeField] private LineRenderer m_PathRenderer;
+
         public Agent Agent
         {
             get
@@ -41,6 +42,7 @@ namespace Prototype
 
         void SetPathPoints()
         {
+            m_PathRenderer.enabled = true;
             List<Vector3> remainingPositions = RemainingPositions();
             m_PathRenderer.positionCount = remainingPositions.Count;
 
@@ -59,6 +61,7 @@ namespace Prototype
             m_Agent.Path.Clear();
 
             Debug.Log("Targeting");
+            m_PathRenderer.enabled = true;
             m_PathRenderer.positionCount = 20;
 
             float step = 1.0f / m_PathRenderer.positionCount; 
@@ -67,6 +70,11 @@ namespace Prototype
             {
                 m_PathRenderer.SetPosition(i, Vector3.Lerp(transform.position, targetUnit.transform.position, step * i) + Vector3.up * 1f);
             }
+        }
+
+        public void DisableLine()
+        {
+            m_PathRenderer.enabled = false;
         }
     }
 }

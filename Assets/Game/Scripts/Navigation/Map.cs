@@ -312,8 +312,6 @@ namespace Navigation
 
             openSet.Add(fromNode);
 
-            List<AStarNode> path = new List<AStarNode>();
-
             while (openSet.Count > 0)
             {
                 AStarNode currentNode = openSet.RemoveFirst();

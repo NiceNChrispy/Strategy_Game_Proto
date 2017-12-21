@@ -21,7 +21,7 @@ public class Unit_Controller : MonoBehaviour
     {
         m_CurrentInteractableText.text = m_Interactor.Current ? m_Interactor.Current.gameObject.name : "NONE";
 
-        if(m_Interactor.Current)
+        if (m_Interactor.Current)
         {
             m_TargetUnit = m_Interactor.Current.GetComponent<Unit2>();
             m_TargetTile = m_Interactor.Current.GetComponent<HexTile>();
@@ -48,12 +48,12 @@ public class Unit_Controller : MonoBehaviour
             if (m_TargetTile && m_TargetTile != m_PreviousTargetTile)
             {
                 m_SelectedUnit.ClearTarget();
-                if(!m_SelectedUnit.Agent.IsPathing)
+                if (!m_SelectedUnit.Agent.IsPathing)
                 {
                     m_SelectedUnit.Agent.SetDestination(m_NavMap[m_TargetTile.X, m_TargetTile.Y]);
                 }
             }
-            if(m_TargetUnit && m_TargetUnit != m_PreviousTargetUnit)
+            if (m_TargetUnit && m_TargetUnit != m_PreviousTargetUnit)
             {
                 m_SelectedUnit.Agent.ClearDestination();
                 m_SelectedUnit.SetTarget(m_TargetUnit);
@@ -62,14 +62,14 @@ public class Unit_Controller : MonoBehaviour
 
         if (Input.GetMouseButtonUp(1) && m_SelectedUnit)
         {
-            if(m_TargetTile)
+            if (m_TargetTile)
             {
                 if (!m_SelectedUnit.Agent.IsPathing)
                 {
                     m_SelectedUnit.Agent.BeginPathing();
                 }
             }
-            else if(m_TargetUnit)
+            else if (m_TargetUnit)
             {
                 Debug.Log("ATTACK");
             }
