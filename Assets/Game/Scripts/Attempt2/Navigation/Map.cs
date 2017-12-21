@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -121,7 +120,7 @@ namespace Prototype
                 List<TValue> values = Enumerable.ToList(dict.Values);
                 int size = dict.Count;
 
-                return (values[UnityEngine.Random.Range(0, values.Count)]);
+                return (values[Random.Range(0, values.Count)]);
                 
             }
 
@@ -143,28 +142,15 @@ namespace Prototype
                         nodesInRange.Add(node);
                     }
                 }
-
                 return nodesInRange;
             }
 
-            //public List<int> ReacableNodes(Vector2Int position, int range)
-            //{
-            //    List<NodeBehaviour> reacableNodes = new List<NodeBehaviour>();
-            //    NodeBehaviour node;
-            //
-            //    if (m_NodeDict.TryGetValue(position, out node))
-            //    {
-            //        node.GetConnectedGraph(node, range, ref reacableNodes);
-            //    }
-            //    return reacableNodes;
-            //}
-
-            public List<Node> GetPath(Node fromNode, Node toNode)
+            public List<Node> GetPath(Node from, Node to)
             {
                 Heap<Node> openSet = new Heap<Node>(m_NodeDict.Count);
                 HashSet<Node> closedSet = new HashSet<Node>();
 
-                openSet.Add(fromNode);
+                openSet.Add(from);
 
                 while (openSet.Count > 0)
                 {
@@ -172,9 +158,9 @@ namespace Prototype
 
                     closedSet.Add(currentNode);
 
-                    if (currentNode == toNode)
+                    if (currentNode == to)
                     {
-                        return RetracePath(fromNode, toNode);
+                        return RetracePath(from, to);
                     }
 
                     foreach (Node connectedNode in currentNode.ConnectedNodes)
@@ -189,7 +175,7 @@ namespace Prototype
                         if (movementCost < connectedNode.AStarData.GCost || !openSet.Contains(connectedNode))
                         {
                             connectedNode.AStarData.GCost = movementCost;
-                            connectedNode.AStarData.HCost = GetDistance(connectedNode, toNode);
+                            connectedNode.AStarData.HCost = GetDistance(connectedNode, to);
                             connectedNode.AStarData.Parent = currentNode;
                             if (!openSet.Contains(connectedNode))
                             {

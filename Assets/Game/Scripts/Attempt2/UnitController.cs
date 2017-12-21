@@ -4,7 +4,7 @@ namespace Prototype
 {
     public class UnitController : MonoBehaviour
     {
-        Unit SelectedUnit;
+        [SerializeField] Unit SelectedUnit;
 
         Navigation.Node previousNodeUnderCursor;
         Unit previousUnitUnderCursor;
@@ -17,7 +17,6 @@ namespace Prototype
                 {
                     SelectedUnit.DisableLine();
                 }
-
                 SelectedUnit = Utility.ObjectOfTypeUnderCursor<Unit>();
             }
 
@@ -30,6 +29,7 @@ namespace Prototype
                     if (nodeUnderCursor != previousNodeUnderCursor && SelectedUnit)
                     {
                         SelectedUnit.Agent.UpdatePathTo(nodeUnderCursor);
+                        SelectedUnit.SetPathPoints();
                     }
     
                     if (SelectedUnit && Input.GetMouseButtonDown(1))

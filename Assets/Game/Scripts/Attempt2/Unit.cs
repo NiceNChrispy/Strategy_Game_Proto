@@ -19,7 +19,7 @@ namespace Prototype
 
         private void Update()
         {
-            if(m_Agent.Path.Count > 0)
+            if(m_Agent.IsMoving)
             {
                 SetPathPoints();
             }
@@ -40,7 +40,7 @@ namespace Prototype
             return remainingPathPositions;
         }
 
-        void SetPathPoints()
+        public void SetPathPoints()
         {
             m_PathRenderer.enabled = true;
             List<Vector3> remainingPositions = RemainingPositions();
@@ -64,11 +64,11 @@ namespace Prototype
             m_PathRenderer.enabled = true;
             m_PathRenderer.positionCount = 20;
 
-            float step = 1.0f / m_PathRenderer.positionCount; 
+            float step = 1.0f / m_PathRenderer.positionCount;
 
             for (int i = 0; i < m_PathRenderer.positionCount; i++)
             {
-                m_PathRenderer.SetPosition(i, Vector3.Lerp(transform.position, targetUnit.transform.position, step * i) + Vector3.up * 1f);
+                m_PathRenderer.SetPosition(i, Vector3.Lerp(transform.position, targetUnit.transform.position, step * i) + (Mathf.Sin(step * i * Mathf.PI) * Vector3.up * 0.5f));
             }
         }
 

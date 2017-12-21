@@ -148,7 +148,6 @@ namespace Prototype
                 }
             }
 
-            [NaughtyAttributes.Button("UpdateTilesInRange")]
             public void UpdateTilesInRange()
             {
                 NodesInRange = m_Map.TilesInRange(m_OccupiedNode.HexPosition, m_MovementRange);
