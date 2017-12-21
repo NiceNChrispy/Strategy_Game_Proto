@@ -66,9 +66,13 @@ namespace Prototype
 
             float step = 1.0f / m_PathRenderer.positionCount;
 
+            float distance = Vector3.Distance(transform.position, targetUnit.transform.position);
+
+            //TODO: Replace sin with proper ballistic trajectory.
+
             for (int i = 0; i < m_PathRenderer.positionCount; i++)
             {
-                m_PathRenderer.SetPosition(i, Vector3.Lerp(transform.position, targetUnit.transform.position, step * i) + (Mathf.Sin(step * i * Mathf.PI) * Vector3.up * 0.5f));
+                m_PathRenderer.SetPosition(i, Vector3.Lerp(transform.position, targetUnit.transform.position, step * i) + (Mathf.Sin(step * i * Mathf.PI) * Vector3.up * distance * 0.25f));
             }
         }
 
