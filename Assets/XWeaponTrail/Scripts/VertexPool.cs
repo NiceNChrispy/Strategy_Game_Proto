@@ -43,7 +43,7 @@ namespace XftWeapon {
 
         public Vector3[] Vertices;
         public int[] Indices;
-        public Vector2[] UVs;
+        public UnityEngine.Vector2[] UVs;
         public Color[] Colors;
 
         public bool IndiceChanged;
@@ -190,7 +190,7 @@ namespace XftWeapon {
         protected void InitArrays()
         {
             Vertices = new Vector3[4];
-            UVs = new Vector2[4];
+            UVs = new UnityEngine.Vector2[4];
             Colors = new Color[4];
             Indices = new int[6];
             VertexTotal = 4;
@@ -205,8 +205,8 @@ namespace XftWeapon {
             Vertices = new Vector3[Vertices.Length + count];
             tempVerts.CopyTo(Vertices, 0);
 
-            Vector2[] tempUVs = UVs;
-            UVs = new Vector2[UVs.Length + count];
+            UnityEngine.Vector2[] tempUVs = UVs;
+            UVs = new UnityEngine.Vector2[UVs.Length + count];
             tempUVs.CopyTo(UVs, 0);
 
             Color[] tempColors = Colors;

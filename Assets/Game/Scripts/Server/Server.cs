@@ -9,112 +9,116 @@ public class Server : MonoBehaviour
 {
     public int port = 6321;
 
-    private List<ServerClient> clients;
-    private List<ServerClient> disconnectList;
+    [SerializeField] private List<TcpClient> m_ConnectedClients = new List<TcpClient>();
+    [SerializeField] private List<TcpClient> m_DisconnectedClients = new List<TcpClient>();
 
-    private TcpListener server;
-    private bool serverStarted;
+    public event Action<TcpClient, string> OnRecieveMessage = delegate { };
 
-    public List<String> playerOneSquad;
-    public List<String> playerTwoSquad;
+    private TcpListener m_TCPListner;
+    private bool m_IsServerRunning;
 
     string allUsers = "";
 
-    public void Init()
+    public const string WHO_ARE_YOU             = "WHO_ARE_YOU";
+    public const string I_AM                    = "I_AM";
+    public const string ON_CLIENT_CONNECTED     = "ON_CLIENT_CONNECTED";
+    public const string ON_CLIENT_DISCONNECTED  = "ON_CLIENT_DISCONNECTED";
+
+    [SerializeField] MessageLogger m_MessageLog;
+
+    private void Awake()
     {
         DontDestroyOnLoad(gameObject);
-        clients = new List<ServerClient>();
-        disconnectList = new List<ServerClient>();
+        InitLog();
+    }
 
+    [NaughtyAttributes.Button("Create Log File")]
+    void InitLog()
+    {
+        string logPath = string.Format("{0}/{1}", Application.persistentDataPath, "ServerLog.txt");
+
+        m_MessageLog = new MessageLogger(logPath);
+        m_MessageLog.Clear();
+
+        //if (File.Exists(logPath))
+        //{
+        //    string[] message = new string[] { "HELLO THIS IS A TEST", "THE TEST WAS SUCCESSFUL" };
+        //
+        //    StreamWriter streamWriter = new StreamWriter(logPath, true);
+        //    foreach (string line in message)
+        //    {
+        //        streamWriter.WriteLine(line);
+        //    }
+        //    streamWriter.Close();
+        //}
+    }
+
+    //private void OnDestroy()
+    //{
+    //    m_MessageLog.Write();
+    //}
+
+    [NaughtyAttributes.Button("Start Server")]
+    public void Begin()
+    {
         try
         {
-            server = new TcpListener(IPAddress.Any, port);
-            server.Start();
+            IPAddress address = IPAddress.Any;
+            m_TCPListner = new TcpListener(address, port);
+            m_TCPListner.Start();
             StartListening();
-            serverStarted = true;
+            m_IsServerRunning = true;
+            Debug.Log(string.Format("Server started ({0}:{1})", address, port));
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Debug.Log("Socket Error" + e.Message);
+            Debug.Log("Socket Error" + exception.Message);
         }
-
     }
 
     private void Update()
     {
-        if (!serverStarted)
+        if (!m_IsServerRunning)
         {
-            Debug.Log("Server not started");
             return;
         }
 
-        foreach (ServerClient c in clients)
+        foreach (TcpClient client in m_ConnectedClients)
         {
-            if (!IsConnected(c.tcp))
+            if (!IsConnected(client))
             {
-                c.tcp.Close();
-                disconnectList.Add(c);
+                client.Close();
+                m_DisconnectedClients.Add(client);
                 continue;
             }
             else
             {
-                NetworkStream s = c.tcp.GetStream();
-                if (s.DataAvailable)
+                NetworkStream networkStream = client.GetStream();
+                if (networkStream.DataAvailable)
                 {
-                    StreamReader reader = new StreamReader(s, true);
-                    string data = reader.ReadLine();
+                    StreamReader reader = new StreamReader(networkStream, true);
+                    string message = reader.ReadLine();
 
-                    if (data != null)
+                    if (message != null)
                     {
-                        Debug.Log("Server :" + data);
-                        OnIncomingData(c, data);
+                        Debug.Log("Server received: " + message);
+                        OnRecieveMessage.Invoke(client, message);
                     }
                 }
             }
         }
-
-        for (int i = 0; i < disconnectList.Count - 1; i++)
-        {
-            //Tell player someone has disconnected
-
-            clients.Remove(disconnectList[i]);
-            disconnectList.RemoveAt(i);
-        }
     }
 
-    private void StartListening()
-    {
-        server.BeginAcceptTcpClient(AcceptTcpClient, server);
-    }
-
-
-    private void AcceptTcpClient(IAsyncResult ar)
-    {
-        TcpListener listener = (TcpListener)ar.AsyncState;
-
-        
-        foreach (ServerClient i in clients)
-        {
-            allUsers += i.clientName + '|';
-        }
-
-        ServerClient sc = new ServerClient(listener.EndAcceptTcpClient(ar));
-        clients.Add(sc);
-
-        StartListening();
-       
-        Broadcast("SWHO|" + allUsers, clients[clients.Count - 1]);
-    }
-
-    private bool IsConnected(TcpClient c)
+    private bool IsConnected(TcpClient client)
     {
         try
         {
-            if (c != null && c.Client != null && c.Client.Connected)
+            if (client != null && client.Client != null && client.Client.Connected)
             {
-                if (c.Client.Poll(0, SelectMode.SelectRead))
-                    return !(c.Client.Receive(new byte[1], SocketFlags.Peek) == 0);
-
+                if (client.Client.Poll(0, SelectMode.SelectRead))
+                {
+                    return (client.Client.Receive(new byte[1], SocketFlags.Peek) == 1);
+                }
                 return true;
             }
             else
@@ -128,74 +132,75 @@ public class Server : MonoBehaviour
         }
     }
 
-
-    //Server Send
-    private void Broadcast(string data, List<ServerClient> cl)
+    private void StartListening()
     {
-        foreach (ServerClient sc in cl)
+        m_TCPListner.BeginAcceptTcpClient(OnClientConnected, m_TCPListner);
+    }
+
+    private void OnClientConnected(IAsyncResult aSyncResult)
+    {
+        TcpListener listener = (TcpListener)aSyncResult.AsyncState;
+
+        TcpClient clientSocket = listener.EndAcceptTcpClient(aSyncResult);
+
+        if (clientSocket != null)
+        {
+            Debug.Log("Received connection request from: " + clientSocket.Client.RemoteEndPoint.ToString());
+        }
+
+        m_ConnectedClients.Add(clientSocket);
+
+        StartListening();
+
+        Broadcast(NetworkMessage.Encode(WHO_ARE_YOU), clientSocket);
+    }
+
+    private void Broadcast(string message, params TcpClient[] clients)
+    {
+        foreach (TcpClient client in clients)
         {
             try
             {
-                StreamWriter writer = new StreamWriter(sc.tcp.GetStream());
-                writer.WriteLine(data);
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                writer.WriteLine(message);
+                if(m_MessageLog != null)
+                {
+                    Debug.Log("NOT NULL");
+                }
+                m_MessageLog.Log(message);
+                Debug.Log("Broadcast: " + message);
                 writer.Flush();
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Debug.Log("Write Error" + e.Message);
+                Debug.Log("Write Error" + exception.Message);
             }
         }
     }
 
-    private void Broadcast(string data, ServerClient c)
+    public class NetworkMessage
     {
-        List<ServerClient> sc = new List<ServerClient> { c };
-        Broadcast(data, sc);
-    }
+        static string separatorString = " ";
+        static char separatorChar = ' ';
 
-    //Server Read
-    private void OnIncomingData(ServerClient c, string data)
-    {
-        Debug.Log("Recieved :" + data);
-        string[] aData = data.Split('|');
-        
-        switch (aData[0])
+        public static string Encode(params string[] parameters)
         {
-            case "CWHO":
-                c.clientName = aData[1];
-                c.isHost = (aData[2] == "0") ? false : true;
-                Broadcast("SCNN|" + c.clientName, clients);
-                break;
+            return string.Join(separatorString, parameters );
+        }
 
-            case "SQINFO":
-                string[] sqData = aData[1].Split(',');
-                if (c.isHost)
-                {
-                    for (int i = 0; i < sqData.Length; i++)
-                    {
-                        playerOneSquad.Add(sqData[i]);
-                    }
-                }
-                else if(!c.isHost)
-                {
-                    for (int i = 0; i < sqData.Length; i++)
-                    {
-                        playerTwoSquad.Add(sqData[i]);
-                    }
-                }
-                break;
+        public static string[] Decode(string message)
+        {
+            return message.Split(separatorChar);
         }
     }
 }
 
-public class ServerClient
+public class ServerClient : TcpClient
 {
-    public string clientName;
-    public TcpClient tcp;
-    public bool isHost;
+    public string ClientName;
 
-    public ServerClient(TcpClient tcp)
+    public ServerClient(string hostname, int port) : base(hostname, port)
     {
-        this.tcp = tcp;
+
     }
 }

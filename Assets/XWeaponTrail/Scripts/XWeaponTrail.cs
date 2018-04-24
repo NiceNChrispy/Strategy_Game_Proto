@@ -294,7 +294,7 @@ namespace XftWeapon {
 
                 float fadeT = uvSegment * mFadeT;
 
-                Vector2 uvCoord = Vector2.zero;
+                UnityEngine.Vector2 uvCoord = UnityEngine.Vector2.zero;
 
                 Vector3 pos = mSpline.InterpolateByLen(fadeT);
 

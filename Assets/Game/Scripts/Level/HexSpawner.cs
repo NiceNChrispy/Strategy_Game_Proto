@@ -8,8 +8,8 @@ public class HexSpawner : MonoBehaviour
 {
     [SerializeField] private HexTile m_HexTilePrefabNormal, m_HexTilePrefabOther;
     [SerializeField] private int m_Columns, m_Rows;
-    [SerializeField] private Vector2 m_Dimensions;
-    [SerializeField] private Vector2 m_RelativeOffset;
+    [SerializeField] private UnityEngine.Vector2 m_Dimensions;
+    [SerializeField] private UnityEngine.Vector2 m_RelativeOffset;
     [SerializeField] private float levelGenSpeed;
 
     HexTile[,] spawnedTiles;

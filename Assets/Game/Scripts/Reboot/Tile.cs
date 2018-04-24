@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameTile : MonoBehaviour
+namespace Reboot
 {
+    public class Tile
+    {
+        Map m_Map;
 
+
+    }
 }

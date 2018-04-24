@@ -3,18 +3,21 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
-using System.Net;
+using System.Net.NetworkInformation;
 
 public class Client : MonoBehaviour
 {
-    private bool socketReady;
-    private TcpClient socket;
-    private NetworkStream stream;
-    private StreamWriter writer;
-    private StreamReader reader;
+    private TcpClient m_TCPClient;
+    private NetworkStream m_NetworkStream;
+    private StreamWriter m_StreamWriter;
+    private StreamReader m_StreamReader;
+    private bool IsConnected { get { return (m_TCPClient != null) ? m_TCPClient.Connected : false; } }
+
+    public event Action<string> OnReceiveMessage = delegate { };
     public bool isHost = false;
 
-    public string clientName;
+    public string Name;
+    public int Score;
 
     private List<GameClient> players = new List<GameClient>();
 
@@ -23,97 +26,148 @@ public class Client : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public bool ConnectToServer(string host, int port)
+    [NaughtyAttributes.Button("Connect to local server")]
+    private void LocalConnect()
     {
-        if (socketReady)
-            return false;
+        ConnectToServer("localhost", 6321);
+    }
 
+    public bool ConnectToServer(string hostName, int port)
+    {
+        if (IsConnected)
+        {
+            Debug.Log("Already connected to server");
+            return false;
+        }
         try
         {
-            socket = new TcpClient(host, port);
-            stream = socket.GetStream();
-            writer = new StreamWriter(stream);
-            reader = new StreamReader(stream);
-
-            socketReady = true;
+            m_TCPClient = new TcpClient(hostName, port);
+            m_NetworkStream = m_TCPClient.GetStream();
+            m_StreamWriter = new StreamWriter(m_NetworkStream);
+            m_StreamReader = new StreamReader(m_NetworkStream);
+            m_StreamWriter.AutoFlush = true;
+            Debug.Log("Connected");
+            return true;
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Debug.Log("Socket Error" + e.Message);
+            Debug.Log("Socket Error" + exception.Message);
+            return false;
         }
-
-        return socketReady;
     }
 
     private void Update()
     {
-        if (socketReady)
+        if (IsConnected)
         {
-            if(stream.DataAvailable)
+            if(m_NetworkStream.DataAvailable)
             {
-                string data = reader.ReadLine();
-                if (data != null)
+                string message = m_StreamReader.ReadLine();
+                if (message != null)
                 {
-                    OnIncomingData(data);
+                    OnReceiveMessage.Invoke(message);
+                    Receive(message);
                 }
             }
         }
     }
 
-    //Send messages to server
-    public void Send(string data)
+    [NaughtyAttributes.Button("Ping")]
+    private void PingTest()
     {
-        if (!socketReady)
-            return;
-
-        writer.WriteLine(data);
-        writer.Flush();
+        Ping("www.google.com");
     }
 
-    //read messages from server
-    private void OnIncomingData(string data)
+    private void Ping(string hostName)
     {
-        Debug.Log("Client:" + data);
-
-        string[] aData = data.Split('|');
-        switch (aData[0])
+        try
         {
-            case "SWHO":
-                for (int i = 1; i < aData.Length -1; i++)
-                {
-                    UserConnected(aData[i], false);
-                }
-                Send("CWHO|" + clientName + "|" + ((isHost)?1:0).ToString());
-             
-                break;
-
-            case "SCNN":
-                UserConnected(aData[1], false);
-                break;
+            System.Net.NetworkInformation.Ping myPing = new System.Net.NetworkInformation.Ping();
+            PingReply reply = myPing.Send(hostName, 100000);
+            if (reply != null)
+            {
+                Debug.Log("Status :  " + reply.Status + " \n Time : " + reply.RoundtripTime.ToString() + " \n Address : " + reply.Address);
+            }
         }
+        catch (Exception exception)
+        {
+            Debug.Log(exception.Message);
+        }
+    }
+
+    public void Send(string message)
+    {
+        if (!IsConnected)
+        {
+            Debug.Log("Not Connected");
+            return;
+        }
+
+        m_StreamWriter.WriteLine(message);
+    }
+
+    [NaughtyAttributes.Button("Send Score")]
+    private void SendScore()
+    {
+        Send(Server.NetworkMessage.Encode("SCORE", Score.ToString()));
+    }
+
+    //Receive messages from server
+    private void Receive(string message)
+    {
+        //Debug.Log(string.Format("Received Message ({0})", message));
+        OnReceiveMessage.Invoke(message);
+
+        string[] messageParams = Server.NetworkMessage.Decode(message);
+        if(messageParams[0] == Server.WHO_ARE_YOU)
+        {
+            Send(Server.NetworkMessage.Encode(Server.I_AM, Name));
+        }
+        //
+        //string[] messageParameters = Server.NetworkMessage.Decode(message);
+        //
+        //switch (messageParameters[0])
+        //{
+        //    case Server.GET_CONNECTED_CLIENTS:
+        //    {
+        //        for (int i = 1; i < messageParameters.Length - 1; i++)
+        //        {
+        //            UserConnected(messageParameters[i], false);
+        //        }
+        //        string reply = Server.NetworkMessage.Encode(Server.GET_CONNECTED_CLIENTS, clientName, isHost.ToString());
+        //        //string reply = string.Join("|", new string[] { "CWHO",  });
+        //        Send(reply);
+        //        //Send("CWHO|" + clientName + "|" + ((isHost) ? 1 : 0).ToString());
+        //        break;
+        //    }
+        //    case "SCNN":
+        //    {
+        //        UserConnected(messageParameters[1], false);
+        //        break;
+        //    }
+        //}
     }
 
     private void UserConnected(string name, bool host)
     {
-        GameClient c = new GameClient();
-        c.name = name;
+        GameClient gameClient = new GameClient();
+        gameClient.name = name;
 
-        players.Add(c);
+        players.Add(gameClient);
 
-        if (isHost)
-        {
-            Send("SQINFO|1,1,1,1,1,1,3");
-        }
+        //if (isHost)
+        //{
+        //    Send("SQINFO|1,1,1,1,1,1,3");
+        //}
+        //else
+        //{
+        //    Send("SQINFO|2,2,2,2,2,2,4");
+        //}
 
-        else
-        {
-            Send("SQINFO|2,2,2,2,2,2,4");
-        }
-
-        if (players.Count == 2)
-        {
-            GameManager.Instance.StartGame();
-        }
+        //if (players.Count == 2)
+        //{
+        //    GameManager.Instance.StartGame();
+        //}
     }
 
     private void OnDisable()
@@ -128,13 +182,14 @@ public class Client : MonoBehaviour
 
     private void CloseSocket()
     {
-        if (!socketReady)
+        if (!IsConnected)
+        {
             return;
+        }
 
-        writer.Close();
-        reader.Close();
-        socket.Close();
-        socketReady = false;
+        m_StreamWriter.Close();
+        m_StreamReader.Close();
+        m_TCPClient.Close();
     }
 }
 

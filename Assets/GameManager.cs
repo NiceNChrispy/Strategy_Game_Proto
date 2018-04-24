@@ -33,13 +33,13 @@ public class GameManager : MonoBehaviour {
         try
         {
             Server s = Instantiate(serverPrefab).GetComponent<Server>();
-            s.Init();
+            s.Begin();
             Client c = Instantiate(clientPrefab).GetComponent<Client>();
-            c.clientName = nameInput.text;
+            c.Name = nameInput.text;
             c.isHost = true;
-            if (c.clientName == "")
+            if (c.Name == "")
             {
-                c.clientName = "Host";
+                c.Name = "Host";
             }
             c.ConnectToServer("127.0.0.1", 6321);
         }
@@ -63,10 +63,10 @@ public class GameManager : MonoBehaviour {
         try
         {
             Client c = Instantiate(clientPrefab).GetComponent<Client>();
-            c.clientName = nameInput.text;
-            if (c.clientName == "")
+            c.Name = nameInput.text;
+            if (c.Name == "")
             {
-                c.clientName = "Client";
+                c.Name = "Client";
             }
             c.ConnectToServer(hostAddress, 6321);
             connectMenu.SetActive(false);

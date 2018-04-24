@@ -14,6 +14,7 @@ public class Selector : MonoBehaviour
     {
         get; set;
     }
+
     public SelectableObject SelectedObject
     {
         get; set;
