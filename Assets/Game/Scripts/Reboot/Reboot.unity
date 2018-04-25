@@ -157,19 +157,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c7e825f6012e1a428547ce87dc81274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Width: 10
-  m_Height: 3
-  m_Size: 10
   m_IsFlat: 1
-  m_MouseHex:
-    q: 0
-    r: 0
-    s: 0
   m_PlaneOffset: 0
   m_PlaneNormal: {x: 0, y: 0, z: -1}
   m_LineMat: {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_LineMat2: {fileID: 2100000, guid: a7ce7fda59e77b44d944f679a73629a2, type: 2}
-  m_hextIle: {fileID: 0}
   m_DrawScale: 0.9
 --- !u!20 &212777608
 Camera:
@@ -191,7 +183,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

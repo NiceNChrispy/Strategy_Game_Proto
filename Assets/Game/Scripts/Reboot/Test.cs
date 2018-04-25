@@ -16,14 +16,57 @@ namespace Reboot
         [SerializeField] private Material m_LineMat;
         [SerializeField] private Material m_LineMat2;
         [SerializeField] private float m_DrawScale = 1.0f;
-
+        Dictionary<Hex, HexNode> nodes;
         Map m_Map;
         private Hex m_MouseHex;
 
         private void Awake()
         {
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
-            m_Map = new Map();
+            LoadMap();
+            nodes = new Dictionary<Hex, HexNode>();
+
+            foreach (Hex hex in m_Map.Tiles)
+            {
+                HexNode hNode = new HexNode();
+                hNode.Data = hex;
+                nodes.Add(hex, hNode);
+            }
+
+            Debug.Log(nodes.Count);
+
+            foreach (HexNode hexnode in nodes.Values)
+            {
+                List<INavigationNode<Hex>> neighbouringNodes = new List<INavigationNode<Hex>>();
+                for (int i = 0; i < 6; i++)
+                {
+                    Hex neighbourHex = hexnode.Data.Neighbor(i);
+                    if (m_Map.Contains(neighbourHex))
+                    {
+                        HexNode outNode;
+                        if (nodes.TryGetValue(neighbourHex, out outNode))
+                        {
+                            neighbouringNodes.Add(outNode);
+                        }
+                    }
+                }
+                hexnode.Connections = neighbouringNodes;
+            }
+        }
+
+        private void DrawConnections()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+            foreach (HexNode hexNode in nodes.Values)
+            {
+                foreach (HexNode connection in hexNode.Connections)
+                {
+                    Gizmos.DrawLine(m_Layout.HexToPixel(connection.Data), m_Layout.HexToPixel(hexNode.Data));
+                }
+            }
         }
 
         private void SaveMap()
@@ -95,6 +138,7 @@ namespace Reboot
         private void OnDrawGizmosSelected()
         {
             Draw();
+            DrawConnections();
         }
 
         //XXXXXXXXXXXXXXXXXXXXXXXXXXXX
