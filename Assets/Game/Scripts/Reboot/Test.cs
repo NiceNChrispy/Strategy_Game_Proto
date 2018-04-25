@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -28,43 +29,55 @@ namespace Reboot
         [SerializeField] private int VertexCount;
         [SerializeField] private int DictCount;
 
+        [SerializeField] private string m_LevelName = "LEVEL.txt";
+
+        string LevelPath { get { return Application.dataPath + "/" + m_LevelName; } }
+
         private void Awake()
         {
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
-            LoadMap();
-            m_HexDict = new Dictionary<Hex, HexNode>();
-            m_NavGraph = new Graph<Hex>();
 
-            for (int i = 0; i < m_Map.Hexes.Count; i++)
+            Map loadedMap;
+            if (!Load<Map>(LevelPath, out loadedMap))
             {
-                AddNode(m_Map.Hexes[i]);
+                throw new System.Exception("FAILED TO LOAD LEVEL");
+            }
+            Debug.Log("Loaded Map");
+            BuildConnections(loadedMap);
+        }
+
+        void BuildConnections(Map map)
+        {
+            m_Map = new Map();
+            m_NavGraph = new Graph<Hex>();
+            m_HexDict = new Dictionary<Hex, HexNode>();
+
+            for (int i = 0; i < map.Hexes.Count; i++)
+            {
+                AddNode(map.Hexes[i]);
             }
         }
 
-        private void SaveMap()
+        private bool Save(object obj, string filepath)
         {
-            string filePath = Application.dataPath + "/LEVEL.txt";
-            StreamWriter sw = new StreamWriter(filePath, false);
-            string map = JsonUtility.ToJson(m_Map, true);
-            sw.Write(map);
+            StreamWriter sw = new StreamWriter(filepath, false);
+            string data = JsonUtility.ToJson(obj, true);
+            sw.Write(data);
             sw.Close();
-            Debug.Log("Saved Map");
+            return true;
         }
 
-        private void LoadMap()
+        private bool Load<T>(string filePath, out T loaded)
         {
-            string filePath = Application.dataPath + "/LEVEL.txt";
             if (File.Exists(filePath))
             {
                 StreamReader sr = new StreamReader(filePath);
-                m_Map = JsonUtility.FromJson<Map>(sr.ReadToEnd());
+                loaded = JsonUtility.FromJson<T>(sr.ReadToEnd());
                 sr.Close();
-                Debug.Log("Loaded Map");
+                return true;
             }
-            else
-            {
-                m_Map = new Map();
-            }
+            loaded = default(T);
+            return false;
         }
 
         private void Update()
@@ -95,11 +108,20 @@ namespace Reboot
 
             if (Input.GetKeyDown(KeyCode.S))
             {
-                SaveMap();
+                if (Save(m_Map, LevelPath))
+                {
+                    Debug.Log("Saved Map");
+                }
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
-                LoadMap();
+                Map loadedMap;
+                if (!Load<Map>(LevelPath, out loadedMap))
+                {
+                    throw new System.Exception("FAILED TO LOAD LEVEL");
+                }
+                Debug.Log("Loaded Map");
+                BuildConnections(loadedMap);
             }
             VertexCount = m_NavGraph.Vertices.Count();
             DictCount = m_HexDict.Count;
@@ -145,9 +167,14 @@ namespace Reboot
                 for (int i = 0; i < m_NavGraph.Edges.Count; i++)
                 {
                     Hex startHex = m_NavGraph.Edges[i].vertex0.Value;
-                    Hex endHex =   m_NavGraph.Edges[i].vertex1.Value;
+                    Hex endHex = m_NavGraph.Edges[i].vertex1.Value;
+                    Vector2 start = m_Layout.HexToPixel(startHex);
+                    Vector2 end = m_Layout.HexToPixel(endHex);
+                    Vector2 startDir = (end - start);
+                    Vector2 endDir   = (start - end);
 
-                    Gizmos.DrawLine(m_Layout.HexToPixel(startHex), m_Layout.HexToPixel(endHex));
+                    Gizmos.DrawRay(start, startDir * m_DrawScale * 0.5f);
+                    Gizmos.DrawRay(end, endDir * m_DrawScale * 0.5f);
                 }
             }
         }
