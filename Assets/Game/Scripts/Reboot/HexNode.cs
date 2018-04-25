@@ -1,18 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Reboot
 {
-    public class HexNode : INavigationNode<Hex>
+    [System.Serializable]
+    public class HexNode : IVertex<Hex>
     {
-        public Hex Data
+        public HexNode(Hex hex)
         {
-            get;
-            set;
+            Value = hex;
         }
 
-        public IEnumerable<INavigationNode<Hex>> Connections
+        public Hex Value
         {
             get;
             set;

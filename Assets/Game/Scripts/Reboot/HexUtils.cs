@@ -59,6 +59,16 @@ public struct Hex
         return Add(Hex.Direction(direction));
     }
 
+    public List<Hex> AllNeighbors()
+    {
+        List<Hex> neighbors = new List<Hex>();
+        for (int i = 0; i < 6; i++)
+        {
+            neighbors.Add(Neighbor(i));
+        }
+        return neighbors;
+    }
+
     static public List<Hex> diagonals = new List<Hex>{new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)};
 
     public Hex DiagonalNeighbor(int direction)

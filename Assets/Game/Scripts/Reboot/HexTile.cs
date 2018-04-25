@@ -7,29 +7,28 @@ namespace Reboot
 {
     public class HexTile : MonoBehaviour
     {
-        [SerializeField] private HexTileData m_Data;
-        Vector2[] Points;
+        //Vector2[] Points;
 
-        private void Awake()
-        {
-            Layout layout = new Layout(Layout.FLAT, Vector2.one, Vector2.zero);
-            SetPoints(layout.PolygonCorners(m_Data.Position));
-        }
+        //private void Awake()
+        //{
+        //    Layout layout = new Layout(Layout.FLAT, Vector2.one, Vector2.zero);
+        //    SetPoints(layout.PolygonCorners(m_Data.Position));
+        //}
 
-        public void SetPoints(IEnumerable<Vector2> points)
-        {
-            Points = points.ToArray();
-        }
+        //public void SetPoints(IEnumerable<Vector2> points)
+        //{
+        //    Points = points.ToArray();
+        //}
 
-        private void OnDrawGizmos()
-        {
-            if (Points != null)
-            {
-                for (int i = 0; i < Points.Count(); i++)
-                {
-                    Gizmos.DrawLine(transform.TransformPoint(Points[i]), transform.TransformPoint(Points[(i + 1) % 6]));
-                }
-            }
-        }
+        //private void OnDrawGizmos()
+        //{
+        //    if (Points != null)
+        //    {
+        //        for (int i = 0; i < Points.Count(); i++)
+        //        {
+        //            Gizmos.DrawLine(transform.TransformPoint(Points[i]), transform.TransformPoint(Points[(i + 1) % 6]));
+        //        }
+        //    }
+        //}
     }
 }
