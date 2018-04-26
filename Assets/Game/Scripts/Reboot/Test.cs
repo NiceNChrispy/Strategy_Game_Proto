@@ -56,11 +56,11 @@ namespace Reboot
             m_Map = new Map();
             m_NavGraph = new Graph<Hex>();
             m_HexDict = new Dictionary<Hex, HexNode>();
-            pathfinder = new AStarPathFinder<Hex>(m_NavGraph);
             for (int i = 0; i < map.Hexes.Count; i++)
             {
                 AddNode(map.Hexes[i]);
             }
+            pathfinder = new AStarPathFinder<Hex>(m_NavGraph);
         }
 
         private bool Save(object obj, string filepath)
@@ -149,7 +149,7 @@ namespace Reboot
                 HexNode from, to;
                 if(m_HexDict.TryGetValue(PathHex, out from) && m_HexDict.TryGetValue(m_MouseHex, out to))
                 {
-                    path = pathfinder.GetPath(from, to);
+                    path = pathfinder.GetPath(from, to, ((x,y) => x.Distance(y)));
                     if(path != null)
                     {
                         //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));

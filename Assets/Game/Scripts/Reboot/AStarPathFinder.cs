@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -34,23 +35,24 @@ namespace Reboot
 
     public class AStarPathFinder<T> : PathFinder<T>
     {
-        public AStarPathFinder(Graph<T> graph) : base(graph) {}
+        List<AStarVertex<T>> m_Nodes;
 
-        public override List<Vertex<T>> GetPath(Vertex<T> from, Vertex<T> to)
+        public AStarPathFinder(Graph<T> graph) : base(graph)
         {
-            Dictionary<Vertex<T>, AStarNode> m_VertexNodes = new Dictionary<Vertex<T>, AStarNode>();
+            m_Nodes = new List<AStarVertex<T>>();
 
-            List<AStarVertex<T>> aStarNodes = new List<AStarVertex<T>>();
-
-            foreach(Vertex<T> vertex in m_Graph.Vertices)
+            foreach (Vertex<T> vertex in m_Graph.Vertices)
             {
-                aStarNodes.Add(new AStarVertex<T>(vertex));
+                m_Nodes.Add(new AStarVertex<T>(vertex));
             }
+        }
 
+        public override List<Vertex<T>> GetPath(Vertex<T> from, Vertex<T> to, Func<T, T, float> distanceFunction)
+        {
             Heap<AStarVertex<T>> openSet = new Heap<AStarVertex<T>>(m_Graph.Vertices.Count);
             HashSet<AStarVertex<T>> closedSet = new HashSet<AStarVertex<T>>();
 
-            openSet.Add(aStarNodes.Single(x => x.Vertex.Equals(from)));
+            openSet.Add(m_Nodes.Single(x => x.Vertex.Equals(from)));
 
             while (openSet.Count > 0)
             {
@@ -60,8 +62,8 @@ namespace Reboot
 
                 if (currentNode.Vertex == to)
                 {
-                    AStarVertex<T> fromVertex = aStarNodes.Single(x => x.Vertex.Equals(from));
-                    AStarVertex<T> toVertex = aStarNodes.Single(x => x.Vertex.Equals(to));
+                    AStarVertex<T> fromVertex = m_Nodes.Single(x => x.Vertex.Equals(from));
+                    AStarVertex<T> toVertex = m_Nodes.Single(x => x.Vertex.Equals(to));
                     return RetracePath(fromVertex, toVertex);
                 }
 
@@ -69,7 +71,7 @@ namespace Reboot
                 AStarVertex<T>[] connections = new AStarVertex<T>[vertexConnections.Count];
                 for (int i = 0; i < vertexConnections.Count; i++)
                 {
-                    AStarVertex<T> vertex = aStarNodes.Single(x => x.Vertex.Equals(vertexConnections[i]));
+                    AStarVertex<T> vertex = m_Nodes.Single(x => x.Vertex.Equals(vertexConnections[i]));
                     if (vertex != null)
                     {
                         connections[i] = vertex;
@@ -80,27 +82,27 @@ namespace Reboot
                     }
                 }
 
-                foreach (AStarVertex<T> aStarVertex in connections)
+                foreach (AStarVertex<T> connectedNode in connections)
                 {
-                    if (aStarVertex == null || closedSet.Contains(aStarVertex))
+                    if (connectedNode == null || closedSet.Contains(connectedNode))
                     {
                         continue;
                     }
 
-                    float movementCost = currentNode.GCost + 1;
+                    float movementCost = currentNode.GCost + distanceFunction(currentNode.Vertex.Value, connectedNode.Vertex.Value);
 
-                    if (movementCost < aStarVertex.GCost || !openSet.Contains(aStarVertex))
+                    if (movementCost < connectedNode.GCost || !openSet.Contains(connectedNode))
                     {
-                        aStarVertex.GCost = movementCost;
-                        aStarVertex.HCost = 1;
-                        aStarVertex.Previous = currentNode;
-                        if (!openSet.Contains(aStarVertex))
+                        connectedNode.GCost = movementCost;
+                        connectedNode.HCost = + distanceFunction(currentNode.Vertex.Value, to.Value);
+                        connectedNode.Previous = currentNode;
+                        if (!openSet.Contains(connectedNode))
                         {
-                            openSet.Add(aStarVertex);
+                            openSet.Add(connectedNode);
                         }
                         else
                         {
-                            openSet.UpdateItem(aStarVertex);
+                            openSet.UpdateItem(connectedNode);
                         }
                     }
                 }

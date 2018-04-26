@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,6 @@ namespace Reboot
             m_Graph = graph;
         }
 
-        public abstract List<Vertex<T>> GetPath(Vertex<T> from, Vertex<T> to);
+        public abstract List<Vertex<T>> GetPath(Vertex<T> from, Vertex<T> to, Func<T, T, float> distanceFunction);
     }
 }
