@@ -18,7 +18,6 @@ namespace Reboot
         [SerializeField] private float m_DrawScale = 1.0f;
 
         Layout m_Layout;
-        Dictionary<Hex, IVertex<Hex>> nodes;
         Map m_Map;
         private Hex m_MouseHex;
 
@@ -30,15 +29,21 @@ namespace Reboot
         [SerializeField] private int DictCount;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
+        [SerializeField] private string m_GraphName = "GRAPH.txt";
 
-        string LevelPath { get { return Application.dataPath + "/" + m_LevelName; } }
+        Hex PathHex;
+        [SerializeField] List<Vertex<Hex>> path;
+
+        AStarPathFinder<Hex> pathfinder;
+
+        string Path(string file) { return Application.dataPath + "/" + file; }
 
         private void Awake()
         {
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
 
             Map loadedMap;
-            if (!Load<Map>(LevelPath, out loadedMap))
+            if (!Load<Map>(Path(m_LevelName), out loadedMap))
             {
                 throw new System.Exception("FAILED TO LOAD LEVEL");
             }
@@ -51,7 +56,7 @@ namespace Reboot
             m_Map = new Map();
             m_NavGraph = new Graph<Hex>();
             m_HexDict = new Dictionary<Hex, HexNode>();
-
+            pathfinder = new AStarPathFinder<Hex>(m_NavGraph);
             for (int i = 0; i < map.Hexes.Count; i++)
             {
                 AddNode(map.Hexes[i]);
@@ -104,19 +109,32 @@ namespace Reboot
                 {
                     RemoveNode(hitHex);
                 }
+                if(Input.GetKeyDown(KeyCode.P))
+                {
+                    PathHex = hitHex;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.S))
             {
-                if (Save(m_Map, LevelPath))
+                if (Save(m_Map, Path(m_LevelName)))
                 {
                     Debug.Log("Saved Map");
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                if(Save(m_NavGraph, Path(m_GraphName)))
+                {
+                    Debug.Log(m_NavGraph.Vertices.Count);
+                    Debug.Log(m_NavGraph.Edges.Count);
+                    Debug.Log("Saved Graph");
                 }
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
                 Map loadedMap;
-                if (!Load<Map>(LevelPath, out loadedMap))
+                if (!Load(Path(m_LevelName), out loadedMap))
                 {
                     throw new System.Exception("FAILED TO LOAD LEVEL");
                 }
@@ -125,6 +143,23 @@ namespace Reboot
             }
             VertexCount = m_NavGraph.Vertices.Count();
             DictCount = m_HexDict.Count;
+
+            if(PathHex != null)
+            {
+                HexNode from, to;
+                if(m_HexDict.TryGetValue(PathHex, out from) && m_HexDict.TryGetValue(m_MouseHex, out to))
+                {
+                    path = pathfinder.GetPath(from, to);
+                    if(path != null)
+                    {
+                        //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
+                        for (int i = 0; i < path.Count - 1; i++)
+                        {
+                            Debug.DrawLine(m_Layout.HexToPixel(path[i].Value), m_Layout.HexToPixel(path[i + 1].Value));
+                        }
+                    }
+                }
+            }
         }
 
         private void AddNode(Hex hex)
@@ -171,7 +206,7 @@ namespace Reboot
                     Vector2 start = m_Layout.HexToPixel(startHex);
                     Vector2 end = m_Layout.HexToPixel(endHex);
                     Vector2 startDir = (end - start);
-                    Vector2 endDir   = (start - end);
+                    Vector2 endDir = (start - end);
 
                     Gizmos.DrawRay(start, startDir * m_DrawScale * 0.5f);
                     Gizmos.DrawRay(end, endDir * m_DrawScale * 0.5f);
@@ -182,7 +217,7 @@ namespace Reboot
         private void OnDrawGizmosSelected()
         {
             Draw();
-            DrawNeighbors();
+            //DrawNeighbors();
         }
 
         private void OnPostRender()

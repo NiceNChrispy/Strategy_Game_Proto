@@ -6,17 +6,9 @@ using UnityEngine;
 namespace Reboot
 {
     [System.Serializable]
-    public class HexNode : IVertex<Hex>
+    public class HexNode : Vertex<Hex>
     {
-        public HexNode(Hex hex)
-        {
-            Value = hex;
-        }
-
-        public Hex Value
-        {
-            get;
-            set;
-        }
+        public HexNode(Hex hex) : base(hex)
+        {}
     }
 }
