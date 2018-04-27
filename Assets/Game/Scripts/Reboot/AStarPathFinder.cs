@@ -6,20 +6,26 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class AStarVertex<T> : IHeapItem<AStarVertex<T>>
+    public class AStarVertex<T> : Vertex<T>, IHeapItem<AStarVertex<T>>
     {
         public float GCost { get; set; }
         public float HCost { get; set; }
         public float FCost { get { return GCost + HCost; } }
 
+        public bool IsOccupied { get; set; }
+
         public int HeapIndex { get; set; }
 
-        public Vertex<T> Vertex;
+        public T Value
+        {
+            get; set;
+        }
+
         public AStarVertex<T> Previous;
 
-        public AStarVertex(Vertex<T> vertex)
+        public AStarVertex(T value)
         {
-            this.Vertex = vertex;
+            this.Value = value;
         }
 
         public int CompareTo(AStarVertex<T> other)
@@ -33,26 +39,26 @@ namespace Reboot
         }
     }
 
-    public class AStarPathFinder<T> : PathFinder<T>
+    public class AStarNavGraph<T> : NavGraph<T>
     {
         List<AStarVertex<T>> m_Nodes;
 
-        public AStarPathFinder(Graph<T> graph) : base(graph)
+        public AStarNavGraph()
         {
             m_Nodes = new List<AStarVertex<T>>();
 
-            foreach (Vertex<T> vertex in m_Graph.Vertices)
+            foreach (AStarVertex<T> vertex in Vertices)
             {
-                m_Nodes.Add(new AStarVertex<T>(vertex));
+                m_Nodes.Add(new AStarVertex<T>(vertex.Value));
             }
         }
 
         public override List<Vertex<T>> GetPath(Vertex<T> from, Vertex<T> to, Func<T, T, float> distanceFunction)
         {
-            Heap<AStarVertex<T>> openSet = new Heap<AStarVertex<T>>(m_Graph.Vertices.Count);
+            Heap<AStarVertex<T>> openSet = new Heap<AStarVertex<T>>(Vertices.Count);
             HashSet<AStarVertex<T>> closedSet = new HashSet<AStarVertex<T>>();
 
-            openSet.Add(m_Nodes.Single(x => x.Vertex.Equals(from)));
+            openSet.Add(m_Nodes.Single(x => x.Value.Equals(from.Data)));
 
             while (openSet.Count > 0)
             {
@@ -60,18 +66,18 @@ namespace Reboot
 
                 closedSet.Add(currentNode);
 
-                if (currentNode.Vertex == to)
+                if (currentNode.Value.Equals(to.Data))
                 {
-                    AStarVertex<T> fromVertex = m_Nodes.Single(x => x.Vertex.Equals(from));
-                    AStarVertex<T> toVertex = m_Nodes.Single(x => x.Vertex.Equals(to));
+                    AStarVertex<T> fromVertex = m_Nodes.Single(x => x.Value.Equals(from.Data));
+                    AStarVertex<T> toVertex = m_Nodes.Single(x => x.Value.Equals(to.Data));
                     return RetracePath(fromVertex, toVertex);
                 }
 
-                List<Vertex<T>> vertexConnections = m_Graph.GetConnected(currentNode.Vertex);
+                List<Vertex<T>> vertexConnections = GetConnected(currentNode);
                 AStarVertex<T>[] connections = new AStarVertex<T>[vertexConnections.Count];
                 for (int i = 0; i < vertexConnections.Count; i++)
                 {
-                    AStarVertex<T> vertex = m_Nodes.Single(x => x.Vertex.Equals(vertexConnections[i]));
+                    AStarVertex<T> vertex = m_Nodes.Single(x => x.Value.Equals(vertexConnections[i].Data));
                     if (vertex != null)
                     {
                         connections[i] = vertex;
@@ -89,12 +95,12 @@ namespace Reboot
                         continue;
                     }
 
-                    float movementCost = currentNode.GCost + distanceFunction(currentNode.Vertex.Value, connectedNode.Vertex.Value);
+                    float movementCost = currentNode.GCost + distanceFunction(currentNode.Value, connectedNode.Value);
 
-                    if (movementCost < connectedNode.GCost || !openSet.Contains(connectedNode))
+                    if (!connectedNode.IsOccupied && movementCost < connectedNode.GCost || !openSet.Contains(connectedNode))
                     {
                         connectedNode.GCost = movementCost;
-                        connectedNode.HCost = + distanceFunction(currentNode.Vertex.Value, to.Value);
+                        connectedNode.HCost = + distanceFunction(currentNode.Value, to.Data);
                         connectedNode.Previous = currentNode;
                         if (!openSet.Contains(connectedNode))
                         {
@@ -128,7 +134,7 @@ namespace Reboot
 
             foreach (AStarVertex<T> node in path)
             {
-                vertices.Add(node.Vertex);
+                vertices.Add(node);
             }
             return vertices;
         }

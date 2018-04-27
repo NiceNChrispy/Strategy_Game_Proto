@@ -1,47 +1,21 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Reboot
 {
-    [System.Serializable]
     public class Vertex<T>
     {
-        public T Value { get; set; }
+        public T Data { get; set; }
 
-        public Vertex(T value)
+        static public bool operator ==(Vertex<T> a, Vertex<T> b)
         {
-            Value = value;
+            return (a.Data.Equals(b.Data));
+        }
+
+        static public bool operator !=(Vertex<T> a, Vertex<T> b)
+        {
+            return !(a == b);
         }
     }
-
-    //public class Edge
-    //{
-    //    public int index0, index1;
-
-    //    public Edge(int index0, int index1)
-    //    {
-    //        this.index0 = index0;
-    //        this.index1 = index1;
-    //    }
-
-    //    static public bool operator ==(Edge a, Edge b)
-    //    {
-    //        return (a.index0 == b.index0 && a.index1 == b.index1) || (a.index0 == b.index1 && a.index1 == b.index0);
-    //    }
-
-    //    static public bool operator !=(Edge a, Edge b)
-    //    {
-    //        return !(a == b);
-    //    }
-
-    //    public bool Contains(int index)
-    //    {
-    //        return (index0 == index || index1 == index);
-    //    }
-    //}
 
     [System.Serializable]
     public class Edge<T>
@@ -56,7 +30,7 @@ namespace Reboot
 
         static public bool operator ==(Edge<T> a, Edge<T> b)
         {
-            return (a.vertex0.Value.Equals(b.vertex0.Value) && a.vertex1.Value.Equals(b.vertex1)) || (a.vertex0.Value.Equals(b.vertex1.Value) && a.vertex1.Value.Equals(b.vertex0.Value));
+            return ((a.vertex0 == b.vertex0 && a.vertex1 == b.vertex1) || (a.vertex0 == b.vertex1 && a.vertex1 == b.vertex0));
         }
 
         static public bool operator !=(Edge<T> a, Edge<T> b)
@@ -66,7 +40,7 @@ namespace Reboot
 
         public bool Contains(Vertex<T> vertex)
         {
-            return (vertex0.Value.Equals(vertex.Value) || vertex1.Value.Equals(vertex.Value));
+            return (vertex0 == vertex || vertex1== vertex);
         }
     }
 
@@ -141,11 +115,11 @@ namespace Reboot
             {
                 if(edge.Contains(vertex))
                 {
-                    if(!edge.vertex0.Value.Equals(vertex.Value))
+                    if(!edge.vertex0.Data.Equals(vertex.Data))
                     {
                         vertices.Add(edge.vertex0);
                     }
-                    if (!edge.vertex1.Value.Equals(vertex.Value))
+                    if (!edge.vertex1.Data.Equals(vertex.Data))
                     {
                         vertices.Add(edge.vertex1);
                     }

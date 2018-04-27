@@ -8,7 +8,14 @@ namespace Reboot
     [System.Serializable]
     public class HexNode : Vertex<Hex>
     {
-        public HexNode(Hex hex) : base(hex)
-        {}
+        public HexNode(Hex value)
+        {
+            Value = value;
+        }
+
+        public Hex Value
+        {
+            get; set;
+        }
     }
 }
