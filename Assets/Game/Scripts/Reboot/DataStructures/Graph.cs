@@ -1,40 +1,54 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DataStructures
 {
+    [Serializable]
     public class Graph<T> : IEnumerable<T>
     {
-        public NodeList<T> Nodes { get; protected set; }
+        public List<Node<T>> Nodes { get; protected set; }
 
-        public Graph() : this(new NodeList<T>()) { }
-        public Graph(NodeList<T> nodes)
+        public Graph() : this(new List<Node<T>>()) { }
+        public Graph(List<Node<T>> nodes)
         {
             Nodes = nodes;
         }
 
-        public void AddNode(GraphNode<T> node)
+        public Node<T> FindByValue(T value)
+        {
+            foreach (Node<T> node in Nodes)
+            {
+                if (node.Data.Equals(value))
+                {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        public virtual void AddNode(GraphNode<T> node)
         {
             // adds a node to the graph
             Nodes.Add(node);
         }
 
-        public void AddNode(T value)
+        public virtual void AddNode(T value)
         {
             // adds a node to the graph
             Nodes.Add(new GraphNode<T>(value));
         }
 
-        public void AddDirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
+        public virtual void AddDirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
         {
             from.Neighbors.Add(to);
             from.Costs.Add(cost);
         }
 
-        public void AddDirectedEdge(T fromValue, T toValue, int cost)
+        public virtual void AddDirectedEdge(T fromValue, T toValue, int cost)
         {
-            GraphNode<T> fromNode = (GraphNode<T>)Nodes.FindByValue(fromValue);
-            GraphNode<T> toNode = (GraphNode<T>)Nodes.FindByValue(toValue);
+            GraphNode<T> fromNode = (GraphNode<T>)FindByValue(fromValue);
+            GraphNode<T> toNode = (GraphNode<T>)FindByValue(toValue);
 
             if (fromNode != null && toNode != null)
             {
@@ -43,7 +57,7 @@ namespace DataStructures
             }
         }
 
-        public void AddUndirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
+        public virtual void AddUndirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
         {
             from.Neighbors.Add(to);
             from.Costs.Add(cost);
@@ -52,10 +66,10 @@ namespace DataStructures
             to.Costs.Add(cost);
         }
 
-        public void AddUndirectedEdge(T fromValue, T toValue, int cost)
+        public virtual void AddUndirectedEdge(T fromValue, T toValue, int cost)
         {
-            GraphNode<T> fromNode = (GraphNode<T>)Nodes.FindByValue(fromValue);
-            GraphNode<T> toNode = (GraphNode<T>)Nodes.FindByValue(toValue);
+            GraphNode<T> fromNode = (GraphNode<T>)FindByValue(fromValue);
+            GraphNode<T> toNode = (GraphNode<T>)FindByValue(toValue);
 
             if (fromNode != null && toNode != null)
             {
@@ -69,13 +83,13 @@ namespace DataStructures
 
         public bool Contains(T value)
         {
-            return Nodes.FindByValue(value) != null;
+            return FindByValue(value) != null;
         }
 
         public bool Remove(T value)
         {
             // first remove the node from the nodeset
-            GraphNode<T> nodeToRemove = (GraphNode<T>)Nodes.FindByValue(value);
+            GraphNode<T> nodeToRemove = (GraphNode<T>)FindByValue(value);
             if (nodeToRemove == null)
             {
                 return false;

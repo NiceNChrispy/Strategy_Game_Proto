@@ -27,9 +27,9 @@ namespace Reboot
         [SerializeField] private string m_GraphName = "GRAPH.txt";
 
         Hex PathHex;
-        //[SerializeField] List<IVertex<Hex>> path;
+        [SerializeField] List<AStarNode<Hex>> m_Path;
 
-        DataStructures.Graph<Hex> m_NavGraph;
+        DataStructures.NavGraph<Hex> m_NavGraph;
 
         string Path(string file) { return Application.dataPath + "/" + file; }
 
@@ -49,7 +49,7 @@ namespace Reboot
         void BuildConnections(Map map)
         {
             m_Map = new Map();
-            m_NavGraph = new Graph<Hex>();
+            m_NavGraph = new NavGraph<Hex>();
             for (int i = 0; i < map.Hexes.Count; i++)
             {
                 AddNode(map.Hexes[i]);
@@ -102,9 +102,10 @@ namespace Reboot
                 {
                     RemoveNode(hitHex);
                 }
-                if(Input.GetKeyDown(KeyCode.P))
+                if (Input.GetKeyDown(KeyCode.P))
                 {
                     PathHex = hitHex;
+                    Debug.Log(m_NavGraph.Nodes.Count);
                 }
             }
 
@@ -117,7 +118,7 @@ namespace Reboot
             }
             if (Input.GetKeyDown(KeyCode.G))
             {
-                if(Save(m_NavGraph, Path(m_GraphName)))
+                if (Save(m_NavGraph, Path(m_GraphName)))
                 {
                     //Debug.Log(m_NavGraph.Vertices.Count);
                     //Debug.Log(m_NavGraph.Edges.Count);
@@ -136,22 +137,21 @@ namespace Reboot
             }
             VertexCount = m_NavGraph.Nodes.Count();
 
-            //if(PathHex != null)
-            //{
-            //    HexNode from, to;
-            //    if(m_HexDict.TryGetValue(PathHex, out from) && m_HexDict.TryGetValue(m_MouseHex, out to))
-            //    {
-            //        path = m_NavGraph.GetPath(from, to, ((x,y) => x.Distance(y)));
-            //        if(path != null)
-            //        {
-            //            //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
-            //            for (int i = 0; i < path.Count - 1; i++)
-            //            {
-            //                Debug.DrawLine(m_Layout.HexToPixel(path[i].Value), m_Layout.HexToPixel(path[i + 1].Value));
-            //            }
-            //        }
-            //    }
-            //}
+            if (PathHex != null)
+            {
+                if (m_Map.Contains(m_MouseHex) && m_Map.Contains(PathHex))
+                {
+                    m_Path = m_NavGraph.GetPath(m_MouseHex, PathHex, ((x, y) => x.Distance(y)));
+                    if (m_Path != null)
+                    {
+                        //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
+                        for (int i = 0; i < m_Path.Count - 1; i++)
+                        {
+                            Debug.DrawLine(m_Layout.HexToPixel(m_Path[i].Data), m_Layout.HexToPixel(m_Path[i + 1].Data));
+                        }
+                    }
+                }
+            }
         }
 
         private void AddNode(Hex hex)
@@ -178,7 +178,7 @@ namespace Reboot
         {
             if (m_NavGraph != null)
             {
-                foreach(GraphNode<Hex> node in m_NavGraph.Nodes)
+                foreach (GraphNode<Hex> node in m_NavGraph.Nodes)
                 {
                     Vector2 start = m_Layout.HexToPixel(node.Data);
                     Vector2 end;
@@ -209,7 +209,7 @@ namespace Reboot
         private void OnDrawGizmosSelected()
         {
             Draw();
-            DrawNeighbors();
+            //DrawNeighbors();
         }
 
         private void OnPostRender()

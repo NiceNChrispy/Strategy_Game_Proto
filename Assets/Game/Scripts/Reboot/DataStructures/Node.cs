@@ -1,15 +1,19 @@
-﻿namespace DataStructures
+﻿using System;
+using System.Collections.Generic;
+
+namespace DataStructures
 {
+    [Serializable]
     public class Node<T>
     {
         public T Data { get; set; }
 
-        public NodeList<T> Neighbors { get; protected set; }
+        public List<Node<T>> Neighbors { get; protected set; }
 
         public Node(T data)
         {
             Data = data;
-            Neighbors = new NodeList<T>();
+            Neighbors = new List<Node<T>>();
         }
     }
 }
