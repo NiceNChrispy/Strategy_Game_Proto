@@ -12,16 +12,14 @@ namespace Reboot
 
         [SerializeField] private float m_PlaneOffset;
         [SerializeField] private Vector3 m_PlaneNormal;
-        [SerializeField] private Material m_LineMat;
-        [SerializeField] private Material m_LineMat2;
+        [SerializeField] private Material m_HexMat;
+        [SerializeField] private Material m_MouseHexMat;
+        [SerializeField] private Material m_PathMat;
         [SerializeField] private float m_DrawScale = 1.0f;
 
         Layout m_Layout;
         Map m_Map;
         private Hex m_MouseHex;
-
-        [SerializeField] private int VertexCount;
-        [SerializeField] private int DictCount;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         [SerializeField] private string m_GraphName = "GRAPH.txt";
@@ -38,7 +36,7 @@ namespace Reboot
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
 
             Map loadedMap;
-            if (!Load<Map>(Path(m_LevelName), out loadedMap))
+            if (!Load(Path(m_LevelName), out loadedMap))
             {
                 throw new System.Exception("FAILED TO LOAD LEVEL");
             }
@@ -120,8 +118,6 @@ namespace Reboot
             {
                 if (Save(m_NavGraph, Path(m_GraphName)))
                 {
-                    //Debug.Log(m_NavGraph.Vertices.Count);
-                    //Debug.Log(m_NavGraph.Edges.Count);
                     Debug.Log("Saved Graph");
                 }
             }
@@ -134,23 +130,6 @@ namespace Reboot
                 }
                 Debug.Log("Loaded Map");
                 BuildConnections(loadedMap);
-            }
-            VertexCount = m_NavGraph.Nodes.Count();
-
-            if (PathHex != null)
-            {
-                if (m_Map.Contains(m_MouseHex) && m_Map.Contains(PathHex))
-                {
-                    m_Path = m_NavGraph.GetPath(m_MouseHex, PathHex, ((x, y) => x.Distance(y)));
-                    if (m_Path != null)
-                    {
-                        //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
-                        for (int i = 0; i < m_Path.Count - 1; i++)
-                        {
-                            Debug.DrawLine(m_Layout.HexToPixel(m_Path[i].Data), m_Layout.HexToPixel(m_Path[i + 1].Data));
-                        }
-                    }
-                }
             }
         }
 
@@ -191,25 +170,34 @@ namespace Reboot
                         Gizmos.DrawRay(start, dir * 0.5f * m_DrawScale);
                     }
                 }
-                //    for (int i = 0; i < m_NavGraph.Edges.Count; i++)
-                //    {
-                //        Hex startHex = m_NavGraph.Edges[i].vertex0.Value;
-                //        Hex endHex = m_NavGraph.Edges[i].vertex1.Value;
-                //        Vector2 start = m_Layout.HexToPixel(startHex);
-                //        Vector2 end = m_Layout.HexToPixel(endHex);
-                //        Vector2 startDir = (end - start);
-                //        Vector2 endDir = (start - end);
-
-                //        Gizmos.DrawRay(start, startDir * m_DrawScale * 0.5f);
-                //        Gizmos.DrawRay(end, endDir * m_DrawScale * 0.5f);
-                //    }
             }
         }
 
         private void OnDrawGizmosSelected()
         {
             Draw();
-            //DrawNeighbors();
+        }
+
+        private void DrawPath()
+        {
+            if (PathHex != null)
+            {
+                if (m_Map.Contains(m_MouseHex) && m_Map.Contains(PathHex))
+                {
+                    m_Path = m_NavGraph.GetPath(m_MouseHex, PathHex, ((x, y) => x.Distance(y)));
+                    if (m_Path != null)
+                    {
+                        GL.Begin(GL.LINES);
+                        m_PathMat.SetPass(0);
+                        for (int i = 0; i < m_Path.Count - 1; i++)
+                        {
+                            GL.Vertex((Vector3)m_Layout.HexToPixel(m_Path[i].Data));
+                            GL.Vertex((Vector3)m_Layout.HexToPixel(m_Path[i + 1].Data));
+                        }
+                        GL.End();
+                    }
+                }
+            }
         }
 
         private void OnPostRender()
@@ -221,6 +209,7 @@ namespace Reboot
         {
             if (m_Map != null)
             {
+                DrawPath();
                 m_Layout.Orientation = m_IsFlat ? Layout.FLAT : Layout.POINTY;
 
                 foreach (Hex hex in m_Map.Hexes)
@@ -228,8 +217,7 @@ namespace Reboot
                     List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
 
                     GL.Begin(GL.LINES);
-                    m_LineMat.SetPass(0);
-                    GL.Color(Color.white);
+                    m_HexMat.SetPass(0);
                     for (int i = 0; i < 6; i++)
                     {
                         GL.Vertex((Vector3)points[i]);
@@ -239,8 +227,7 @@ namespace Reboot
                 }
                 List<Vector2> mousePoints = m_Layout.PolygonCorners(m_MouseHex, m_DrawScale);
                 GL.Begin(GL.LINES);
-                m_LineMat2.SetPass(0);
-                GL.Color(Color.green);
+                m_MouseHexMat.SetPass(0);
                 for (int i = 0; i < 6; i++)
                 {
                     GL.Vertex((Vector3)mousePoints[i]);
