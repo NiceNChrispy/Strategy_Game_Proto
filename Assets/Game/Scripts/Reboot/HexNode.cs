@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Reboot
 {
     [System.Serializable]
-    public class HexNode : Vertex<Hex>
+    public class HexNode
     {
         public HexNode(Hex value)
         {

@@ -162,7 +162,7 @@ MonoBehaviour:
   m_PlaneNormal: {x: 0, y: 0, z: -1}
   m_LineMat: {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_LineMat2: {fileID: 2100000, guid: a7ce7fda59e77b44d944f679a73629a2, type: 2}
-  m_DrawScale: 0.9
+  m_DrawScale: 0.7
   VertexCount: 0
   DictCount: 0
   m_LevelName: LEVEL.txt

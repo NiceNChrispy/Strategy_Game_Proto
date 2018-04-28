@@ -27,7 +27,7 @@ namespace Reboot
             Debug.Log("Deselected");
         }
 
-        public void Move(Vertex<Hex> hex)
+        public void Move()
         {
 
         }

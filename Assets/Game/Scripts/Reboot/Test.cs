@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using DataStructures;
 
 namespace Reboot
 {
@@ -19,9 +20,6 @@ namespace Reboot
         Map m_Map;
         private Hex m_MouseHex;
 
-        private Dictionary<Hex, HexNode> m_HexDict;
-
-
         [SerializeField] private int VertexCount;
         [SerializeField] private int DictCount;
 
@@ -29,10 +27,9 @@ namespace Reboot
         [SerializeField] private string m_GraphName = "GRAPH.txt";
 
         Hex PathHex;
-        [SerializeField] List<Vertex<Hex>> path;
+        //[SerializeField] List<IVertex<Hex>> path;
 
-        //private Graph<Hex> m_NavGraph;
-        AStarNavGraph<Hex> m_NavGraph;
+        DataStructures.Graph<Hex> m_NavGraph;
 
         string Path(string file) { return Application.dataPath + "/" + file; }
 
@@ -52,13 +49,11 @@ namespace Reboot
         void BuildConnections(Map map)
         {
             m_Map = new Map();
-            m_NavGraph = new AStarNavGraph<Hex>();
-            m_HexDict = new Dictionary<Hex, HexNode>();
+            m_NavGraph = new Graph<Hex>();
             for (int i = 0; i < map.Hexes.Count; i++)
             {
                 AddNode(map.Hexes[i]);
             }
-            m_NavGraph = new AStarNavGraph<Hex>();
         }
 
         private bool Save(object obj, string filepath)
@@ -124,8 +119,8 @@ namespace Reboot
             {
                 if(Save(m_NavGraph, Path(m_GraphName)))
                 {
-                    Debug.Log(m_NavGraph.Vertices.Count);
-                    Debug.Log(m_NavGraph.Edges.Count);
+                    //Debug.Log(m_NavGraph.Vertices.Count);
+                    //Debug.Log(m_NavGraph.Edges.Count);
                     Debug.Log("Saved Graph");
                 }
             }
@@ -139,42 +134,36 @@ namespace Reboot
                 Debug.Log("Loaded Map");
                 BuildConnections(loadedMap);
             }
-            VertexCount = m_NavGraph.Vertices.Count();
-            DictCount = m_HexDict.Count;
+            VertexCount = m_NavGraph.Nodes.Count();
 
-            if(PathHex != null)
-            {
-                HexNode from, to;
-                if(m_HexDict.TryGetValue(PathHex, out from) && m_HexDict.TryGetValue(m_MouseHex, out to))
-                {
-                    path = m_NavGraph.GetPath(from, to, ((x,y) => x.Distance(y)));
-                    if(path != null)
-                    {
-                        //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
-                        for (int i = 0; i < path.Count - 1; i++)
-                        {
-                            Debug.DrawLine(m_Layout.HexToPixel(path[i].Data), m_Layout.HexToPixel(path[i + 1].Data));
-                        }
-                    }
-                }
-            }
+            //if(PathHex != null)
+            //{
+            //    HexNode from, to;
+            //    if(m_HexDict.TryGetValue(PathHex, out from) && m_HexDict.TryGetValue(m_MouseHex, out to))
+            //    {
+            //        path = m_NavGraph.GetPath(from, to, ((x,y) => x.Distance(y)));
+            //        if(path != null)
+            //        {
+            //            //Debug.Log(string.Format("FOUND PATH OF {0} LENGTH", path.Count));
+            //            for (int i = 0; i < path.Count - 1; i++)
+            //            {
+            //                Debug.DrawLine(m_Layout.HexToPixel(path[i].Value), m_Layout.HexToPixel(path[i + 1].Value));
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private void AddNode(Hex hex)
         {
             m_Map.Add(hex);
-            HexNode node = new HexNode(hex);
-            m_HexDict.Add(hex, node);
-            m_NavGraph.Add(node);
+            m_NavGraph.AddNode(hex);
+
             foreach (Hex neighbor in hex.AllNeighbors())
             {
-                if (neighbor != null)
+                if (m_Map.Contains(neighbor))
                 {
-                    HexNode neighborNode;
-                    if (m_HexDict.TryGetValue(neighbor, out neighborNode))
-                    {
-                        m_NavGraph.AddEdge(node, neighborNode);
-                    }
+                    m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
                 }
             }
         }
@@ -182,39 +171,45 @@ namespace Reboot
         private void RemoveNode(Hex hex)
         {
             m_Map.Remove(hex);
-
-            HexNode node;
-
-            if (m_HexDict.TryGetValue(hex, out node))
-            {
-                m_NavGraph.Remove(node);
-                m_HexDict.Remove(hex);
-            }
+            m_NavGraph.Remove(hex);
         }
 
         private void DrawNeighbors()
         {
             if (m_NavGraph != null)
             {
-                for (int i = 0; i < m_NavGraph.Edges.Count; i++)
+                foreach(GraphNode<Hex> node in m_NavGraph.Nodes)
                 {
-                    Hex startHex = m_NavGraph.Edges[i].vertex0.Data;
-                    Hex endHex = m_NavGraph.Edges[i].vertex1.Data;
-                    Vector2 start = m_Layout.HexToPixel(startHex);
-                    Vector2 end = m_Layout.HexToPixel(endHex);
-                    Vector2 startDir = (end - start);
-                    Vector2 endDir = (start - end);
+                    Vector2 start = m_Layout.HexToPixel(node.Data);
+                    Vector2 end;
 
-                    Gizmos.DrawRay(start, startDir * m_DrawScale * 0.5f);
-                    Gizmos.DrawRay(end, endDir * m_DrawScale * 0.5f);
+                    foreach (GraphNode<Hex> neighbor in node.Neighbors)
+                    {
+                        end = m_Layout.HexToPixel(neighbor.Data);
+                        Vector2 dir = (end - start);
+
+                        Gizmos.DrawRay(start, dir * 0.5f * m_DrawScale);
+                    }
                 }
+                //    for (int i = 0; i < m_NavGraph.Edges.Count; i++)
+                //    {
+                //        Hex startHex = m_NavGraph.Edges[i].vertex0.Value;
+                //        Hex endHex = m_NavGraph.Edges[i].vertex1.Value;
+                //        Vector2 start = m_Layout.HexToPixel(startHex);
+                //        Vector2 end = m_Layout.HexToPixel(endHex);
+                //        Vector2 startDir = (end - start);
+                //        Vector2 endDir = (start - end);
+
+                //        Gizmos.DrawRay(start, startDir * m_DrawScale * 0.5f);
+                //        Gizmos.DrawRay(end, endDir * m_DrawScale * 0.5f);
+                //    }
             }
         }
 
         private void OnDrawGizmosSelected()
         {
             Draw();
-            //DrawNeighbors();
+            DrawNeighbors();
         }
 
         private void OnPostRender()
