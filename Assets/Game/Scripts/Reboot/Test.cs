@@ -28,10 +28,11 @@ namespace Reboot
         [SerializeField] List<AStarNode<Hex>> m_Path;
 
         DataStructures.NavGraph<Hex> m_NavGraph;
+        [SerializeField] private int m_Range = 1;
 
         string Path(string file) { return Application.dataPath + "/" + file; }
 
-        private void Awake()
+        private void Start()
         {
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
 
@@ -90,7 +91,7 @@ namespace Reboot
 
                 m_MouseHex = hitHex;
 
-                bool isContained = m_Map.Contains(hitHex); //pre calculated so the dictionary doesnt try to add two elements with the same key
+                bool isContained = m_Map.Contains(hitHex);
 
                 if (Input.GetMouseButton(0) && !isContained)
                 {
@@ -130,6 +131,29 @@ namespace Reboot
                 }
                 Debug.Log("Loaded Map");
                 BuildConnections(loadedMap);
+            }
+        }
+
+        private void DrawMouseRange()
+        {
+            if(m_Map.Contains(m_MouseHex))
+            {
+                List<AStarNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(m_MouseHex, m_Range);
+                if (nodesInRange != null)
+                {
+                    GL.Begin(GL.LINES);
+                    m_PathMat.SetPass(0);
+                    for (int i = 0; i < nodesInRange.Count; i++)
+                    {
+                        List<Vector2> points = m_Layout.PolygonCorners(nodesInRange[i].Data, m_DrawScale);
+                        for (int j = 0; j < 6; j++)
+                        {
+                            GL.Vertex((Vector3)points[j]);
+                            GL.Vertex((Vector3)points[(j + 1) % 6]);
+                        }
+                    }
+                    GL.End();
+                }
             }
         }
 
@@ -209,8 +233,8 @@ namespace Reboot
         {
             if (m_Map != null)
             {
-                DrawPath();
                 m_Layout.Orientation = m_IsFlat ? Layout.FLAT : Layout.POINTY;
+                DrawPath();
 
                 foreach (Hex hex in m_Map.Hexes)
                 {
@@ -234,6 +258,7 @@ namespace Reboot
                     GL.Vertex((Vector3)mousePoints[(i + 1) % 6]);
                 }
                 GL.End();
+                DrawMouseRange();
             }
         }
     }

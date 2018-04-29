@@ -1,22 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using DataStructures;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Reboot
 {
-    public interface ISelectable
+    public interface ISelectableComponent<MonoBehaviour>
     {
+        MonoBehaviour Component { get; }
         bool IsSelectable { get; set; }
+        bool IsSelected { get; set; }
+        void OnCursorEnter();
+        void OnCursorExit();
         void Select();
         void Deselect();
     }
 
-    public interface IGraphNode<T>
+    public interface INavAgent<T>
     {
-        List<IGraphNode<T>> Connected { get; set; }
-        T Data { get; set; }
-    }
-
-    public interface ITilable
-    {
-        void SetPosition(float x, float y, float z);
+        AStarNode<T> OccupiedNode { get; set; }
+        NavGraph<T> NavGraph { get; set; }
+        void Move(AStarNode<T> to);
     }
 }

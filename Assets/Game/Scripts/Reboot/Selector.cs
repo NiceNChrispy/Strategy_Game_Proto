@@ -1,56 +1,57 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Reboot
 {
-    public class Selector : MonoBehaviour
+    public class Selector<MonoBehaviour>
     {
-        [SerializeField] private LayerMask m_SelectionLayer;
-        [SerializeField] private Camera m_Camera;
-
-        public ISelectable m_SelectableUnderCursor
+        LayerMask m_SelectionLayer;
+        public Selector(LayerMask selectionLayer)
         {
-            get; set;
+            m_SelectionLayer = selectionLayer;
         }
-        public ISelectable CurrentSelectable
+
+        public ISelectableComponent<MonoBehaviour> CurrentSelectable
         {
             get; set;
         }
 
         private Collider m_PreviousCollider;
 
-        public void Select(Vector3 position, Vector3 direction)
+        public void UpdateSelection(Ray cursorRay)
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(position, direction, out hit, Mathf.Infinity, m_SelectionLayer))
+            if (Physics.Raycast(cursorRay, out hit, Mathf.Infinity, m_SelectionLayer))
             {
-                Debug.DrawLine(position, hit.point, Color.green);
+                Debug.DrawLine(cursorRay.direction, hit.point, Color.green);
 
                 if (hit.collider != m_PreviousCollider)
                 {
                     DeselectCurrent();
-                    m_SelectableUnderCursor = hit.collider.GetComponent<ISelectable>();
-                    if(m_SelectableUnderCursor != null && m_SelectableUnderCursor.IsSelectable)
+                    CurrentSelectable = hit.collider.GetComponent<ISelectableComponent<MonoBehaviour>>();
+                    if (CurrentSelectable != null && CurrentSelectable.IsSelectable)
                     {
-                        m_SelectableUnderCursor.Select();
+                        CurrentSelectable.OnCursorEnter();
                     }
+                    m_PreviousCollider = hit.collider;
                 }
-                m_PreviousCollider = hit.collider;
             }
             else
             {
                 DeselectCurrent();
                 m_PreviousCollider = null;
-                Debug.DrawRay(position, direction * Mathf.Infinity, Color.red);
+                Debug.DrawRay(cursorRay.origin, cursorRay.direction * Mathf.Infinity, Color.red);
             }
         }
 
         public void DeselectCurrent()
         {
-            if (m_SelectableUnderCursor != null)
+            if (CurrentSelectable != null)
             {
-                m_SelectableUnderCursor.Deselect();
-                m_SelectableUnderCursor = null;
+                //SelectableUnderCursor.Deselect();
+                CurrentSelectable.OnCursorExit();
+                CurrentSelectable = null;
             }
         }
     }

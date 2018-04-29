@@ -1,13 +1,53 @@
-﻿using UnityEngine;
+﻿using DataStructures;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Reboot
 {
-    public class Unit : MonoBehaviour, ISelectable
+    public class Unit : MonoBehaviour, ISelectableComponent<Unit>, INavAgent<Hex>
     {
-        [SerializeField, Range(0, 10)] private int m_MaxMoveDistance;
-        private Map m_Map;
+        [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
+        [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
 
         public bool IsSelectable
+        {
+            get; set;
+        }
+
+        public int MovementRange
+        {
+            get
+            {
+                return m_MovementRange;
+            }
+        }
+        public int AttackRange
+        {
+            get
+            {
+                return m_AttackRange;
+            }
+        }
+
+        public Unit Component
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        public bool IsSelected
+        {
+            get; set;
+        }
+
+        public AStarNode<Hex> OccupiedNode
+        {
+            get; set;
+        }
+
+        public NavGraph<Hex> NavGraph
         {
             get; set;
         }
@@ -20,21 +60,42 @@ namespace Reboot
         public void Select()
         {
             Debug.Log("Selected");
+            IsSelected = true;
+            GetComponent<Renderer>().material.color = Color.green;
         }
 
         public void Deselect()
         {
+            GetComponent<Renderer>().material.color = Color.blue;
+            IsSelected = false;
             Debug.Log("Deselected");
-        }
-
-        public void Move()
-        {
-
         }
 
         public void Attack()
         {
 
+        }
+
+        public void OnCursorEnter()
+        {
+            if (!IsSelected && IsSelectable)
+            {
+                GetComponent<Renderer>().material.color = Color.red;
+            }
+        }
+
+        public void OnCursorExit()
+        {
+            if (!IsSelected && IsSelectable)
+            {
+                GetComponent<Renderer>().material.color = Color.blue;
+            }
+        }
+
+        public void Move(AStarNode<Hex> to)
+        {
+            List<AStarNode<Hex>> path = NavGraph.GetPath(OccupiedNode, to, (x, y) => x.Distance(y));
+            Debug.Log(path);
         }
     }
 }
