@@ -6,7 +6,7 @@ using DataStructures;
 
 namespace Reboot
 {
-    public class Test : MonoBehaviour
+    public class MapEditor : MonoBehaviour
     {
         [SerializeField] private bool m_IsFlat;
 

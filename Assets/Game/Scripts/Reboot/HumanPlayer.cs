@@ -9,18 +9,12 @@ namespace Reboot
         [SerializeField] private Camera m_Camera;
         [SerializeField] private Unit m_SelectedUnit;
 
-        private Map m_Map;
+        [SerializeField] private MapData m_Level;
 
         private void OnEnable()
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
         }
-
-        public void Init(Map map)
-        {
-            m_Map = map;
-        }
-
         private void Update()
         {
             UpdateUnitUnderCursor();

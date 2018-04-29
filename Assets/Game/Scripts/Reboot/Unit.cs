@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class Unit : MonoBehaviour, ISelectableComponent<Unit>, INavAgent<Hex>
+    public class Unit : MonoBehaviour, ISelectableComponent<Unit>
     {
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
         [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
@@ -47,11 +47,6 @@ namespace Reboot
             get; set;
         }
 
-        public NavGraph<Hex> NavGraph
-        {
-            get; set;
-        }
-
         private void OnEnable()
         {
             IsSelectable = true;
@@ -90,12 +85,6 @@ namespace Reboot
             {
                 GetComponent<Renderer>().material.color = Color.blue;
             }
-        }
-
-        public void Move(AStarNode<Hex> to)
-        {
-            List<AStarNode<Hex>> path = NavGraph.GetPath(OccupiedNode, to, (x, y) => x.Distance(y));
-            Debug.Log(path);
         }
     }
 }
