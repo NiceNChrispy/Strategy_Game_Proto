@@ -22,3 +22,12 @@ namespace Reboot
         void Move(AStarNode<T> to);
     }
 }
+
+namespace DataStructures
+{
+    public interface IHeuristic<T>
+    {
+        float Heuristic(T from, T to);
+        float NeighborDistance(T from, T to);
+    }
+}

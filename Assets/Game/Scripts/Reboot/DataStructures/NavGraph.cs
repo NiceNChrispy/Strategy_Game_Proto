@@ -34,11 +34,11 @@ namespace DataStructures
     {
         public NavGraph() : base() { }
 
-        public List<AStarNode<T>> GetPath(T from, T to, Func<T, T, float> distanceFunction)
+        public List<AStarNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
         {
             AStarNode<T> fromNode = (AStarNode<T>)FindByValue(from);
             AStarNode<T> toNode = (AStarNode<T>)(FindByValue(to));
-            return GetPath(fromNode, toNode, distanceFunction);
+            return GetPath(fromNode, toNode, heuristic);
         }
 
         public override void AddNode(T value)
@@ -46,7 +46,7 @@ namespace DataStructures
             Nodes.Add(new AStarNode<T>(value));
         }
 
-        public List<AStarNode<T>> GetPath(AStarNode<T> from, AStarNode<T> to, Func<T, T, float> distanceFunction)
+        public List<AStarNode<T>> GetPath(AStarNode<T> from, AStarNode<T> to, IHeuristic<T> heuristic)
         {
             Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
             HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
@@ -71,12 +71,12 @@ namespace DataStructures
                         continue;
                     }
 
-                    float movementCost = currentNode.GCost + distanceFunction(currentNode.Data, neighbor.Data);
+                    float movementCost = currentNode.GCost + heuristic.NeighborDistance(currentNode.Data, neighbor.Data);
 
                     if (movementCost < neighbor.GCost || !openSet.Contains(neighbor))
                     {
                         neighbor.GCost = movementCost;
-                        neighbor.HCost = distanceFunction(currentNode.Data, to.Data);
+                        neighbor.HCost = heuristic.Heuristic(currentNode.Data, to.Data);
                         neighbor.Previous = currentNode;
                         if (!openSet.Contains(neighbor))
                         {

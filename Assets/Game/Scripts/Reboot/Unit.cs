@@ -92,10 +92,6 @@ namespace Reboot
             }
         }
 
-        public void Move(AStarNode<Hex> to)
-        {
-            List<AStarNode<Hex>> path = NavGraph.GetPath(OccupiedNode, to, (x, y) => x.Distance(y));
-            Debug.Log(path);
-        }
+        public void Move(AStarNode<Hex> to) {}
     }
 }

@@ -17,6 +17,8 @@ namespace Reboot
         [SerializeField] private Material m_PathMat;
         [SerializeField] private float m_DrawScale = 1.0f;
 
+        private HexHeuristic m_Heuristic;
+
         Layout m_Layout;
         Map m_Map;
         private Hex m_MouseHex;
@@ -208,7 +210,7 @@ namespace Reboot
             {
                 if (m_Map.Contains(m_MouseHex) && m_Map.Contains(PathHex))
                 {
-                    m_Path = m_NavGraph.GetPath(m_MouseHex, PathHex, ((x, y) => x.Distance(y)));
+                    m_Path = m_NavGraph.GetPath(m_MouseHex, PathHex, m_Heuristic);
                     if (m_Path != null)
                     {
                         GL.Begin(GL.LINES);
