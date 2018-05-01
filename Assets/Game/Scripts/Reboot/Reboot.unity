@@ -144,6 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &38793399
 MeshRenderer:
@@ -242,6 +243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &88041390
 MeshRenderer:
@@ -340,6 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &184732107
 MeshRenderer:
@@ -430,7 +433,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 212777605}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c7e825f6012e1a428547ce87dc81274, type: 3}
   m_Name: 
@@ -525,6 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &218155563
 MeshRenderer:
@@ -623,6 +627,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &241542605
 MeshRenderer:
@@ -721,6 +726,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &281483506
 MeshRenderer:
@@ -819,6 +825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &292831055
 MeshRenderer:
@@ -922,6 +929,7 @@ MonoBehaviour:
     Hexes: []
   m_TurnLength: 10
   m_TurnCount: 0
+  m_LevelName: LEVEL.txt
 --- !u!4 &585687733
 Transform:
   m_ObjectHideFlags: 0
@@ -966,6 +974,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &598360259
 MeshRenderer:
@@ -1109,6 +1118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &729120848
 MeshRenderer:
@@ -1207,6 +1217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1032520086
 MeshRenderer:
@@ -1305,6 +1316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1249100803
 MeshRenderer:
@@ -1403,6 +1415,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1269861474
 MeshRenderer:
@@ -1501,6 +1514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1297334034
 MeshRenderer:
@@ -1649,6 +1663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1844484103
 MeshRenderer:
@@ -1747,6 +1762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &1857749134
 MeshRenderer:
@@ -1872,7 +1888,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2141810573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1885,6 +1901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MovementRange: 5
+  m_MovementSpeed: 0
   m_AttackRange: 3
 --- !u!23 &2141810574
 MeshRenderer:

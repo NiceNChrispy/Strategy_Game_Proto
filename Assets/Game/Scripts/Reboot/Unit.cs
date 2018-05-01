@@ -1,12 +1,14 @@
 ﻿using DataStructures;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Reboot
 {
-    public class Unit : MonoBehaviour, ISelectableComponent<Unit>, INavAgent<Hex>
+    public class Unit : MonoBehaviour, ISelectableComponent<Unit>
     {
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
+        [SerializeField]                private float m_MovementSpeed;
         [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
 
         public bool IsSelectable
@@ -29,7 +31,7 @@ namespace Reboot
             }
         }
 
-        public Unit Component
+        public Unit SelectableComponent
         {
             get
             {
@@ -42,12 +44,7 @@ namespace Reboot
             get; set;
         }
 
-        public AStarNode<Hex> OccupiedNode
-        {
-            get; set;
-        }
-
-        public NavGraph<Hex> NavGraph
+        public Hex Position
         {
             get; set;
         }
@@ -76,6 +73,27 @@ namespace Reboot
 
         }
 
+        public void Move(List<AStarNode<Hex>> path, Layout layout)
+        {
+            StartCoroutine(MoveRoutine(path, layout));
+        }
+
+        public IEnumerator MoveRoutine(List<AStarNode<Hex>> path, Layout layout)
+        {
+            float journeyTime = path.Count / m_MovementSpeed;
+
+            //while (journeyTime > 0)
+            {
+                for (int i = 0; i < path.Count; i++)
+                {
+                    transform.position = layout.HexToPixel(path[i].Data);
+                    journeyTime -= Time.deltaTime;
+                    yield return new WaitForEndOfFrame();
+                }
+            }
+            yield return null;
+        }
+
         public void OnCursorEnter()
         {
             if (!IsSelected && IsSelectable)
@@ -91,7 +109,5 @@ namespace Reboot
                 GetComponent<Renderer>().material.color = Color.blue;
             }
         }
-
-        public void Move(AStarNode<Hex> to) {}
     }
 }

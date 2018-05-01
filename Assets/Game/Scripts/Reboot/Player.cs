@@ -23,6 +23,17 @@ namespace Reboot
 
         Coroutine m_CountdownRoutine;
 
+        protected GameManager m_GameManager;
+
+        public void Init(GameManager gameManager)
+        {
+            m_GameManager = gameManager;
+            for (int i = 0; i < m_Units.Count; i++)
+            {
+                m_Units[i].Position = m_GameManager.Layout.PixelToHex(m_Units[i].transform.position).HexRound();
+            }
+        }
+
         private void Awake()
         {
             m_ActionPoints = m_MaxActionPoints;

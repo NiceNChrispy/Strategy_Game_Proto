@@ -22,10 +22,6 @@ namespace DataStructures
         public int CompareTo(AStarNode<T> other)
         {
             int compare = FCost.CompareTo(other.FCost);
-            if (compare == 0)
-            {
-                compare = HCost.CompareTo(other.HCost);
-            }
             return -compare;
         }
     }
@@ -38,6 +34,12 @@ namespace DataStructures
         {
             AStarNode<T> fromNode = (AStarNode<T>)FindByValue(from);
             AStarNode<T> toNode = (AStarNode<T>)(FindByValue(to));
+
+            if(fromNode == null || toNode == null)
+            {
+                return null;
+            }
+
             return GetPath(fromNode, toNode, heuristic);
         }
 
@@ -50,6 +52,12 @@ namespace DataStructures
         {
             Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
             HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
+
+            foreach(AStarNode<T> node in Nodes)
+            {
+                node.HCost = 0;
+                node.GCost = 0;
+            }
 
             openSet.Add(from);
 

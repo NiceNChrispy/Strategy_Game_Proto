@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Reboot
 {
@@ -8,17 +9,11 @@ namespace Reboot
         [SerializeField] private LayerMask m_SelectionLayer;
         [SerializeField] private Camera m_Camera;
         [SerializeField] private Unit m_SelectedUnit;
-
         private Map m_Map;
 
         private void OnEnable()
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
-        }
-
-        public void Init(Map map)
-        {
-            m_Map = map;
         }
 
         private void Update()
@@ -40,11 +35,29 @@ namespace Reboot
                     }
                     if (m_UnitSelector.CurrentSelectable != null)
                     {
-                        m_SelectedUnit = m_UnitSelector.CurrentSelectable.Component;
+                        m_SelectedUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
                         m_SelectedUnit.Select();
                     }
                 }
             }
+            //if(Input.GetMouseButtonDown(1))
+            {
+                if(m_SelectedUnit != null)
+                {
+                    Hex hitHex = GetHexAtCursor(m_GameManager.Layout);
+                    List<DataStructures.AStarNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
+                    if (path != null)
+                    {
+                        for (int i = 0; i < path.Count; i++)
+                        {
+                            Debug.DrawLine(m_GameManager.Layout.HexToPixel(path[i].Data), 
+                                           m_GameManager.Layout.HexToPixel(path[(i + 1) % path.Count].Data));
+                        }
+                        Debug.DrawLine(m_SelectedUnit.transform.position, m_GameManager.Layout.HexToPixel(hitHex));
+                    }
+                }
+            }
+
         }
 
         void UpdateUnitUnderCursor()
@@ -58,9 +71,19 @@ namespace Reboot
             m_UnitSelector.UpdateSelection(selectionRay);
         }
 
-        void GetHexAtCursor()
+        Hex GetHexAtCursor(Layout layout)
         {
+            Plane checkPlane = new Plane(Vector3.back, 0);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float enter;
+            Vector3 hitPoint = Vector3.zero;
 
+            if (checkPlane.Raycast(ray, out enter))
+            {
+                hitPoint = ray.GetPoint(enter);
+
+            }
+            return layout.PixelToHex((Vector2)hitPoint).HexRound();
         }
     }
 }
