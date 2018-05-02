@@ -10,7 +10,7 @@ namespace Reboot
         [SerializeField, Range(0, 20)] private int m_MaxActionPoints;
         [SerializeField, Range(0, 20)] private int m_ActionPoints;
 
-        [SerializeField] private List<Unit> m_Units;
+        [SerializeField] protected List<Unit> m_Units;
 
         public event Action<Unit> OnSelectUnit;
         public event Action OnTimerFinished = delegate { };
@@ -25,13 +25,17 @@ namespace Reboot
 
         protected GameManager m_GameManager;
 
+        public List<Unit> Units
+        {
+            get
+            {
+                return m_Units;
+            }
+        }
+
         public void Init(GameManager gameManager)
         {
             m_GameManager = gameManager;
-            for (int i = 0; i < m_Units.Count; i++)
-            {
-                m_Units[i].Position = m_GameManager.Layout.PixelToHex(m_Units[i].transform.position).HexRound();
-            }
         }
 
         private void Awake()

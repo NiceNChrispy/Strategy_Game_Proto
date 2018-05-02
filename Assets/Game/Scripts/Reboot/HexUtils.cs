@@ -126,8 +126,7 @@ public struct FractionalHex
         {
             qi = -ri - si;
         }
-        else
-            if (r_diff > s_diff)
+        else if (r_diff > s_diff)
         {
             ri = -qi - si;
         }

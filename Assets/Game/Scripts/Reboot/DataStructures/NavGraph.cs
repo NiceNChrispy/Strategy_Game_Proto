@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace DataStructures
 {
@@ -11,17 +12,21 @@ namespace DataStructures
         public float HCost { get; set; }
         public float FCost { get { return GCost + HCost; } }
 
-        public bool IsOccupied { get; set; }
+        public bool IsTraversible { get; set; }
 
         public int HeapIndex { get; set; }
 
         public AStarNode<T> Previous;
 
         public AStarNode(T data) : base(data) { }
+        public AStarNode(T data, bool isTraversible) : base(data)
+        {
+            IsTraversible = isTraversible;
+        }
 
         public int CompareTo(AStarNode<T> other)
         {
-            int compare = FCost.CompareTo(other.FCost);
+            int compare = Mathf.Max(FCost, HCost).CompareTo(Mathf.Max(other.FCost, other.HCost));
             return -compare;
         }
     }
@@ -45,7 +50,7 @@ namespace DataStructures
 
         public override void AddNode(T value)
         {
-            Nodes.Add(new AStarNode<T>(value));
+            Nodes.Add(new AStarNode<T>(value, true));
         }
 
         public List<AStarNode<T>> GetPath(AStarNode<T> from, AStarNode<T> to, IHeuristic<T> heuristic)
@@ -74,7 +79,7 @@ namespace DataStructures
 
                 foreach (AStarNode<T> neighbor in currentNode.Neighbors)
                 {
-                    if (neighbor == null || neighbor.IsOccupied || closedSet.Contains(neighbor))
+                    if (neighbor == null || !neighbor.IsTraversible || closedSet.Contains(neighbor))
                     {
                         continue;
                     }

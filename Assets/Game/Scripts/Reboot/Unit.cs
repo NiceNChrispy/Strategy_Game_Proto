@@ -8,7 +8,7 @@ namespace Reboot
     public class Unit : MonoBehaviour, ISelectableComponent<Unit>
     {
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
-        [SerializeField]                private float m_MovementSpeed;
+        [SerializeField] private float m_MovementSpeed;
         [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
 
         public bool IsSelectable

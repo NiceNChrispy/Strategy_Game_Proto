@@ -1,37 +1,36 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace Reboot
 {
     [System.Serializable]
-    public class Map
+    public class Map<T>
     {
-        public List<Hex> Hexes;
+        public List<T> Contents;
 
         public Map()
         {
-            Hexes = new List<Hex>();
+            Contents = new List<T>();
         }
 
-        public void Add(Hex hex)
+        public void Add(T item)
         {
-            if(!Hexes.Contains(hex))
+            if(!Contents.Contains(item))
             {
-                Hexes.Add(hex);
+                Contents.Add(item);
             }
         }
 
-        public void Remove(Hex hex)
+        public void Remove(T item)
         {
-            if (Hexes.Contains(hex))
+            if (Contents.Contains(item))
             {
-                Hexes.Remove(hex);
+                Contents.Remove(item);
             }
         }
 
-        public bool Contains(Hex hex)
+        public bool Contains(T item)
         {
-            return Hexes.Contains(hex);
+            return Contents.Contains(item);
         }
     }
 }

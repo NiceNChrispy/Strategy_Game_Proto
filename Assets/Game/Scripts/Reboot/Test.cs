@@ -20,7 +20,7 @@ namespace Reboot
         private HexHeuristic m_Heuristic;
 
         Layout m_Layout;
-        Map m_Map;
+        Map<Hex> m_Map;
         private Hex m_MouseHex;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
@@ -38,7 +38,7 @@ namespace Reboot
         {
             m_Layout = new Layout(m_IsFlat ? Layout.FLAT : Layout.POINTY, new Vector2(1f, 1f), Vector2.zero);
 
-            Map loadedMap;
+            Map<Hex> loadedMap;
             if (!Load(Path(m_LevelName), out loadedMap))
             {
                 throw new System.Exception("FAILED TO LOAD LEVEL");
@@ -47,13 +47,13 @@ namespace Reboot
             BuildConnections(loadedMap);
         }
 
-        void BuildConnections(Map map)
+        void BuildConnections(Map<Hex> map)
         {
-            m_Map = new Map();
+            m_Map = new Map<Hex>();
             m_NavGraph = new NavGraph<Hex>();
-            for (int i = 0; i < map.Hexes.Count; i++)
+            foreach (Hex hex in map.Contents)
             {
-                AddNode(map.Hexes[i]);
+                AddNode(hex);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Reboot
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
-                Map loadedMap;
+                Map<Hex> loadedMap;
                 if (!Load(Path(m_LevelName), out loadedMap))
                 {
                     throw new System.Exception("FAILED TO LOAD LEVEL");
@@ -238,7 +238,7 @@ namespace Reboot
                 m_Layout.Orientation = m_IsFlat ? Layout.FLAT : Layout.POINTY;
                 DrawPath();
 
-                foreach (Hex hex in m_Map.Hexes)
+                foreach (Hex hex in m_Map.Contents)
                 {
                     List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
 
