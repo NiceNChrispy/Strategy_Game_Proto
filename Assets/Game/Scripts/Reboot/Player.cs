@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataStructures;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +25,12 @@ namespace Reboot
         Coroutine m_CountdownRoutine;
 
         protected GameManager m_GameManager;
+
+        [SerializeField] protected Unit m_SelectedUnit;
+        public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
+        protected List<AStarNode<Hex>> m_Path;
+
+        public List<AStarNode<Hex>> Path { get { return m_Path; } }
 
         public List<Unit> Units
         {
@@ -53,6 +60,12 @@ namespace Reboot
         {
             OnTurnBegin -= TurnBegin;
             OnTurnEnd -= TurnEnd;
+        }
+
+        void SelectUnit()
+        {
+            //Draw movement range
+
         }
 
         public void TurnBegin()

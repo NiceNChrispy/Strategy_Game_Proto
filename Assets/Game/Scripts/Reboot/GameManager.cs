@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Reboot
@@ -73,6 +74,7 @@ namespace Reboot
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
                     ((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(nearestHex)).IsTraversible = false;
+                    unit.Position = nearestHex;
                     unit.transform.position = HexToWorld(nearestHex);
                 }
             }
@@ -107,16 +109,25 @@ namespace Reboot
             {
                 foreach (Hex hex in m_Map.Contents)
                 {
-                    DrawHex(hex);
+                    Color drawColor = Color.white;
+
+                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Any(x => x.Data == hex))
+                    {
+                        drawColor = Color.yellow;
+                    }
+                    else if(!((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(hex)).IsTraversible)
+                    {
+                        drawColor = Color.magenta;
+                    }
+                    DrawHex(hex, drawColor);
                 }
             }
         }
 
-        private void DrawHex(Hex hex)
+        private void DrawHex(Hex hex, Color color)
         {
-            bool isTraversible = ((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(hex)).IsTraversible;
+            Gizmos.color = color;
             List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
-            Gizmos.color = isTraversible ? Color.white : Color.magenta;
             for (int i = 0; i < 6; i++)
             {
                 Gizmos.DrawLine(points[i], points[(i + 1) % 6]);

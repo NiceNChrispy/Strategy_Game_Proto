@@ -56,7 +56,6 @@ namespace Reboot
 
         public void Select()
         {
-            Debug.Log("Selected");
             IsSelected = true;
             GetComponent<Renderer>().material.color = Color.green;
         }
@@ -65,7 +64,6 @@ namespace Reboot
         {
             GetComponent<Renderer>().material.color = Color.blue;
             IsSelected = false;
-            Debug.Log("Deselected");
         }
 
         public void Attack()

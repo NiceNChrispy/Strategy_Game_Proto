@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DataStructures;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Reboot
@@ -8,8 +9,7 @@ namespace Reboot
         private Selector<Unit> m_UnitSelector;
         [SerializeField] private LayerMask m_SelectionLayer;
         [SerializeField] private Camera m_Camera;
-        [SerializeField] private Unit m_SelectedUnit;
-
+        
         private void OnEnable()
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
@@ -42,13 +42,13 @@ namespace Reboot
             if (m_SelectedUnit != null)
             {
                 Hex hitHex = GetHexAtCursor();
-                List<DataStructures.AStarNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
-                if (path != null)
+                m_Path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
+                if (m_Path != null)
                 {
-                    for (int i = 0; i < path.Count - 1; i++)
+                    for (int i = 0; i < m_Path.Count - 1; i++)
                     {
-                        Debug.DrawLine(m_GameManager.HexToWorld(path[i].Data),
-                                       m_GameManager.HexToWorld(path[i + 1].Data));
+                        Debug.DrawLine(m_GameManager.HexToWorld(m_Path[i].Data),
+                                       m_GameManager.HexToWorld(m_Path[i + 1].Data));
                     }
                     //Debug.DrawLine(m_SelectedUnit.transform.position, m_GameManager.Layout.HexToPixel(hitHex));
                     if(Input.GetMouseButtonDown(1))
