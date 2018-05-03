@@ -26,7 +26,11 @@ namespace DataStructures
 
         public int CompareTo(AStarNode<T> other)
         {
-            int compare = Mathf.Max(FCost, HCost).CompareTo(Mathf.Max(other.FCost, other.HCost));
+            int compare = FCost.CompareTo(other.FCost);
+            if (compare == 0)
+            {
+                compare = HCost.CompareTo(other.HCost);
+            }
             return -compare;
         }
     }
@@ -79,7 +83,7 @@ namespace DataStructures
 
                 foreach (AStarNode<T> neighbor in currentNode.Neighbors)
                 {
-                    if (neighbor == null || !neighbor.IsTraversible || closedSet.Contains(neighbor))
+                    if (!neighbor.IsTraversible || closedSet.Contains(neighbor))
                     {
                         continue;
                     }
@@ -89,8 +93,9 @@ namespace DataStructures
                     if (movementCost < neighbor.GCost || !openSet.Contains(neighbor))
                     {
                         neighbor.GCost = movementCost;
-                        neighbor.HCost = heuristic.Heuristic(currentNode.Data, to.Data);
+                        neighbor.HCost = heuristic.Heuristic(neighbor.Data, to.Data);
                         neighbor.Previous = currentNode;
+
                         if (!openSet.Contains(neighbor))
                         {
                             openSet.Add(neighbor);
@@ -121,6 +126,7 @@ namespace DataStructures
 
             return path;
         }
+
         public List<AStarNode<T>> GetNodesInRange(T from, int range)
         {
             AStarNode<T> fromNode = (AStarNode<T>)FindByValue(from);

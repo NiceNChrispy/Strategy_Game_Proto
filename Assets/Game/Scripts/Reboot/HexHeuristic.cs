@@ -9,6 +9,6 @@ public struct HexHeuristic : IHeuristic<Hex>
 
     public float NeighborDistance(Hex from, Hex to)
     {
-        return 1.0f;
+        return from.Distance(to);
     }
 }
