@@ -14,6 +14,13 @@ namespace Reboot
         void Select();
         void Deselect();
     }
+
+    public interface NavNode<T>
+    {
+        T Data { get; set; }
+        bool IsTraversible { get; set; }
+        float Cost { get; set; }
+    }
 }
 
 namespace DataStructures

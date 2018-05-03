@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DataStructures;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,8 +20,12 @@ namespace Reboot
         [SerializeField, ReadOnly] int m_TurnCount = 0;
         private HexHeuristic m_Heuristic;
         public Player PlayerWithTurn { get { return m_Players[m_PlayerTurn]; } }
+        public List<Player> PlayersWithoutTurn { get { return m_Players.Where(x => x != PlayerWithTurn).ToList(); } }
 
         private Layout m_Layout;
+
+        private List<AStarNode<Hex>> m_NodesInRangeOfActiveUnit;
+
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         string Path(string file) { return Application.dataPath + "/" + file; }
@@ -70,7 +75,7 @@ namespace Reboot
             foreach (Player player in m_Players)
             {
                 player.Init(this);
-                foreach(Unit unit in player.Units)
+                foreach (Unit unit in player.Units)
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
                     ((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(nearestHex)).IsTraversible = false;
@@ -107,15 +112,30 @@ namespace Reboot
         {
             if (m_Map != null)
             {
+                if (PlayerWithTurn.SelectedUnit != null)
+                {
+                    //m_NodesInRangeOfActiveUnit = m_NavGraph.Nodes.SelectMany();//m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
+                }
                 foreach (Hex hex in m_Map.Contents)
                 {
                     Color drawColor = Color.white;
-
-                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Any(x => x.Data == hex))
+                    if (m_NodesInRangeOfActiveUnit != null && m_NodesInRangeOfActiveUnit.Any(x => x.Data == hex))
+                    {
+                        drawColor = Color.cyan;
+                    }
+                    else if (PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Any(x => x.Data == hex)) // Draw path of player with turns selected unit
                     {
                         drawColor = Color.yellow;
                     }
-                    else if(!((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(hex)).IsTraversible)
+                    else if (PlayerWithTurn.Units.Any(x => x.Position == hex)) // Draw friendly units
+                    {
+                        drawColor = Color.green;
+                    }
+                    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == hex))) // Draw enemy units
+                    {
+                        drawColor = Color.red;
+                    }
+                    else if (!((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(hex)).IsTraversible) // Draw inaccessible tiles
                     {
                         drawColor = Color.magenta;
                     }

@@ -19,6 +19,16 @@ namespace Reboot
         {
             UpdateUnitUnderCursor();
 
+            if(m_SelectedUnit != null && m_UnitSelector.CurrentSelectable != null)
+            {
+                Unit targetUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
+
+                if(!m_Units.Contains(targetUnit))
+                {
+                    Debug.DrawLine(m_SelectedUnit.transform.position, targetUnit.transform.position, Color.red);
+                }
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (m_SelectedUnit != null)

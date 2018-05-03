@@ -24,7 +24,7 @@ namespace Reboot
 
             if (Physics.Raycast(cursorRay, out hit, Mathf.Infinity, m_SelectionLayer))
             {
-                Debug.DrawLine(cursorRay.direction, hit.point, Color.green);
+                //Debug.DrawLine(cursorRay.direction, hit.point, Color.green);
 
                 if (hit.collider != m_PreviousCollider)
                 {
