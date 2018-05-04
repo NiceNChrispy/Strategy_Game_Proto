@@ -125,5 +125,35 @@ namespace DataStructures
 
             return path;
         }
+
+        public List<AStarNode<T>> GetNodesInRange(T from, int range)
+        {
+            AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
+            return GetNodesInRange(fromNode, range);
+        }
+
+        private List<AStarNode<T>> GetNodesInRange(AStarNode<T> from, int range)
+        {
+            List<AStarNode<T>> nodesInRange = new List<AStarNode<T>>();
+
+            Recursive(from, range, ref nodesInRange);
+
+            return nodesInRange;
+        }
+
+        private void Recursive(AStarNode<T> from, int range, ref List<AStarNode<T>> nodesInRange)
+        {
+            if (range >= 0)
+            {
+                if (!nodesInRange.Contains(from))
+                {
+                    nodesInRange.Add(from);
+                }
+                foreach (AStarNode<T> neighbor in from.Connected)
+                {
+                    Recursive(neighbor, range - 1, ref nodesInRange);
+                }
+            }
+        }
     }
 }

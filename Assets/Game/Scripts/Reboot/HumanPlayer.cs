@@ -70,7 +70,14 @@ namespace Reboot
                     }
                 }
             }
+        }
 
+        private void OnGUI()
+        {
+            if(m_Path != null)
+            {
+                GUILayout.Label(string.Format("Path Length: {0}", m_Path.Count - 1));
+            }
         }
 
         void UpdateUnitUnderCursor()

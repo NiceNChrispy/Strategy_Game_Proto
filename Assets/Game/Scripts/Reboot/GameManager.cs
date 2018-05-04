@@ -24,8 +24,9 @@ namespace Reboot
 
         private Layout m_Layout;
 
-        private List<AStarNode<Hex>> m_NodesInRangeOfActiveUnit;
-
+        private List<AStarNode<Hex>> m_NodesThatAreInRangeToMove;
+        private List<AStarNode<Hex>> m_NodesThatAreInRangeToAttack;
+        private List<AStarNode<Hex>> m_NodesThatAreInRangeToAttackAfterMoving;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         string Path(string file) { return Application.dataPath + "/" + file; }
@@ -118,40 +119,51 @@ namespace Reboot
             {
                 if (PlayerWithTurn.SelectedUnit != null)
                 {
-                    //m_NodesInRangeOfActiveUnit = m_NavGraph.Nodes.SelectMany();//m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
+                    m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
+                    if(PlayerWithTurn.Path != null)
+                    {
+                        m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
+                    }
                 }
-                foreach (Hex hex in m_Map.Contents)
+                foreach (AStarNode<Hex> node in m_NavGraph.Nodes)
                 {
                     Color drawColor = Color.white;
-                    if (m_NodesInRangeOfActiveUnit != null && m_NodesInRangeOfActiveUnit.Any(x => x.Data == hex))
+
+                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && m_NodesThatAreInRangeToAttackAfterMoving.Contains(node))
                     {
-                        drawColor = Color.cyan;
+                        DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
                     }
-                    else if (PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Any(x => x.Data == hex)) // Draw path of player with turns selected unit
+                    if (PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Contains(node)) // Draw player with turns selected unit path
                     {
-                        drawColor = Color.yellow;
+                        DrawHex(node.Data, Color.yellow, 0.3f);
+                        //drawColor = Color.yellow;
                     }
-                    else if (PlayerWithTurn.Units.Any(x => x.Position == hex)) // Draw friendly units
+                    if (m_NodesThatAreInRangeToMove != null && m_NodesThatAreInRangeToMove.Contains(node))
+                    {
+                        DrawHex(node.Data, Color.cyan, 0.05f);
+                        //drawColor = Color.cyan;
+                    }
+                    else if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
                     {
                         drawColor = Color.green;
                     }
-                    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == hex))) // Draw enemy units
+                    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == node.Data))) // Draw enemy units
                     {
                         drawColor = Color.red;
                     }
-                    else if (!m_NavGraph.Nodes.SingleOrDefault(x => x.Data == hex).IsTraversible)// Draw inaccessible tiles
+                    else if (!node.IsTraversible)// Draw inaccessible tiles
                     {
                         drawColor = Color.magenta;
                     }
-                    DrawHex(hex, drawColor);
+                    DrawHex(node.Data, drawColor, m_DrawScale);
                 }
             }
         }
 
-        private void DrawHex(Hex hex, Color color)
+        private void DrawHex(Hex hex, Color color, float drawScale)
         {
             Gizmos.color = color;
-            List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
+            List<Vector2> points = m_Layout.PolygonCorners(hex, drawScale);
             for (int i = 0; i < 6; i++)
             {
                 Gizmos.DrawLine(points[i], points[(i + 1) % 6]);

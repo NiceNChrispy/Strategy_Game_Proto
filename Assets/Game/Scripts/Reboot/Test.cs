@@ -97,11 +97,11 @@ namespace Reboot
 
                 if (Input.GetMouseButton(0) && !isContained)
                 {
-                    //AddNode(hitHex);
+                    AddNode(hitHex);
                 }
                 if (Input.GetMouseButton(1) && isContained)
                 {
-                    //RemoveNode(hitHex);
+                    RemoveNode(hitHex);
                 }
                 if (Input.GetKeyDown(KeyCode.P))
                 {
@@ -159,25 +159,25 @@ namespace Reboot
             //}
         }
 
-        //private void AddNode(Hex hex)
-        //{
-        //    m_Map.Add(hex);
-        //    m_NavGraph.AddNode(hex);
-        //
-        //    foreach (Hex neighbor in hex.AllNeighbors())
-        //    {
-        //        if (m_Map.Contains(neighbor))
-        //        {
-        //            m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
-        //        }
-        //    }
-        //}
-        //
-        //private void RemoveNode(Hex hex)
-        //{
-        //    m_Map.Remove(hex);
-        //    m_NavGraph.Remove(hex);
-        //}
+        private void AddNode(Hex hex)
+        {
+            m_Map.Add(hex);
+            //m_NavGraph.AddNode(hex);
+            //
+            //foreach (Hex neighbor in hex.AllNeighbors())
+            //{
+            //    if (m_Map.Contains(neighbor))
+            //    {
+            //        m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
+            //    }
+            //}
+        }
+
+        private void RemoveNode(Hex hex)
+        {
+            m_Map.Remove(hex);
+            //m_NavGraph.Remove(hex);
+        }
         //
         //private void DrawNeighbors()
         //{
