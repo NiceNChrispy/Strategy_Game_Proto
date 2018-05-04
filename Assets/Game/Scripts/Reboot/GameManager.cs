@@ -83,8 +83,9 @@ namespace Reboot
                 foreach (Unit unit in player.Units)
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
-                    m_NavGraph.Nodes.Where(x => !x.IsTraversible);
-                    unit.Position = nearestHex;
+                    //m_NavGraph.Nodes.Where(x => !x.IsTraversible);
+                    unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Data == nearestHex);
+                    unit.OccupiedNode.IsTraversible = false;
                     unit.transform.position = HexToWorld(nearestHex);
                 }
             }
@@ -129,7 +130,7 @@ namespace Reboot
                 {
                     Color drawColor = Color.white;
 
-                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && m_NodesThatAreInRangeToAttackAfterMoving.Contains(node))
+                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.MoveableTiles.Contains(node))
                     {
                         DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
                     }
@@ -173,6 +174,11 @@ namespace Reboot
         public List<DataStructures.AStarNode<Hex>> GetPath(Hex from, Hex to)
         {
             return m_NavGraph.GetPath(from, to, m_Heuristic);
+        }
+
+        public List<DataStructures.AStarNode<Hex>> GetTilesInRange(Hex from, int range)
+        {
+            return m_NavGraph.GetNodesInRange(from, range);
         }
 
         public Vector2 HexToWorld(Hex hex)

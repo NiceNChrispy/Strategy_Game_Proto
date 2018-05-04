@@ -13,7 +13,7 @@ namespace Reboot
 
         [SerializeField] protected List<Unit> m_Units;
 
-        public event Action<Unit> OnSelectUnit;
+        protected event Action<Unit> OnSelectUnit = delegate { };
         public event Action OnTimerFinished = delegate { };
         public event Action OnTurnBegin = delegate { };
         public event Action OnTurnEnd = delegate { };
@@ -29,8 +29,10 @@ namespace Reboot
         [SerializeField] protected Unit m_SelectedUnit;
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
         protected List<AStarNode<Hex>> m_Path;
+        protected List<AStarNode<Hex>> m_MoveableTiles;
 
         public List<AStarNode<Hex>> Path { get { return m_Path; } }
+        public List<AStarNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
 
         public List<Unit> Units
         {
@@ -62,10 +64,24 @@ namespace Reboot
             OnTurnEnd -= TurnEnd;
         }
 
-        void SelectUnit()
+        protected void SelectUnit(Unit unit)
         {
+            m_SelectedUnit = unit;
+            m_SelectedUnit.Select();
+            OnSelectUnit.Invoke(m_SelectedUnit);
+            UpdateUnitsMoveableTiles();
             //Draw movement range
+        }
 
+        protected void DeselectUnit()
+        {
+            m_SelectedUnit.Deselect();
+            m_SelectedUnit = null;
+        }
+
+        public void UpdateUnitsMoveableTiles()
+        {
+            m_MoveableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
         }
 
         public void TurnBegin()

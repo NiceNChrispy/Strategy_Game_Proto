@@ -9,7 +9,7 @@ namespace Reboot
         private Selector<Unit> m_UnitSelector;
         [SerializeField] private LayerMask m_SelectionLayer;
         [SerializeField] private Camera m_Camera;
-        
+
         private void OnEnable()
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
@@ -39,13 +39,12 @@ namespace Reboot
                 {
                     if (m_SelectedUnit != null)
                     {
-                        m_SelectedUnit.Deselect();
-                        m_SelectedUnit = null;
+                        m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
+                        DeselectUnit();
                     }
                     if (m_UnitSelector.CurrentSelectable != null && m_Units.Contains(m_UnitSelector.CurrentSelectable.SelectableComponent))
                     {
-                        m_SelectedUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
-                        m_SelectedUnit.Select();
+                        SelectUnit(m_UnitSelector.CurrentSelectable.SelectableComponent);
                     }
                 }
             }
@@ -63,9 +62,10 @@ namespace Reboot
                     //Debug.DrawLine(m_SelectedUnit.transform.position, m_GameManager.Layout.HexToPixel(hitHex));
                     if(Input.GetMouseButtonDown(1))
                     {
-                        if(m_SelectedUnit != null)
+                        if(m_SelectedUnit != null && Path != null)
                         {
-
+                            m_SelectedUnit.Move(Path, m_GameManager);
+                            m_SelectedUnit.OnFinishMove += UpdateUnitsMoveableTiles;
                         }
                     }
                 }

@@ -1,4 +1,5 @@
 ﻿using DataStructures;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,11 +44,15 @@ namespace Reboot
         {
             get; set;
         }
+        public bool IsMoving { get; set; }
 
+        public AStarNode<Hex> OccupiedNode { get; set; }
         public Hex Position
         {
-            get; set;
+            get { return OccupiedNode.Data; }
         }
+
+        public event Action OnFinishMove = delegate { };
 
         private void OnEnable()
         {
@@ -71,24 +76,28 @@ namespace Reboot
 
         }
 
-        public void Move(List<AStarNode<Hex>> path, Layout layout)
+        public void Move(List<AStarNode<Hex>> path, GameManager gameManager)
         {
-            StartCoroutine(MoveRoutine(path, layout));
+            StartCoroutine(MoveRoutine(path, gameManager));
         }
 
-        public IEnumerator MoveRoutine(List<AStarNode<Hex>> path, Layout layout)
+        public IEnumerator MoveRoutine(List<AStarNode<Hex>> path, GameManager gameManager)
         {
             float journeyTime = path.Count / m_MovementSpeed;
-
+            IsMoving = true;
             //while (journeyTime > 0)
             {
                 for (int i = 0; i < path.Count; i++)
                 {
-                    transform.position = layout.HexToPixel(path[i].Data);
+                    OccupiedNode.IsTraversible = true;
+                    OccupiedNode = path[i];
+                    OccupiedNode.IsTraversible = false;
+                    transform.position = gameManager.HexToWorld(path[i].Data);
                     journeyTime -= Time.deltaTime;
                     yield return new WaitForEndOfFrame();
                 }
             }
+            OnFinishMove.Invoke();
             yield return null;
         }
 
