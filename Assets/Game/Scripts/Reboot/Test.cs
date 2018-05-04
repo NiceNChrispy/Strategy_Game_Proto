@@ -53,7 +53,7 @@ namespace Reboot
             m_NavGraph = new NavGraph<Hex>();
             foreach (Hex hex in map.Contents)
             {
-                AddNode(hex);
+                //AddNode(hex);
             }
         }
 
@@ -97,11 +97,11 @@ namespace Reboot
 
                 if (Input.GetMouseButton(0) && !isContained)
                 {
-                    AddNode(hitHex);
+                    //AddNode(hitHex);
                 }
                 if (Input.GetMouseButton(1) && isContained)
                 {
-                    RemoveNode(hitHex);
+                    //RemoveNode(hitHex);
                 }
                 if (Input.GetKeyDown(KeyCode.P))
                 {
@@ -138,66 +138,66 @@ namespace Reboot
 
         private void DrawMouseRange()
         {
-            if(m_Map.Contains(m_MouseHex))
-            {
-                List<AStarNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(m_MouseHex, m_Range);
-                if (nodesInRange != null)
-                {
-                    GL.Begin(GL.LINES);
-                    m_PathMat.SetPass(0);
-                    for (int i = 0; i < nodesInRange.Count; i++)
-                    {
-                        List<Vector2> points = m_Layout.PolygonCorners(nodesInRange[i].Data, m_DrawScale);
-                        for (int j = 0; j < 6; j++)
-                        {
-                            GL.Vertex((Vector3)points[j]);
-                            GL.Vertex((Vector3)points[(j + 1) % 6]);
-                        }
-                    }
-                    GL.End();
-                }
-            }
+            //if(m_Map.Contains(m_MouseHex))
+            //{
+            //    List<AStarNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(m_MouseHex, m_Range);
+            //    if (nodesInRange != null)
+            //    {
+            //        GL.Begin(GL.LINES);
+            //        m_PathMat.SetPass(0);
+            //        for (int i = 0; i < nodesInRange.Count; i++)
+            //        {
+            //            List<Vector2> points = m_Layout.PolygonCorners(nodesInRange[i].Data, m_DrawScale);
+            //            for (int j = 0; j < 6; j++)
+            //            {
+            //                GL.Vertex((Vector3)points[j]);
+            //                GL.Vertex((Vector3)points[(j + 1) % 6]);
+            //            }
+            //        }
+            //        GL.End();
+            //    }
+            //}
         }
 
-        private void AddNode(Hex hex)
-        {
-            m_Map.Add(hex);
-            m_NavGraph.AddNode(hex);
-
-            foreach (Hex neighbor in hex.AllNeighbors())
-            {
-                if (m_Map.Contains(neighbor))
-                {
-                    m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
-                }
-            }
-        }
-
-        private void RemoveNode(Hex hex)
-        {
-            m_Map.Remove(hex);
-            m_NavGraph.Remove(hex);
-        }
-
-        private void DrawNeighbors()
-        {
-            if (m_NavGraph != null)
-            {
-                foreach (GraphNode<Hex> node in m_NavGraph.Nodes)
-                {
-                    Vector2 start = m_Layout.HexToPixel(node.Data);
-                    Vector2 end;
-
-                    foreach (GraphNode<Hex> neighbor in node.Neighbors)
-                    {
-                        end = m_Layout.HexToPixel(neighbor.Data);
-                        Vector2 dir = (end - start);
-
-                        Gizmos.DrawRay(start, dir * 0.5f * m_DrawScale);
-                    }
-                }
-            }
-        }
+        //private void AddNode(Hex hex)
+        //{
+        //    m_Map.Add(hex);
+        //    m_NavGraph.AddNode(hex);
+        //
+        //    foreach (Hex neighbor in hex.AllNeighbors())
+        //    {
+        //        if (m_Map.Contains(neighbor))
+        //        {
+        //            m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
+        //        }
+        //    }
+        //}
+        //
+        //private void RemoveNode(Hex hex)
+        //{
+        //    m_Map.Remove(hex);
+        //    m_NavGraph.Remove(hex);
+        //}
+        //
+        //private void DrawNeighbors()
+        //{
+        //    if (m_NavGraph != null)
+        //    {
+        //        foreach (GraphNode<Hex> node in m_NavGraph.Nodes)
+        //        {
+        //            Vector2 start = m_Layout.HexToPixel(node.Data);
+        //            Vector2 end;
+        //
+        //            foreach (GraphNode<Hex> neighbor in node.Neighbors)
+        //            {
+        //                end = m_Layout.HexToPixel(neighbor.Data);
+        //                Vector2 dir = (end - start);
+        //
+        //                Gizmos.DrawRay(start, dir * 0.5f * m_DrawScale);
+        //            }
+        //        }
+        //    }
+        //}
 
         private void OnDrawGizmosSelected()
         {

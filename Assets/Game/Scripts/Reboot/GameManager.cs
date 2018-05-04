@@ -13,7 +13,7 @@ namespace Reboot
         public int m_PlayerTurn;
         public int m_StartingPlayerTurn;
         public Map<Hex> m_Map;
-        DataStructures.NavGraph<Hex> m_NavGraph;
+        NavGraph<Hex> m_NavGraph;
         [SerializeField] private float m_DrawScale = 1.0f;
 
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
@@ -44,12 +44,16 @@ namespace Reboot
 
                 foreach (Hex hex in m_Map.Contents)
                 {
-                    m_NavGraph.AddNode(hex);
-                    foreach (Hex neighbor in hex.AllNeighbors())
+                    AStarNode<Hex> navNode = new AStarNode<Hex>(hex, true, 1.0f);
+                    m_NavGraph.Nodes.Add(navNode);
+                }
+                foreach (AStarNode<Hex> navNode in m_NavGraph.Nodes)
+                {
+                    foreach (Hex neighbor in navNode.Data.AllNeighbors())
                     {
                         if (m_Map.Contains(neighbor))
                         {
-                            m_NavGraph.AddUndirectedEdge(hex, neighbor, 1);
+                            navNode.Connected.Add(m_NavGraph.Nodes.Single(x => x.Data == neighbor));
                         }
                     }
                 }
@@ -78,7 +82,7 @@ namespace Reboot
                 foreach (Unit unit in player.Units)
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
-                    ((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(nearestHex)).IsTraversible = false;
+                    m_NavGraph.Nodes.Where(x => !x.IsTraversible);
                     unit.Position = nearestHex;
                     unit.transform.position = HexToWorld(nearestHex);
                 }
@@ -135,7 +139,7 @@ namespace Reboot
                     {
                         drawColor = Color.red;
                     }
-                    else if (!((DataStructures.AStarNode<Hex>)m_NavGraph.FindByValue(hex)).IsTraversible) // Draw inaccessible tiles
+                    else if (!m_NavGraph.Nodes.SingleOrDefault(x => x.Data == hex).IsTraversible)// Draw inaccessible tiles
                     {
                         drawColor = Color.magenta;
                     }

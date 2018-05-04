@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Reboot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine;
 namespace DataStructures
 {
     [Serializable]
-    public class AStarNode<T> : GraphNode<T>, IHeapItem<AStarNode<T>>
+    public class AStarNode<T> : INavNode<T>, IHeapItem<AStarNode<T>>
     {
         public float GCost { get; set; }
         public float HCost { get; set; }
@@ -16,12 +17,19 @@ namespace DataStructures
 
         public int HeapIndex { get; set; }
 
+        public T Data { get; set; }
+
+        public float Cost { get; set; }
+        public List<INavNode<T>> Connected { get; set; }
+
         public AStarNode<T> Previous;
 
-        public AStarNode(T data) : base(data) { }
-        public AStarNode(T data, bool isTraversible) : base(data)
+        public AStarNode(T data, bool isTraversible, float cost)
         {
+            Data = data;
             IsTraversible = isTraversible;
+            Cost = cost;
+            Connected = new List<INavNode<T>>();
         }
 
         public int CompareTo(AStarNode<T> other)
@@ -35,16 +43,18 @@ namespace DataStructures
         }
     }
     [Serializable]
-    public class NavGraph<T> : Graph<T>
+    public class NavGraph<T>
     {
-        public NavGraph() : base() { }
+        List<AStarNode<T>> m_Nodes = new List<AStarNode<T>>();
+
+        public List<AStarNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
 
         public List<AStarNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
         {
-            AStarNode<T> fromNode = (AStarNode<T>)FindByValue(from);
-            AStarNode<T> toNode = (AStarNode<T>)(FindByValue(to));
+            AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
+            AStarNode<T> toNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(to));
 
-            if(fromNode == null || toNode == null)
+            if (fromNode == null || toNode == null)
             {
                 return null;
             }
@@ -52,21 +62,10 @@ namespace DataStructures
             return GetPath(fromNode, toNode, heuristic);
         }
 
-        public override void AddNode(T value)
-        {
-            Nodes.Add(new AStarNode<T>(value, true));
-        }
-
         public List<AStarNode<T>> GetPath(AStarNode<T> from, AStarNode<T> to, IHeuristic<T> heuristic)
         {
             Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
             HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
-
-            foreach(AStarNode<T> node in Nodes)
-            {
-                node.HCost = 0;
-                node.GCost = 0;
-            }
 
             openSet.Add(from);
 
@@ -74,14 +73,14 @@ namespace DataStructures
             {
                 AStarNode<T> currentNode = openSet.RemoveFirst();
 
-                closedSet.Add(currentNode);
-
                 if (currentNode == to)
                 {
                     return RetracePath(from, to);
                 }
 
-                foreach (AStarNode<T> neighbor in currentNode.Neighbors)
+                closedSet.Add(currentNode);
+
+                foreach (AStarNode<T> neighbor in currentNode.Connected)
                 {
                     if (!neighbor.IsTraversible || closedSet.Contains(neighbor))
                     {
@@ -125,36 +124,6 @@ namespace DataStructures
             path.Reverse();
 
             return path;
-        }
-
-        public List<AStarNode<T>> GetNodesInRange(T from, int range)
-        {
-            AStarNode<T> fromNode = (AStarNode<T>)FindByValue(from);
-            return GetNodesInRange(fromNode, range);
-        }
-
-        private List<AStarNode<T>> GetNodesInRange(AStarNode<T> from, int range)
-        {
-            List<AStarNode<T>> nodesInRange = new List<AStarNode<T>>();
-
-            Recursive(from, range, ref nodesInRange);
-
-            return nodesInRange;
-        }
-
-        private void Recursive(AStarNode<T> from, int range, ref List<AStarNode<T>> nodesInRange)
-        {
-            if (range >= 0)
-            {
-                if(!nodesInRange.Contains(from))
-                {
-                    nodesInRange.Add(from);
-                }
-                foreach (AStarNode<T> neighbor in from.Neighbors)
-                {
-                    Recursive(neighbor, range - 1, ref nodesInRange);
-                }
-            }
         }
     }
 }

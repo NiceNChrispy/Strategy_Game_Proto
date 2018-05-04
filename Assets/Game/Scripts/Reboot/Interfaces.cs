@@ -15,11 +15,12 @@ namespace Reboot
         void Deselect();
     }
 
-    public interface NavNode<T>
+    public interface INavNode<T>
     {
         T Data { get; set; }
         bool IsTraversible { get; set; }
         float Cost { get; set; }
+        List<INavNode<T>> Connected { get; set; }
     }
 }
 
