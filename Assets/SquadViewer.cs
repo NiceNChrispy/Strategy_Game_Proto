@@ -24,12 +24,12 @@ public class SquadViewer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (iTween.Count() > 0)
+        //if (iTween.Count() > 0)
         {
             navButtons[0].interactable = false;
             navButtons[1].interactable = false;
         }
-        else
+        //else
         {
             navButtons[0].interactable = true;
             navButtons[1].interactable = true;
@@ -50,12 +50,12 @@ public class SquadViewer : MonoBehaviour {
         {
             if (activeUnit == squadViewerPos.Length - 1)
             {
-                iTween.MoveBy(gameObject, iTween.Hash("x", 78, "easeType", "easeInOutExpo"));
+                //iTween.MoveBy(gameObject, iTween.Hash("x", 78, "easeType", "easeInOutExpo"));
                 activeUnit = 0;
             }
             else
             {
-                iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo"));
+                //iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo"));
                 activeUnit++;
             }
         }
@@ -63,12 +63,12 @@ public class SquadViewer : MonoBehaviour {
         {
             if (activeUnit == 0)
             {
-                iTween.MoveBy(gameObject, iTween.Hash("x", -78, "easeType", "easeInOutExpo"));
+                //iTween.MoveBy(gameObject, iTween.Hash("x", -78, "easeType", "easeInOutExpo"));
                 activeUnit = 6;
             }
             else
             {
-                iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo"));
+                //iTween.MoveBy(gameObject, iTween.Hash("x", value, "easeType", "easeInOutExpo"));
                 activeUnit--;
             }
 
