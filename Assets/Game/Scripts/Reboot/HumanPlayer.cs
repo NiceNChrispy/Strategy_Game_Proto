@@ -1,5 +1,6 @@
 ﻿using DataStructures;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Reboot
@@ -19,11 +20,11 @@ namespace Reboot
         {
             UpdateUnitUnderCursor();
 
-            if(m_SelectedUnit != null && m_UnitSelector.CurrentSelectable != null)
+            if (m_SelectedUnit != null && m_UnitSelector.CurrentSelectable != null)
             {
                 Unit targetUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
 
-                if(!m_Units.Contains(targetUnit))
+                if (!m_Units.Contains(targetUnit))
                 {
                     Debug.DrawLine(m_SelectedUnit.transform.position, targetUnit.transform.position, Color.red);
                 }
@@ -51,7 +52,14 @@ namespace Reboot
             if (m_SelectedUnit != null)
             {
                 Hex hitHex = GetHexAtCursor();
-                m_Path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
+
+                List<AStarNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
+                if(path != null)
+                {
+                    m_Path = path.Where(x => m_MoveableTiles.Contains(x)).ToList();
+                }
+
+                //TODO Clamp Path to accessible nodes
                 if (m_Path != null)
                 {
                     for (int i = 0; i < m_Path.Count - 1; i++)
@@ -60,9 +68,9 @@ namespace Reboot
                                        m_GameManager.HexToWorld(m_Path[i + 1].Data));
                     }
                     //Debug.DrawLine(m_SelectedUnit.transform.position, m_GameManager.Layout.HexToPixel(hitHex));
-                    if(Input.GetMouseButtonDown(1))
+                    if (Input.GetMouseButtonDown(1))
                     {
-                        if(m_SelectedUnit != null && Path != null)
+                        if (m_SelectedUnit != null && Path != null)
                         {
                             m_SelectedUnit.Move(Path, m_GameManager);
                             m_SelectedUnit.OnFinishMove += UpdateUnitsMoveableTiles;
@@ -74,7 +82,7 @@ namespace Reboot
 
         private void OnGUI()
         {
-            if(m_Path != null)
+            if (m_Path != null)
             {
                 GUILayout.Label(string.Format("Path Length: {0}", m_Path.Count - 1));
             }

@@ -120,7 +120,7 @@ namespace Reboot
             {
                 if (PlayerWithTurn.SelectedUnit != null)
                 {
-                    m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
+                    //m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
                     if(PlayerWithTurn.Path != null)
                     {
                         m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
@@ -130,21 +130,19 @@ namespace Reboot
                 {
                     Color drawColor = Color.white;
 
-                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.MoveableTiles.Contains(node))
+                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null)
                     {
-                        DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
+                        if(PlayerWithTurn.MoveableTiles.Contains(node))
+                        {
+                            DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
+                        }
+                        if(PlayerWithTurn.Path.Contains(node))
+                        {
+                            DrawHex(node.Data, Color.yellow, 0.3f);
+                        }
                     }
-                    if (PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null && PlayerWithTurn.Path.Contains(node)) // Draw player with turns selected unit path
-                    {
-                        DrawHex(node.Data, Color.yellow, 0.3f);
-                        //drawColor = Color.yellow;
-                    }
-                    if (m_NodesThatAreInRangeToMove != null && m_NodesThatAreInRangeToMove.Contains(node))
-                    {
-                        DrawHex(node.Data, Color.cyan, 0.05f);
-                        //drawColor = Color.cyan;
-                    }
-                    else if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
+
+                    if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
                     {
                         drawColor = Color.green;
                     }
