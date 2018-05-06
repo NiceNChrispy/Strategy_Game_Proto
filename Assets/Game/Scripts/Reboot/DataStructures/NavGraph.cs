@@ -7,29 +7,23 @@ using UnityEngine;
 namespace DataStructures
 {
     [Serializable]
-    public class AStarNode<T> : INavNode<T>, IHeapItem<AStarNode<T>>
+    public class AStarNode<T> : NavNode<T>, IHeapItem<AStarNode<T>>
     {
         public float GCost { get; set; }
         public float HCost { get; set; }
         public float FCost { get { return GCost + HCost; } }
 
-        public bool IsTraversible { get; set; }
-
         public int HeapIndex { get; set; }
-
-        public T Data { get; set; }
-
-        public float Cost { get; set; }
-        public List<INavNode<T>> Connected { get; set; }
 
         public AStarNode<T> Previous;
 
-        public AStarNode(T data, bool isTraversible, float cost)
+        public AStarNode(T data, bool isTraversible, float cost) : base (data, isTraversible, cost) { }
+
+        public void Reset()
         {
-            Data = data;
-            IsTraversible = isTraversible;
-            Cost = cost;
-            Connected = new List<INavNode<T>>();
+            GCost = 0;
+            HCost = 0;
+            Previous = null;
         }
 
         public int CompareTo(AStarNode<T> other)
@@ -49,6 +43,14 @@ namespace DataStructures
 
         public List<AStarNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
 
+        public void ResetNodes()
+        {
+            foreach(AStarNode<T> node in m_Nodes)
+            {
+                node.Reset();
+            }
+        }
+
         public List<AStarNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
         {
             AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
@@ -66,13 +68,13 @@ namespace DataStructures
         {
             Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
             HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
+            ResetNodes();
 
             openSet.Add(from);
 
             while (openSet.Count > 0)
             {
                 AStarNode<T> currentNode = openSet.RemoveFirst();
-
                 if (currentNode == to)
                 {
                     return RetracePath(from, to);
@@ -139,6 +141,8 @@ namespace DataStructures
             HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
 
             openSet.Add(from);
+
+            ResetNodes();
 
             while (openSet.Count > 0)
             {
