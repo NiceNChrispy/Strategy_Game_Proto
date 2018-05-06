@@ -223,7 +223,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &27846181
 Transform:
   m_ObjectHideFlags: 0
@@ -1300,7 +1300,6 @@ MonoBehaviour:
   m_ActionPoints: 10
   m_Units:
   - {fileID: 1190077822}
-  - {fileID: 27846182}
   m_IsMyTurn: 0
   m_RemainingTime: 0
   m_SelectedUnit: {fileID: 0}

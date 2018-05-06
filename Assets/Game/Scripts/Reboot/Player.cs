@@ -28,11 +28,11 @@ namespace Reboot
 
         [SerializeField] protected Unit m_SelectedUnit;
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
-        protected List<AStarNode<Hex>> m_Path;
-        protected List<AStarNode<Hex>> m_MoveableTiles;
+        protected List<NavNode<Hex>> m_Path;
+        protected List<NavNode<Hex>> m_MoveableTiles;
 
-        public List<AStarNode<Hex>> Path { get { return m_Path; } }
-        public List<AStarNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
+        public List<NavNode<Hex>> Path { get { return m_Path; } }
+        public List<NavNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
 
         public List<Unit> Units
         {

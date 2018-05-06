@@ -25,9 +25,9 @@ namespace Reboot
 
         private Layout m_Layout;
 
-        private List<AStarNode<Hex>> m_NodesThatAreInRangeToMove;
-        private List<AStarNode<Hex>> m_NodesThatAreInRangeToAttack;
-        private List<AStarNode<Hex>> m_NodesThatAreInRangeToAttackAfterMoving;
+        private List<NavNode<Hex>> m_NodesThatAreInRangeToMove;
+        private List<NavNode<Hex>> m_NodesThatAreInRangeToAttack;
+        private List<NavNode<Hex>> m_NodesThatAreInRangeToAttackAfterMoving;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         string Path(string file) { return Application.dataPath + "/" + file; }
@@ -46,10 +46,10 @@ namespace Reboot
 
                 foreach (Hex hex in m_Map.Contents)
                 {
-                    AStarNode<Hex> navNode = new AStarNode<Hex>(hex, true, 1.0f);
+                    NavNode<Hex> navNode = new NavNode<Hex>(hex, true, 1.0f);
                     m_NavGraph.Nodes.Add(navNode);
                 }
-                foreach (AStarNode<Hex> navNode in m_NavGraph.Nodes)
+                foreach (NavNode<Hex> navNode in m_NavGraph.Nodes)
                 {
                     foreach (Hex neighbor in navNode.Data.AllNeighbors())
                     {
@@ -130,7 +130,7 @@ namespace Reboot
                         //m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
                     }
                 }
-                foreach (AStarNode<Hex> node in m_NavGraph.Nodes)
+                foreach (NavNode<Hex> node in m_NavGraph.Nodes)
                 {
                     Color drawColor = Color.white;
 
@@ -173,18 +173,18 @@ namespace Reboot
             }
         }
 
-        public List<DataStructures.AStarNode<Hex>> GetPath(Hex from, Hex to)
+        public List<NavNode<Hex>> GetPath(Hex from, Hex to)
         {
             return m_NavGraph.GetPath(from, to, m_Heuristic);
         }
 
-        public List<DataStructures.AStarNode<Hex>> GetTilesInRange(Hex from, int range)
+        public List<NavNode<Hex>> GetTilesInRange(Hex from, int range)
         {
             return m_NavGraph.Nodes.Where(x => x.Data.Distance(from) <= range).ToList();
             // m_NavGraph.GetNodesInRange(from, range);
         }
 
-        public List<DataStructures.AStarNode<Hex>> GetTilesInMovementRange(Hex from, int range)
+        public List<NavNode<Hex>> GetTilesInMovementRange(Hex from, int range)
         {
             return m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
         }

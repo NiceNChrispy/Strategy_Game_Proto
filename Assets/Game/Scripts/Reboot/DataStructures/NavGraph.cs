@@ -7,7 +7,7 @@ using UnityEngine;
 namespace DataStructures
 {
     [Serializable]
-    public class AStarNode<T> : NavNode<T>, IHeapItem<AStarNode<T>>
+    public class AStarData<T> : IHeapItem<AStarData<T>>
     {
         public float GCost { get; set; }
         public float HCost { get; set; }
@@ -15,18 +15,10 @@ namespace DataStructures
 
         public int HeapIndex { get; set; }
 
-        public AStarNode<T> Previous;
+        public AStarData<T> Previous;
+        public NavNode<T> Node;
 
-        public AStarNode(T data, bool isTraversible, float cost) : base (data, isTraversible, cost) { }
-
-        public void Reset()
-        {
-            GCost = 0;
-            HCost = 0;
-            Previous = null;
-        }
-
-        public int CompareTo(AStarNode<T> other)
+        public int CompareTo(AStarData<T> other)
         {
             int compare = FCost.CompareTo(other.FCost);
             if (compare == 0)
@@ -36,25 +28,29 @@ namespace DataStructures
             return -compare;
         }
     }
+
+    public class CostData<T> : IHeapItem<CostData<T>>
+    {
+        public int Cost { get; set; }
+        public NavNode<T> Node { get; set; }
+        public int HeapIndex { get; set; }
+
+        public int CompareTo(CostData<T> other)
+        {
+            return other.Cost.CompareTo(Cost);
+        }
+    }
     [Serializable]
     public class NavGraph<T>
     {
-        List<AStarNode<T>> m_Nodes = new List<AStarNode<T>>();
+        List<NavNode<T>> m_Nodes = new List<NavNode<T>>();
 
-        public List<AStarNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
+        public List<NavNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
 
-        public void ResetNodes()
+        public List<NavNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
         {
-            foreach(AStarNode<T> node in m_Nodes)
-            {
-                node.Reset();
-            }
-        }
-
-        public List<AStarNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
-        {
-            AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
-            AStarNode<T> toNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(to));
+            NavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
+            NavNode<T> toNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(to));
 
             if (fromNode == null || toNode == null)
             {
@@ -64,46 +60,63 @@ namespace DataStructures
             return GetPath(fromNode, toNode, heuristic);
         }
 
-        public List<AStarNode<T>> GetPath(AStarNode<T> from, AStarNode<T> to, IHeuristic<T> heuristic)
+        public List<NavNode<T>> GetPath(NavNode<T> from, NavNode<T> to, IHeuristic<T> heuristic)
         {
-            Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
-            HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
-            ResetNodes();
+            Heap<AStarData<T>> openSet = new Heap<AStarData<T>>(m_Nodes.Count);
+            HashSet<AStarData<T>> closedSet = new HashSet<AStarData<T>>();
 
-            openSet.Add(from);
+            AStarData<T>[] aStarData = new AStarData<T>[m_Nodes.Count];
+            for (int i = 0; i < m_Nodes.Count; i++)
+            {
+                aStarData[i] = new AStarData<T>
+                {
+                    Node = m_Nodes[i],
+                    GCost = 0.0f,
+                    HCost = 0.0f,
+                    Previous = null
+                };
+            }
+
+            openSet.Add(aStarData[m_Nodes.IndexOf(from)]);
+
+            aStarData[m_Nodes.IndexOf(from)].Node = from;
 
             while (openSet.Count > 0)
             {
-                AStarNode<T> currentNode = openSet.RemoveFirst();
-                if (currentNode == to)
+                AStarData<T> currentNode = openSet.RemoveFirst();
+                if (currentNode.Node == to)
                 {
-                    return RetracePath(from, to);
+                    return RetracePath(aStarData[m_Nodes.IndexOf(from)], aStarData[m_Nodes.IndexOf(to)]);
                 }
 
                 closedSet.Add(currentNode);
 
-                foreach (AStarNode<T> neighbor in currentNode.Connected)
+                int currentIndex = m_Nodes.IndexOf(currentNode.Node);
+
+                foreach (NavNode<T> connectedNode in currentNode.Node.Connected)
                 {
-                    if (!neighbor.IsTraversible || closedSet.Contains(neighbor))
+                    int connectedIndex = m_Nodes.IndexOf(connectedNode);
+                    AStarData<T> connectedData = aStarData[connectedIndex];
+                    if (!connectedNode.IsTraversible || closedSet.Contains(connectedData))
                     {
                         continue;
                     }
 
-                    float movementCost = currentNode.GCost + heuristic.NeighborDistance(currentNode.Data, neighbor.Data);
+                    float movementCost = aStarData[currentIndex].GCost + heuristic.NeighborDistance(currentNode.Node.Data, connectedNode.Data);
 
-                    if (movementCost < neighbor.GCost || !openSet.Contains(neighbor))
+                    if (movementCost < aStarData[connectedIndex].GCost || !openSet.Contains(connectedData))
                     {
-                        neighbor.GCost = movementCost;
-                        neighbor.HCost = heuristic.Heuristic(neighbor.Data, to.Data);
-                        neighbor.Previous = currentNode;
+                        aStarData[connectedIndex].GCost = movementCost;
+                        aStarData[connectedIndex].HCost = heuristic.Heuristic(connectedNode.Data, to.Data);
+                        aStarData[connectedIndex].Previous = aStarData[currentIndex];
 
-                        if (!openSet.Contains(neighbor))
+                        if (!openSet.Contains(connectedData))
                         {
-                            openSet.Add(neighbor);
+                            openSet.Add(connectedData);
                         }
                         else
                         {
-                            openSet.UpdateItem(neighbor);
+                            openSet.UpdateItem(connectedData);
                         }
                     }
                 }
@@ -111,69 +124,82 @@ namespace DataStructures
             return null;
         }
 
-        List<AStarNode<T>> RetracePath(AStarNode<T> start, AStarNode<T> end)
+        List<NavNode<T>> RetracePath(AStarData<T> start, AStarData<T> end)
         {
-            List<AStarNode<T>> path = new List<AStarNode<T>>();
-            AStarNode<T> currentNode = end;
+            List<NavNode<T>> path = new List<NavNode<T>>();
+            AStarData<T> currentNode = end;
 
             while (currentNode != start)
             {
-                path.Add(currentNode);
+                path.Add(currentNode.Node);
                 currentNode = currentNode.Previous;
             }
 
-            path.Add(start);
+            path.Add(start.Node);
             path.Reverse();
 
             return path;
         }
 
-        public List<AStarNode<T>> GetNodesInRange(T from, int range, IHeuristic<T> heuristic)
+        public List<NavNode<T>> GetNodesInRange(T from, int range, IHeuristic<T> heuristic)
         {
-            AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
+            NavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
             return GetNodesInRange(fromNode, range, heuristic);
         }
 
-        private List<AStarNode<T>> GetNodesInRange(AStarNode<T> from, int range, IHeuristic<T> heuristic)
+        private List<NavNode<T>> GetNodesInRange(NavNode<T> from, int range, IHeuristic<T> heuristic)
         {
-            List<AStarNode<T>> nodesInRange = new List<AStarNode<T>>();
-            Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
-            HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
+            List<NavNode<T>> nodesInRange = new List<NavNode<T>>();
+            Heap<CostData<T>> openSet = new Heap<CostData<T>>(m_Nodes.Count);
+            HashSet<CostData<T>> closedSet = new HashSet<CostData<T>>();
 
-            openSet.Add(from);
+            CostData<T>[] costData = new CostData<T>[m_Nodes.Count];
+            for (int i = 0; i < m_Nodes.Count; i++)
+            {
+                costData[i] = new CostData<T>
+                {
+                    Node = m_Nodes[i],
+                    Cost = 0
+                };
+            }
 
-            ResetNodes();
+            openSet.Add(costData[m_Nodes.IndexOf(from)]);
 
             while (openSet.Count > 0)
             {
-                AStarNode<T> node = openSet.RemoveFirst();
-                nodesInRange.Add(node);
-                closedSet.Add(node);
+                CostData<T> currentData = openSet.RemoveFirst();
+                nodesInRange.Add(currentData.Node);
+                closedSet.Add(currentData);
 
-                foreach (AStarNode<T> connected in node.Connected)
+                int currentIndex = m_Nodes.IndexOf(currentData.Node);
+
+                foreach (NavNode<T> connectedNode in currentData.Node.Connected)
                 {
-                    if (!connected.IsTraversible || closedSet.Contains(connected))
+                    int connectedIndex = m_Nodes.IndexOf(connectedNode);
+                    CostData<T> connectedData = costData[connectedIndex];
+                    if (!connectedNode.IsTraversible || closedSet.Contains(connectedData))
                     {
                         continue;
                     }
-                    int cost = Mathf.RoundToInt(node.GCost + heuristic.Heuristic(node.Data, connected.Data));
 
-                    if (cost < connected.GCost || !openSet.Contains(connected))
+                    int cost = currentData.Cost + 1;
+
+                    if (cost < connectedData.Cost || !openSet.Contains(connectedData))
                     {
-                        connected.GCost = cost;
-                        if (!openSet.Contains(connected))
+                        connectedData.Cost = cost;
+                        if (!openSet.Contains(connectedData))
                         {
-                            openSet.Add(connected);
+                            openSet.Add(connectedData);
                         }
                         else
                         {
-                            openSet.UpdateItem(connected);
+                            openSet.UpdateItem(connectedData);
                         }
                     }
                 }
             }
 
-            return nodesInRange.Where(x => x.GCost <= range).ToList();
+            return nodesInRange.Where(x => costData[m_Nodes.IndexOf(x)].Cost <= range).ToList();
         }
     }
 }

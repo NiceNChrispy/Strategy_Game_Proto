@@ -58,7 +58,7 @@ namespace Reboot
             {
                 Hex hitHex = GetHexAtCursor();
 
-                List<AStarNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
+                List<NavNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
                 if(path != null)
                 {
                     m_Path = path.Where(x => m_MoveableTiles.Contains(x)).ToList();

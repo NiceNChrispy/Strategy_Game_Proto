@@ -46,7 +46,7 @@ namespace Reboot
         }
         public bool IsMoving { get; set; }
 
-        public AStarNode<Hex> OccupiedNode { get; set; }
+        public NavNode<Hex> OccupiedNode { get; set; }
         public Hex Position
         {
             get { return OccupiedNode.Data; }
@@ -76,12 +76,12 @@ namespace Reboot
 
         }
 
-        public void Move(List<AStarNode<Hex>> path, GameManager gameManager)
+        public void Move(List<NavNode<Hex>> path, GameManager gameManager)
         {
             StartCoroutine(MoveRoutine(path, gameManager));
         }
 
-        public IEnumerator MoveRoutine(List<AStarNode<Hex>> path, GameManager gameManager)
+        public IEnumerator MoveRoutine(List<NavNode<Hex>> path, GameManager gameManager)
         {
             float journeyTime = path.Count / m_MovementSpeed;
             IsMoving = true;
