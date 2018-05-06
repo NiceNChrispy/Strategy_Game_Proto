@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            if (iTween.Count() == 0)
+            //if (iTween.Count() == 0)
             {
                 StartCoroutine(RotateCam(0.25f));
             }
@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            if (iTween.Count() == 0)
+            //if (iTween.Count() == 0)
             {
                 StartCoroutine(RotateCam(-0.25f));
             }
@@ -33,7 +33,7 @@ public class CameraController : MonoBehaviour {
 
     public IEnumerator RotateCam(float val)
     {
-        iTween.RotateBy(gameObject, iTween.Hash("y", val, "easeType", "easeInOutQuad" , "delay", .1));
+        //iTween.RotateBy(gameObject, iTween.Hash("y", val, "easeType", "easeInOutQuad" , "delay", .1));
         yield return null;
     }
 }

@@ -126,34 +126,50 @@ namespace DataStructures
             return path;
         }
 
-        public List<AStarNode<T>> GetNodesInRange(T from, int range)
+        public List<AStarNode<T>> GetNodesInRange(T from, int range, IHeuristic<T> heuristic)
         {
             AStarNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
-            return GetNodesInRange(fromNode, range);
+            return GetNodesInRange(fromNode, range, heuristic);
         }
 
-        private List<AStarNode<T>> GetNodesInRange(AStarNode<T> from, int range)
+        private List<AStarNode<T>> GetNodesInRange(AStarNode<T> from, int range, IHeuristic<T> heuristic)
         {
             List<AStarNode<T>> nodesInRange = new List<AStarNode<T>>();
+            Heap<AStarNode<T>> openSet = new Heap<AStarNode<T>>(Nodes.Count);
+            HashSet<AStarNode<T>> closedSet = new HashSet<AStarNode<T>>();
 
-            Recursive(from, range, ref nodesInRange);
+            openSet.Add(from);
 
-            return nodesInRange;
-        }
-
-        private void Recursive(AStarNode<T> from, int range, ref List<AStarNode<T>> nodesInRange)
-        {
-            if (range >= 0)
+            while (openSet.Count > 0)
             {
-                if (!nodesInRange.Contains(from))
+                AStarNode<T> node = openSet.RemoveFirst();
+                nodesInRange.Add(node);
+                closedSet.Add(node);
+
+                foreach (AStarNode<T> connected in node.Connected)
                 {
-                    nodesInRange.Add(from);
-                }
-                foreach (AStarNode<T> neighbor in from.Connected)
-                {
-                    Recursive(neighbor, range - 1, ref nodesInRange);
+                    if (!connected.IsTraversible || closedSet.Contains(connected))
+                    {
+                        continue;
+                    }
+                    int cost = Mathf.RoundToInt(node.GCost + heuristic.Heuristic(node.Data, connected.Data));
+
+                    if (cost < connected.GCost || !openSet.Contains(connected))
+                    {
+                        connected.GCost = cost;
+                        if (!openSet.Contains(connected))
+                        {
+                            openSet.Add(connected);
+                        }
+                        else
+                        {
+                            openSet.UpdateItem(connected);
+                        }
+                    }
                 }
             }
+
+            return nodesInRange.Where(x => x.GCost <= range).ToList();
         }
     }
 }

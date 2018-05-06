@@ -15,6 +15,7 @@ namespace Reboot
         public Map<Hex> m_Map;
         NavGraph<Hex> m_NavGraph;
         [SerializeField] private float m_DrawScale = 1.0f;
+        [SerializeField] private GameObject m_TileObject;
 
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
         [SerializeField, ReadOnly] int m_TurnCount = 0;
@@ -57,6 +58,9 @@ namespace Reboot
                             navNode.Connected.Add(m_NavGraph.Nodes.Single(x => x.Data == neighbor));
                         }
                     }
+                    //GameObject tile = Instantiate(m_TileObject, HexToWorld(navNode.Data), Quaternion.Euler(0, -180, -30));
+                    //tile.transform.parent = this.transform;
+                    //tile.name = string.Format("{0},{1},{2}", navNode.Data.q, navNode.Data.r, navNode.Data.s);
                 }
             }
             Begin();
@@ -123,7 +127,7 @@ namespace Reboot
                     //m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
                     if(PlayerWithTurn.Path != null)
                     {
-                        m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
+                        //m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
                     }
                 }
                 foreach (AStarNode<Hex> node in m_NavGraph.Nodes)
@@ -176,7 +180,13 @@ namespace Reboot
 
         public List<DataStructures.AStarNode<Hex>> GetTilesInRange(Hex from, int range)
         {
-            return m_NavGraph.GetNodesInRange(from, range);
+            return m_NavGraph.Nodes.Where(x => x.Data.Distance(from) <= range).ToList();
+            // m_NavGraph.GetNodesInRange(from, range);
+        }
+
+        public List<DataStructures.AStarNode<Hex>> GetTilesInMovementRange(Hex from, int range)
+        {
+            return m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
         }
 
         public Vector2 HexToWorld(Hex hex)

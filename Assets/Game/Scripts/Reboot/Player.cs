@@ -42,9 +42,13 @@ namespace Reboot
             }
         }
 
+        private Team m_Team;
+
         public void Init(GameManager gameManager)
         {
             m_GameManager = gameManager;
+            m_Team = Team.CreateNewTeam();
+            Debug.Log(m_Team.ID);
         }
 
         private void Awake()
@@ -81,7 +85,7 @@ namespace Reboot
 
         public void UpdateUnitsMoveableTiles()
         {
-            m_MoveableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
+            m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
         }
 
         public void TurnBegin()

@@ -16,6 +16,11 @@ namespace Reboot
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
         }
 
+        bool IsMyUnit(Unit unit)
+        {
+            return m_Units.Contains(unit);
+        }
+
         private void Update()
         {
             UpdateUnitUnderCursor();
@@ -24,7 +29,7 @@ namespace Reboot
             {
                 Unit targetUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
 
-                if (!m_Units.Contains(targetUnit))
+                if (!IsMyUnit(targetUnit))
                 {
                     Debug.DrawLine(m_SelectedUnit.transform.position, targetUnit.transform.position, Color.red);
                 }
@@ -43,7 +48,7 @@ namespace Reboot
                         m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
                         DeselectUnit();
                     }
-                    if (m_UnitSelector.CurrentSelectable != null && m_Units.Contains(m_UnitSelector.CurrentSelectable.SelectableComponent))
+                    if (m_UnitSelector.CurrentSelectable != null && IsMyUnit(m_UnitSelector.CurrentSelectable.SelectableComponent))
                     {
                         SelectUnit(m_UnitSelector.CurrentSelectable.SelectableComponent);
                     }

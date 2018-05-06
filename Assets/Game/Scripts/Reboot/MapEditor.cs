@@ -1,14 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
-using DataStructures;
 
 namespace Reboot
 {
+    [ExecuteInEditMode]
     public class MapEditor : MonoBehaviour
     {
+        public enum ToolType
+        {
+            BUILD, TEAM
+        }
+
+        [SerializeField] ToolType m_ToolType;
         [SerializeField] private float m_DrawScale = 1.0f;
+
+        [SerializeField] int teamNumber;
+        Color[] teamColors = { Color.cyan, Color.magenta, Color.yellow };
 
         Layout m_Layout;
         Map<Hex> m_Map;
@@ -19,7 +27,7 @@ namespace Reboot
 
         string Path(string file) { return Application.dataPath + "/" + file; }
 
-        private void Start()
+        private void OnEnable()
         {
             m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
             LoadMap();
@@ -47,11 +55,29 @@ namespace Reboot
             return false;
         }
 
+        int mod(int x, int m)
+        {
+            int r = x % m;
+            return r < 0 ? r + m : r;
+        }
+
         private void Update()
         {
             Plane checkPlane = new Plane(Vector3.back, 0);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float enter;
+
+            if(Input.GetKeyDown(KeyCode.T))
+            {
+                if(m_ToolType == ToolType.BUILD)
+                {
+                    m_ToolType = ToolType.TEAM;
+                }
+                else
+                {
+                    m_ToolType = ToolType.BUILD;
+                }
+            }
 
             if (checkPlane.Raycast(ray, out enter))
             {
@@ -63,14 +89,40 @@ namespace Reboot
 
                 bool isContained = m_Map.Contains(hitHex);
 
-                if (Input.GetMouseButton(0) && !isContained)
+                switch (m_ToolType)
                 {
-                    AddNode(hitHex);
+                    case ToolType.BUILD:
+                    {
+                        if (Input.GetMouseButton(0) && !isContained)
+                        {
+                            AddNode(hitHex);
+                        }
+                        if (Input.GetMouseButton(1) && isContained)
+                        {
+                            RemoveNode(hitHex);
+                        }
+                    }
+                    break;
+                    case ToolType.TEAM:
+                    {
+                        if (Input.mouseScrollDelta.y != 0)
+                        {
+                            teamNumber = mod((teamNumber + Mathf.RoundToInt(Input.mouseScrollDelta.y)), teamColors.Length);
+                        }
+                        if (Input.GetMouseButton(0) && isContained)
+                        {
+                            SetTeamHex(0, hitHex);
+                        }
+                        if (Input.GetMouseButton(1) && isContained)
+                        {
+                            SetTeamHex(1, hitHex);
+                        }
+                    }
+                    break;
+                    default:
+                    break;
                 }
-                if (Input.GetMouseButton(1) && isContained)
-                {
-                    RemoveNode(hitHex);
-                }
+
             }
 
             if (Input.GetKeyDown(KeyCode.S))
@@ -84,6 +136,11 @@ namespace Reboot
             {
                 LoadMap();
             }
+        }
+
+        private void SetTeamHex(int teamNumber, Hex hex)
+        {
+
         }
 
         private void OnGUI()
@@ -132,17 +189,30 @@ namespace Reboot
         {
             if (m_Map != null)
             {
+                Color drawColor = Color.white;
                 foreach (Hex hex in m_Map.Contents)
                 {
+                    switch (m_ToolType)
+                    {
+                        case ToolType.BUILD:
+                        drawColor = Color.white;
+                        break;
+                        case ToolType.TEAM:
+                        drawColor = teamColors[teamNumber];
+                        break;
+                        default:
+                        break;
+                    }
                     List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
                     List<Vector2> points2 = m_Layout.PolygonCorners(hex, m_DrawScale * 0.95f);
-
+                    Gizmos.color = drawColor;
                     for (int i = 0; i < 6; i++)
                     {
                         Gizmos.DrawLine(points[i], points[(i + 1) % 6]);
                         Gizmos.DrawLine(points2[i], points2[(i + 1) % 6]);
                     }
                 }
+                
                 Gizmos.color = m_Map.Contains(m_MouseHex) ? Color.red : Color.green;
                 List<Vector2> mousePoints = m_Layout.PolygonCorners(m_MouseHex, m_DrawScale);
                 for (int i = 0; i < 6; i++)
