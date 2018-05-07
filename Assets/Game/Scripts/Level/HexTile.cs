@@ -5,6 +5,7 @@ public class HexTile : MonoBehaviour
 {
     [SerializeField] private int x, y;
     [SerializeField] private TextMesh m_Cost;
+    public GameObject hexTileObj;
 
     public int X
     {
@@ -57,5 +58,20 @@ public class HexTile : MonoBehaviour
     private void Update()
     {
         //m_Cost.text = Game_Manager.Instance.GetCost(X, Y);
+    }
+
+    private void OnEnable()
+    {
+        Show();
+    }
+
+    public void Show()
+    {
+        iTween.RotateTo(hexTileObj.gameObject, iTween.Hash("z", 180, "time", 1.5f, "easeType", iTween.EaseType.easeOutCirc));
+    }
+
+    public void ToFog()
+    {
+        iTween.RotateTo(hexTileObj.gameObject, iTween.Hash("z", 0, "time", .75f, "easeType", iTween.EaseType.easeOutCirc));
     }
 }
