@@ -6,21 +6,22 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class Player : MonoBehaviour
+    public abstract class Player : MonoBehaviour
     {
-        [SerializeField, Range(0, 20)] private int m_MaxActionPoints;
-        [SerializeField, Range(0, 20)] private int m_ActionPoints;
+        [SerializeField, Range(0, 20)] protected int m_MaxActionPoints;
+        [SerializeField, Range(0, 20)] protected int m_ActionPoints;
 
         [SerializeField] protected List<Unit> m_Units;
 
-        protected event Action<Unit> OnSelectUnit = delegate { };
+        public event Action<Unit> OnSelectUnit = delegate { };
+        public event Action<Unit> OnDeselectUnit = delegate { };
         public event Action OnTimerFinished = delegate { };
         public event Action OnTurnBegin = delegate { };
         public event Action OnTurnEnd = delegate { };
 
-        [SerializeField] bool m_IsMyTurn;
+        [SerializeField] protected bool m_IsMyTurn;
 
-        [SerializeField, ReadOnly] float m_RemainingTime;
+        [SerializeField, ReadOnly] protected float m_RemainingTime;
 
         Coroutine m_CountdownRoutine;
 
@@ -42,18 +43,21 @@ namespace Reboot
             }
         }
 
-        private Team m_Team;
+        protected Team m_Team;
+
+        protected Tile m_TargetTile;
 
         public void Init(GameManager gameManager)
         {
             m_GameManager = gameManager;
             m_Team = Team.CreateNewTeam();
-            Debug.Log(m_Team.ID);
+            //Debug.Log(m_Team.ID);
         }
 
         private void Awake()
         {
             m_ActionPoints = m_MaxActionPoints;
+            m_MoveableTiles = new List<NavNode<Hex>>();
         }
 
         private void OnEnable()
@@ -80,7 +84,19 @@ namespace Reboot
         protected void DeselectUnit()
         {
             m_SelectedUnit.Deselect();
+            OnDeselectUnit.Invoke(m_SelectedUnit);
             m_SelectedUnit = null;
+            m_MoveableTiles.Clear();
+        }
+
+        public void ConfirmOrder()
+        {
+
+        }
+
+        public void CancelOrder()
+        {
+
         }
 
         public void UpdateUnitsMoveableTiles()
@@ -98,6 +114,15 @@ namespace Reboot
             //Debug.Log("MY TURN ENDED");
         }
 
+        public void DeselectSelectedUnit()
+        {
+            if (m_SelectedUnit != null)
+            {
+                m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
+                DeselectUnit();
+            }
+        }
+
         public void EndTurn()
         {
             if (m_CountdownRoutine != null)
@@ -107,6 +132,7 @@ namespace Reboot
             }
             m_RemainingTime = 0f;
             m_IsMyTurn = false;
+            DeselectSelectedUnit();
             OnTurnEnd.Invoke();
         }
 

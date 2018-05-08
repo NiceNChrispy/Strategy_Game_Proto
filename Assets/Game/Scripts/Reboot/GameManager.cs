@@ -15,7 +15,7 @@ namespace Reboot
         public Map<Hex> m_Map;
         NavGraph<Hex> m_NavGraph;
         [SerializeField] private float m_DrawScale = 1.0f;
-        [SerializeField] private GameObject m_TileObject;
+        [SerializeField] private Tile m_TilePrefab;
 
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
         [SerializeField, ReadOnly] int m_TurnCount = 0;
@@ -58,9 +58,10 @@ namespace Reboot
                             navNode.Connected.Add(m_NavGraph.Nodes.Single(x => x.Data == neighbor));
                         }
                     }
-                    //GameObject tile = Instantiate(m_TileObject, HexToWorld(navNode.Data), Quaternion.Euler(0, -180, -30));
-                    //tile.transform.parent = this.transform;
-                    //tile.name = string.Format("{0},{1},{2}", navNode.Data.q, navNode.Data.r, navNode.Data.s);
+                    Tile tile = Instantiate(m_TilePrefab, HexToWorld(navNode.Data), Quaternion.Euler(0, -180, -30));
+                    tile.HexNode = navNode;
+                    tile.transform.parent = this.transform;
+                    tile.name = string.Format("{0},{1},{2}", navNode.Data.q, navNode.Data.r, navNode.Data.s);
                 }
             }
             Begin();
@@ -89,6 +90,11 @@ namespace Reboot
                     Hex nearestHex = WorldToHex(unit.transform.position);
                     //m_NavGraph.Nodes.Where(x => !x.IsTraversible);
                     unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Data == nearestHex);
+
+                    if(unit.OccupiedNode == null)
+                    {
+                        throw new System.Exception("Unit on inaccessible node");
+                    }
                     unit.OccupiedNode.IsTraversible = false;
                     unit.transform.position = HexToWorld(nearestHex);
                 }
@@ -130,36 +136,48 @@ namespace Reboot
                         //m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
                     }
                 }
+                if (PlayerWithTurn != null)
+                {
+                    foreach (NavNode<Hex> hexNode in PlayerWithTurn.MoveableTiles)
+                    {
+                        DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale -0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                    }
+                }
+
                 foreach (NavNode<Hex> node in m_NavGraph.Nodes)
                 {
-                    Color drawColor = Color.white;
-
-                    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null)
-                    {
-                        if(PlayerWithTurn.MoveableTiles.Contains(node))
-                        {
-                            DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
-                        }
-                        if(PlayerWithTurn.Path.Contains(node))
-                        {
-                            DrawHex(node.Data, Color.yellow, 0.3f);
-                        }
-                    }
-
-                    if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
-                    {
-                        drawColor = Color.green;
-                    }
-                    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == node.Data))) // Draw enemy units
-                    {
-                        drawColor = Color.red;
-                    }
-                    else if (!node.IsTraversible)// Draw inaccessible tiles
-                    {
-                        drawColor = Color.magenta;
-                    }
-                    DrawHex(node.Data, drawColor, m_DrawScale);
+                    DrawHex(node.Data, Color.grey, m_DrawScale);
                 }
+                //foreach (NavNode<Hex> node in m_NavGraph.Nodes)
+                //{
+                //    Color drawColor = Color.white;
+
+                //    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null)
+                //    {
+                //        if(PlayerWithTurn.MoveableTiles.Contains(node))
+                //        {
+                //            DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
+                //        }
+                //        if(PlayerWithTurn.Path.Contains(node))
+                //        {
+                //            DrawHex(node.Data, Color.yellow, 0.3f);
+                //        }
+                //    }
+
+                //    if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
+                //    {
+                //        drawColor = Color.green;
+                //    }
+                //    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == node.Data))) // Draw enemy units
+                //    {
+                //        drawColor = Color.red;
+                //    }
+                //    else if (!node.IsTraversible)// Draw inaccessible tiles
+                //    {
+                //        drawColor = Color.magenta;
+                //    }
+                //    DrawHex(node.Data, drawColor, m_DrawScale);
+                //}
             }
         }
 

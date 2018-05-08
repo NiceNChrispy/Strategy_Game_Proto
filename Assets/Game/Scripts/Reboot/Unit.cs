@@ -67,7 +67,7 @@ namespace Reboot
 
         public void Deselect()
         {
-            GetComponent<Renderer>().material.color = Color.blue;
+            GetComponent<Renderer>().material.color = Color.white;
             IsSelected = false;
         }
 
@@ -113,7 +113,7 @@ namespace Reboot
         {
             if (!IsSelected && IsSelectable)
             {
-                GetComponent<Renderer>().material.color = Color.blue;
+                GetComponent<Renderer>().material.color = Color.white;
             }
         }
     }
