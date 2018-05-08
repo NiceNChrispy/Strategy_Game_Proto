@@ -91,7 +91,7 @@ namespace Reboot
                     //m_NavGraph.Nodes.Where(x => !x.IsTraversible);
                     unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Data == nearestHex);
 
-                    if(unit.OccupiedNode == null)
+                    if (unit.OccupiedNode == null)
                     {
                         throw new System.Exception("Unit on inaccessible node");
                     }
@@ -131,7 +131,7 @@ namespace Reboot
                 if (PlayerWithTurn.SelectedUnit != null)
                 {
                     //m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
-                    if(PlayerWithTurn.Path != null)
+                    if (PlayerWithTurn.Path != null)
                     {
                         //m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
                     }
@@ -140,7 +140,7 @@ namespace Reboot
                 {
                     foreach (NavNode<Hex> hexNode in PlayerWithTurn.MoveableTiles)
                     {
-                        DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale -0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                        DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
                     }
                 }
 

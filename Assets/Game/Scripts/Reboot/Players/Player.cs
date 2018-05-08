@@ -77,16 +77,20 @@ namespace Reboot
             m_SelectedUnit = unit;
             m_SelectedUnit.Select();
             OnSelectUnit.Invoke(m_SelectedUnit);
-            UpdateUnitsMoveableTiles();
+            //UpdateUnitsMoveableTiles();
             //Draw movement range
         }
 
-        protected void DeselectUnit()
+        public void DeselectSelectedUnit()
         {
-            m_SelectedUnit.Deselect();
-            OnDeselectUnit.Invoke(m_SelectedUnit);
-            m_SelectedUnit = null;
-            m_MoveableTiles.Clear();
+            if (m_SelectedUnit != null)
+            {
+                m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
+                OnDeselectUnit.Invoke(m_SelectedUnit);
+                m_SelectedUnit.Deselect();
+                m_SelectedUnit = null;
+                m_MoveableTiles.Clear();
+            }
         }
 
         public void ConfirmOrder()
@@ -114,14 +118,6 @@ namespace Reboot
             //Debug.Log("MY TURN ENDED");
         }
 
-        public void DeselectSelectedUnit()
-        {
-            if (m_SelectedUnit != null)
-            {
-                m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
-                DeselectUnit();
-            }
-        }
 
         public void EndTurn()
         {
