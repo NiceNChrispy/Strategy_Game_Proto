@@ -9,10 +9,10 @@ namespace Reboot
 {
     public class GameManager : MonoBehaviour
     {
-        public List<Player> m_Players;
-        public int m_PlayerTurn;
-        public int m_StartingPlayerTurn;
-        public Map<Hex> m_Map;
+        [SerializeField] private List<Player> m_Players;
+        private int m_PlayerTurn;
+        private int m_StartingPlayerTurn;
+        private Map<Hex> m_Map;
         NavGraph<Hex> m_NavGraph;
         [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private Tile m_TilePrefab;
@@ -128,60 +128,21 @@ namespace Reboot
         {
             if (m_Map != null)
             {
-                if (PlayerWithTurn.SelectedUnit != null)
-                {
-                    //m_NodesThatAreInRangeToMove = m_NavGraph.GetNodesInRange(PlayerWithTurn.SelectedUnit.Position, PlayerWithTurn.SelectedUnit.MovementRange);
-                    if (PlayerWithTurn.Path != null)
-                    {
-                        //m_NodesThatAreInRangeToAttackAfterMoving = m_NavGraph.GetNodesInRange(PlayerWithTurn.Path[PlayerWithTurn.Path.Count - 1].Data, PlayerWithTurn.SelectedUnit.AttackRange);
-                    }
-                }
-                if (PlayerWithTurn != null)
-                {
-                    foreach (NavNode<Hex> hexNode in PlayerWithTurn.MoveableTiles)
-                    {
-                        DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
-                    }
-                }
-
                 foreach (NavNode<Hex> node in m_NavGraph.Nodes)
                 {
                     DrawHex(node.Data, Color.grey, m_DrawScale);
                 }
-                //foreach (NavNode<Hex> node in m_NavGraph.Nodes)
-                //{
-                //    Color drawColor = Color.white;
-
-                //    if(PlayerWithTurn.SelectedUnit != null && PlayerWithTurn.Path != null)
-                //    {
-                //        if(PlayerWithTurn.MoveableTiles.Contains(node))
-                //        {
-                //            DrawHex(node.Data, new Color(0.5f, 0.5f, 1.0f), 0.2f);
-                //        }
-                //        if(PlayerWithTurn.Path.Contains(node))
-                //        {
-                //            DrawHex(node.Data, Color.yellow, 0.3f);
-                //        }
-                //    }
-
-                //    if (PlayerWithTurn.Units.Any(x => x.Position == node.Data)) // Draw friendly units
-                //    {
-                //        drawColor = Color.green;
-                //    }
-                //    else if (PlayersWithoutTurn.Any(x => x.Units.Any(y => y.Position == node.Data))) // Draw enemy units
-                //    {
-                //        drawColor = Color.red;
-                //    }
-                //    else if (!node.IsTraversible)// Draw inaccessible tiles
-                //    {
-                //        drawColor = Color.magenta;
-                //    }
-                //    DrawHex(node.Data, drawColor, m_DrawScale);
-                //}
+            }
+            if (Application.isPlaying)
+            {
+                foreach (Unit unit in PlayerWithTurn.Units)
+                {
+                    DrawHex(unit.Position, Color.green, m_DrawScale);
+                }
             }
         }
 
-        private void DrawHex(Hex hex, Color color, float drawScale)
+        public void DrawHex(Hex hex, Color color, float drawScale)
         {
             Gizmos.color = color;
             List<Vector2> points = m_Layout.PolygonCorners(hex, drawScale);

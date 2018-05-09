@@ -32,7 +32,7 @@ namespace Reboot
             }
         }
 
-        public Unit SelectableComponent
+        public Unit Data
         {
             get
             {
@@ -53,6 +53,7 @@ namespace Reboot
         }
 
         public event Action OnFinishMove = delegate { };
+        public event Action OnMoveNode = delegate { };
 
         private void OnEnable()
         {
@@ -76,25 +77,26 @@ namespace Reboot
 
         }
 
-        public void Move(List<NavNode<Hex>> path, GameManager gameManager)
+        public void Move(Queue<NavNode<Hex>> path, GameManager gameManager)
         {
             StartCoroutine(MoveRoutine(path, gameManager));
         }
 
-        public IEnumerator MoveRoutine(List<NavNode<Hex>> path, GameManager gameManager)
+        public IEnumerator MoveRoutine(Queue<NavNode<Hex>> path, GameManager gameManager)
         {
             float journeyTime = path.Count / m_MovementSpeed;
             IsMoving = true;
             //while (journeyTime > 0)
             {
-                for (int i = 0; i < path.Count; i++)
+                while(path.Count > 0)
                 {
                     OccupiedNode.IsTraversible = true;
-                    OccupiedNode = path[i];
+                    OccupiedNode = path.Dequeue();
                     OccupiedNode.IsTraversible = false;
-                    transform.position = gameManager.HexToWorld(path[i].Data);
+                    transform.position = gameManager.HexToWorld(OccupiedNode.Data);
                     journeyTime -= Time.deltaTime;
-                    yield return new WaitForEndOfFrame();
+                    OnMoveNode.Invoke();
+                    yield return new WaitForSeconds(0.1f);
                 }
             }
             OnFinishMove.Invoke();

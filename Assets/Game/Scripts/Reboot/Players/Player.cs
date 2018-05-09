@@ -29,11 +29,13 @@ namespace Reboot
 
         [SerializeField] protected Unit m_SelectedUnit;
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
-        protected List<NavNode<Hex>> m_Path;
+        protected Queue<NavNode<Hex>> m_Path;
         protected List<NavNode<Hex>> m_MoveableTiles;
 
-        public List<NavNode<Hex>> Path { get { return m_Path; } }
+        public Queue<NavNode<Hex>> Path { get { return m_Path; } }
         public List<NavNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
+
+        [SerializeField] private float m_DrawScale = 1.0f;
 
         public List<Unit> Units
         {
@@ -58,6 +60,7 @@ namespace Reboot
         {
             m_ActionPoints = m_MaxActionPoints;
             m_MoveableTiles = new List<NavNode<Hex>>();
+            m_Path = new Queue<NavNode<Hex>>();
         }
 
         private void OnEnable()
@@ -85,17 +88,24 @@ namespace Reboot
         {
             if (m_SelectedUnit != null)
             {
-                m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
+                m_SelectedUnit.OnMoveNode -= UpdateUnitsMoveableTiles;
                 OnDeselectUnit.Invoke(m_SelectedUnit);
                 m_SelectedUnit.Deselect();
                 m_SelectedUnit = null;
+                m_TargetTile = null;
                 m_MoveableTiles.Clear();
+                m_Path.Clear();
             }
         }
 
         public void ConfirmOrder()
         {
-
+            if (m_SelectedUnit != null && m_TargetTile != null)
+            {
+                Debug.Log("Confirmed Order");
+                m_SelectedUnit.OnMoveNode += UpdateUnitsMoveableTiles;
+                m_SelectedUnit.Move(m_Path, m_GameManager);
+            }
         }
 
         public void CancelOrder()
@@ -108,6 +118,11 @@ namespace Reboot
             m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
         }
 
+        public void UpdateUnitsPath()
+        {
+            m_Path = new Queue<NavNode<Hex>>(m_GameManager.GetPath(m_SelectedUnit.Position, m_TargetTile.HexNode.Data));
+        }
+
         public void TurnBegin()
         {
             //Debug.Log("MY TURN BEGAN");
@@ -118,6 +133,25 @@ namespace Reboot
             //Debug.Log("MY TURN ENDED");
         }
 
+
+        public void OnDrawGizmos()
+        {
+            if (m_IsMyTurn)
+            {
+                if (m_SelectedUnit != null)
+                {
+                    foreach (NavNode<Hex> node in m_Path)
+                    {
+                        m_GameManager.DrawHex(node.Data, Color.yellow, m_DrawScale);
+                    }
+                }
+
+                foreach (NavNode<Hex> hexNode in m_MoveableTiles)
+                {
+                    m_GameManager.DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                }
+            }
+        }
 
         public void EndTurn()
         {
