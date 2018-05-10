@@ -50,6 +50,7 @@ namespace Reboot
 
         }
 
+        #region CharacterDraw
         public void PopulateCharacterDraw()
         {
             for (int i = 0; i < m_Player.m_Units.Count; i++)
@@ -92,5 +93,6 @@ namespace Reboot
                     break;
             }
         }
+        #endregion
     }
 }
