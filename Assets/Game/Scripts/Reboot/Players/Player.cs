@@ -11,7 +11,7 @@ namespace Reboot
         [SerializeField, Range(0, 20)] protected int m_MaxActionPoints;
         [SerializeField, Range(0, 20)] protected int m_ActionPoints;
 
-        [SerializeField] protected List<Unit> m_Units;
+        [SerializeField] public List<Unit> m_Units;
 
         public event Action<Unit> OnSelectUnit = delegate { };
         public event Action<Unit> OnDeselectUnit = delegate { };

@@ -3,11 +3,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using NaughtyAttributes;
 
 namespace Reboot
 {
     public class Unit : MonoBehaviour, ISelectableComponent<Unit>
     {
+        [Section("Unit Info")]
+        public string unitName;
+        public Image characterImage;
+        public int unitHealth;
+        public int maxHealth = 10;
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
         [SerializeField] private float m_MovementSpeed;
         [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
@@ -57,6 +64,7 @@ namespace Reboot
         private void OnEnable()
         {
             IsSelectable = true;
+            unitHealth = maxHealth;
         }
 
         public void Select()
