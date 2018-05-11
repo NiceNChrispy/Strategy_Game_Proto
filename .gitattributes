@@ -15,3 +15,8 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
+
+# To prevent git from trying to merge some types of file on its own by declaring them as binary files.
+*.unity binary
+*.prefab binary
+*.asset binary
