@@ -12,6 +12,8 @@ namespace Reboot
         [SerializeField] private Canvas m_UICanvas;
         [SerializeField] private GameObject m_UIPanel;
         [SerializeField] private Player m_Player;
+        [SerializeField] private Text m_TimerText;
+        [SerializeField] private GameManager m_GameManager;
 
 
         [Section("Side UI")]
@@ -40,9 +42,10 @@ namespace Reboot
             m_UIPanel.SetActive(false);
         }
 
-        public void EnableOrderButtons()
+        private void Update()
         {
-
+            m_TimerText.text = string.Format("{0:00.00}", m_GameManager.TimeBeforeNextPlayersTurn);
+            //m_TimerText.color = Color.Lerp(Color.red, Color.black, Mathf.Sin(m_GameManager.TimeBeforeNextPlayersTurn * 5f));
         }
 
         public void LoadCharacterUI()

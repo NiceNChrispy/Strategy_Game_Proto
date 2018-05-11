@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class Tile : MonoBehaviour, ISelectableComponent<Hex>
+    public class Tile : MonoBehaviour, ISelectableComponent<Tile>
     {
         public NavNode<Hex> HexNode;
 
-        public Hex SelectableComponent
+        public Tile Data
         {
             get
             {
-                return HexNode.Data;
+                return this;
             }
         }
 

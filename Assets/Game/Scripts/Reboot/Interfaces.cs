@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public interface ISelectableComponent<MonoBehaviour>
+    public interface ISelectableComponent<T>
     {
-        MonoBehaviour SelectableComponent { get; }
+        T Data { get; }
         bool IsSelectable { get; set; }
         bool IsSelected { get; set; }
         void OnCursorEnter();

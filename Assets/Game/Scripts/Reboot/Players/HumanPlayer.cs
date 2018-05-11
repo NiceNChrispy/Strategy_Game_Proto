@@ -29,7 +29,7 @@ namespace Reboot
                 {
                     UpdateUnitUnderCursor();
 
-                    Unit targetUnit = m_UnitSelector.CurrentSelectable != null ? m_UnitSelector.CurrentSelectable.SelectableComponent : null;
+                    Unit targetUnit = m_UnitSelector.CurrentSelectable != null ? m_UnitSelector.CurrentSelectable.Data : null;
                     if (targetUnit != null && m_SelectedUnit != targetUnit)
                     {
                         DeselectSelectedUnit();
@@ -38,8 +38,20 @@ namespace Reboot
                             SelectUnit(targetUnit);
                         }
                     }
+
+                    Tile targetTile = m_TileSelector.CurrentSelectable != null ? m_TileSelector.CurrentSelectable.Data : null;
+                    if (targetTile != null && m_TargetTile != targetTile)
+                    {
+                        m_TargetTile = targetTile;
+                        if (m_MoveableTiles.Contains(targetTile.HexNode))
+                        {
+                            UpdateUnitsPath();
+                        }
+                        Debug.DrawLine(transform.position, m_GameManager.HexToWorld(targetTile.HexNode.Data));
+                    }
                 }
             }
+
 
             //UpdateUnitUnderCursor();
 
@@ -105,7 +117,7 @@ namespace Reboot
 
         private void OnGUI()
         {
-            if(m_SelectedUnit != null)
+            if (m_SelectedUnit != null)
             {
                 GUILayout.Label(string.Format("Selected Unit: {0}", m_SelectedUnit.name));
                 GUILayout.Label(string.Format("Movement Range: {0}", m_SelectedUnit.MovementRange));

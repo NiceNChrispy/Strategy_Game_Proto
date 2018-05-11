@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class Selector<MonoBehaviour>
+    public class Selector<T>
     {
         LayerMask m_SelectionLayer;
         public Selector(LayerMask selectionLayer)
@@ -11,7 +11,7 @@ namespace Reboot
             m_SelectionLayer = selectionLayer;
         }
 
-        public ISelectableComponent<MonoBehaviour> CurrentSelectable
+        public ISelectableComponent<T> CurrentSelectable
         {
             get; set;
         }
@@ -29,7 +29,7 @@ namespace Reboot
                 if (hit.collider != m_PreviousCollider)
                 {
                     DeselectCurrent();
-                    CurrentSelectable = hit.collider.GetComponent<ISelectableComponent<MonoBehaviour>>();
+                    CurrentSelectable = hit.collider.GetComponent<ISelectableComponent<T>>();
                     if (CurrentSelectable != null && CurrentSelectable.IsSelectable)
                     {
                         CurrentSelectable.OnCursorEnter();
