@@ -49,6 +49,8 @@ namespace Reboot
 
         protected Tile m_TargetTile;
 
+        public float RemainingTime { get { return m_RemainingTime; } }
+
         public void Init(GameManager gameManager)
         {
             m_GameManager = gameManager;

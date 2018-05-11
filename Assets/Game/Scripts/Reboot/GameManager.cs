@@ -1,5 +1,4 @@
 ﻿using DataStructures;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,6 +30,8 @@ namespace Reboot
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         string Path(string file) { return Application.dataPath + "/" + file; }
+
+        public float TimeBeforeNextPlayersTurn { get { return PlayerWithTurn.RemainingTime; } }
 
         private void Awake()
         {
