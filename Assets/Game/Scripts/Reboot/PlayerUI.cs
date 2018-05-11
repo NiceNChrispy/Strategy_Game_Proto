@@ -53,11 +53,11 @@ namespace Reboot
         #region CharacterDraw
         public void PopulateCharacterDraw()
         {
-            for (int i = 0; i < m_Player.m_Units.Count; i++)
+            for (int i = 0; i < m_Player.Units.Count; i++)
             {
                 GameObject charInfo = Instantiate(characterUIPrefab, characterUIHolder.transform) as GameObject;
                 CharacterInfo info = charInfo.GetComponent<CharacterInfo>();
-                info.associatedUnit = m_Player.m_Units[i];
+                info.associatedUnit = m_Player.Units[i];
                 characterList.Add(info);
             }
             UpdateCharacterInfo();
