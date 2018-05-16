@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum OrderType { NONE = 0, MOVE = 1, ATTACK = 2}
 namespace Reboot
 {
     public abstract class Player : MonoBehaviour
@@ -31,11 +32,14 @@ namespace Reboot
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
         protected Queue<NavNode<Hex>> m_Path;
         protected List<NavNode<Hex>> m_MoveableTiles;
+        protected List<NavNode<Hex>> m_AttackableTiles;
 
         public Queue<NavNode<Hex>> Path { get { return m_Path; } }
         public List<NavNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
+        public List<NavNode<Hex>> AttackableTiles { get { return m_AttackableTiles; } }
 
         [SerializeField] private float m_DrawScale = 1.0f;
+        [SerializeField] private OrderType m_CurrentOrder;
 
         public List<Unit> Units
         {
@@ -62,6 +66,7 @@ namespace Reboot
         {
             m_ActionPoints = m_MaxActionPoints;
             m_MoveableTiles = new List<NavNode<Hex>>();
+            m_AttackableTiles = new List<NavNode<Hex>>();
             m_Path = new Queue<NavNode<Hex>>();
         }
 
@@ -90,6 +95,7 @@ namespace Reboot
         {
             if (m_SelectedUnit != null)
             {
+                //m_SelectedUnit.OnFinishMove -= ClearAllUnitInfo;
                 m_SelectedUnit.OnMoveNode -= UpdateUnitsMoveableTiles;
                 OnDeselectUnit.Invoke(m_SelectedUnit);
                 m_SelectedUnit.Deselect();
@@ -100,19 +106,70 @@ namespace Reboot
             }
         }
 
+        public void ClearAllUnitInfo()
+        {
+            m_MoveableTiles.Clear();
+            m_AttackableTiles.Clear();
+            m_Path.Clear();
+            m_TargetTile = null;
+        }
+
         public void ConfirmOrder()
         {
             if (m_SelectedUnit != null && m_TargetTile != null)
             {
                 Debug.Log("Confirmed Order");
-                m_SelectedUnit.OnMoveNode += UpdateUnitsMoveableTiles;
-                m_SelectedUnit.Move(m_Path, m_GameManager);
+                switch (m_CurrentOrder)
+                {
+                    case OrderType.NONE:
+                    break;
+                    case OrderType.MOVE:
+                    {
+                        m_SelectedUnit.OnMoveNode += UpdateUnitsMoveableTiles;
+                        m_SelectedUnit.Move(m_Path, m_GameManager);
+                        break;
+                    }
+                    case OrderType.ATTACK:
+                    {
+                        m_SelectedUnit.Attack(m_TargetTile.HexNode, m_GameManager);
+                        break;
+                    }
+                    default:
+                    break;
+                }
             }
         }
 
-        public void CancelOrder()
+        //Hack to set order using button
+        public void SetOrder_BUTTON(int orderID)
         {
+            SetOrder((OrderType)orderID);
+        }
 
+        public void SetOrder(OrderType order)
+        {
+            ClearAllUnitInfo();
+            m_CurrentOrder = order;
+            switch (m_CurrentOrder)
+            {
+                case OrderType.NONE:
+                {
+                    DeselectSelectedUnit();
+                    break;
+                }
+                case OrderType.MOVE:
+                {
+                    UpdateUnitsMoveableTiles();
+                    break;
+                }
+                case OrderType.ATTACK:
+                {
+                    UpdateUnitsAttackableTiles();
+                    break;
+                }
+                default:
+                break;
+            }
         }
 
         public void UpdateUnitsMoveableTiles()
@@ -120,9 +177,19 @@ namespace Reboot
             m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
         }
 
+        public void UpdateUnitsAttackableTiles()
+        {
+            m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.AttackRange);
+        }
+
         public void UpdateUnitsPath()
         {
             m_Path = new Queue<NavNode<Hex>>(m_GameManager.GetPath(m_SelectedUnit.Position, m_TargetTile.HexNode.Data));
+        }
+
+        public void UpdateAttack()
+        {
+            Debug.Log("ATTACK");
         }
 
         public void TurnBegin()
@@ -134,7 +201,6 @@ namespace Reboot
         {
             //Debug.Log("MY TURN ENDED");
         }
-
 
         public void OnDrawGizmos()
         {
@@ -151,6 +217,11 @@ namespace Reboot
                 foreach (NavNode<Hex> hexNode in m_MoveableTiles)
                 {
                     m_GameManager.DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                }
+
+                foreach (NavNode<Hex> hexNode in m_AttackableTiles)
+                {
+                    m_GameManager.DrawHex(hexNode.Data, Color.red, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
                 }
             }
         }

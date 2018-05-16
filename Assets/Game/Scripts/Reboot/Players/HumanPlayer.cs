@@ -30,13 +30,10 @@ namespace Reboot
                     UpdateUnitUnderCursor();
 
                     Unit targetUnit = m_UnitSelector.CurrentSelectable != null ? m_UnitSelector.CurrentSelectable.Data : null;
-                    if (targetUnit != null && m_SelectedUnit != targetUnit)
+                    if (targetUnit != null && m_SelectedUnit != targetUnit && IsMyUnit(targetUnit))
                     {
                         DeselectSelectedUnit();
-                        if (IsMyUnit(targetUnit))
-                        {
-                            SelectUnit(targetUnit);
-                        }
+                        SelectUnit(targetUnit);
                     }
 
                     Tile targetTile = m_TileSelector.CurrentSelectable != null ? m_TileSelector.CurrentSelectable.Data : null;
@@ -46,6 +43,10 @@ namespace Reboot
                         if (m_MoveableTiles.Contains(targetTile.HexNode))
                         {
                             UpdateUnitsPath();
+                        }
+                        if (m_AttackableTiles.Contains(targetTile.HexNode))
+                        {
+                            UpdateAttack();
                         }
                         Debug.DrawLine(transform.position, m_GameManager.HexToWorld(targetTile.HexNode.Data));
                     }

@@ -80,9 +80,8 @@ namespace Reboot
             IsSelected = false;
         }
 
-        public void Attack()
+        public void Attack(NavNode<Hex> targetNode, GameManager gameManager)
         {
-
         }
 
         public void Move(Queue<NavNode<Hex>> path, GameManager gameManager)
