@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum OrderType { NONE = 0, MOVE = 1, ATTACK = 2}
+public enum OrderType { NONE = 0, MOVE = 1, ATTACK = 2 }
 namespace Reboot
 {
     public abstract class Player : MonoBehaviour
@@ -96,7 +96,7 @@ namespace Reboot
             if (m_SelectedUnit != null)
             {
                 //m_SelectedUnit.OnFinishMove -= ClearAllUnitInfo;
-                m_SelectedUnit.OnMoveNode -= UpdateUnitsMoveableTiles;
+                m_SelectedUnit.OnMoveNode -= UpdateUnitTiles;
                 OnDeselectUnit.Invoke(m_SelectedUnit);
                 m_SelectedUnit.Deselect();
                 m_SelectedUnit = null;
@@ -110,22 +110,24 @@ namespace Reboot
         {
             m_MoveableTiles.Clear();
             m_AttackableTiles.Clear();
-            m_Path.Clear();
+            //m_Path.Clear();
             m_TargetTile = null;
         }
+
+        //BUG: Ok so weird bug if you click confirm and there is a hex behind the button then the path destination is changed last minute.
 
         public void ConfirmOrder()
         {
             if (m_SelectedUnit != null && m_TargetTile != null)
             {
-                Debug.Log("Confirmed Order");
+                Debug.Log(string.Format("Confirmed Order: {0}", m_CurrentOrder));
                 switch (m_CurrentOrder)
                 {
                     case OrderType.NONE:
                     break;
                     case OrderType.MOVE:
                     {
-                        m_SelectedUnit.OnMoveNode += UpdateUnitsMoveableTiles;
+                        m_SelectedUnit.OnMoveNode += UpdateUnitTiles;
                         m_SelectedUnit.Move(m_Path, m_GameManager);
                         break;
                     }
@@ -159,12 +161,12 @@ namespace Reboot
                 }
                 case OrderType.MOVE:
                 {
-                    UpdateUnitsMoveableTiles();
+                    UpdateUnitTiles();
                     break;
                 }
                 case OrderType.ATTACK:
                 {
-                    UpdateUnitsAttackableTiles();
+                    UpdateUnitTiles();
                     break;
                 }
                 default:
@@ -172,13 +174,9 @@ namespace Reboot
             }
         }
 
-        public void UpdateUnitsMoveableTiles()
+        public void UpdateUnitTiles()
         {
             m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
-        }
-
-        public void UpdateUnitsAttackableTiles()
-        {
             m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.AttackRange);
         }
 
@@ -206,23 +204,37 @@ namespace Reboot
         {
             if (m_IsMyTurn)
             {
-                if (m_SelectedUnit != null)
+                switch (m_CurrentOrder)
                 {
-                    foreach (NavNode<Hex> node in m_Path)
+                    case OrderType.NONE:
+                    break;
+                    case OrderType.MOVE:
                     {
-                        m_GameManager.DrawHex(node.Data, Color.yellow, m_DrawScale);
+                        if (m_SelectedUnit != null)
+                        {
+                            foreach (NavNode<Hex> node in m_Path)
+                            {
+                                m_GameManager.DrawHex(node.Data, Color.yellow, m_DrawScale);
+                            }
+                        }
+                        foreach (NavNode<Hex> hexNode in m_MoveableTiles)
+                        {
+                            m_GameManager.DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                        }
+                        break;
                     }
+                    case OrderType.ATTACK:
+                    {
+                        foreach (NavNode<Hex> hexNode in m_AttackableTiles)
+                        {
+                            m_GameManager.DrawHex(hexNode.Data, Color.red, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                        }
+                    }
+                    break;
+                    default:
+                    break;
                 }
 
-                foreach (NavNode<Hex> hexNode in m_MoveableTiles)
-                {
-                    m_GameManager.DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
-                }
-
-                foreach (NavNode<Hex> hexNode in m_AttackableTiles)
-                {
-                    m_GameManager.DrawHex(hexNode.Data, Color.red, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
-                }
             }
         }
 

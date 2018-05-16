@@ -43,7 +43,7 @@ namespace Reboot
             else
             {
                 Debug.Log(string.Format("Loaded Map With {0} Hexes", m_Map.Contents.Count));
-                m_NavGraph = new DataStructures.NavGraph<Hex>();
+                m_NavGraph = new NavGraph<Hex>();
 
                 foreach (Hex hex in m_Map.Contents)
                 {

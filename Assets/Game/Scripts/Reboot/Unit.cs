@@ -93,18 +93,15 @@ namespace Reboot
         {
             float journeyTime = path.Count / m_MovementSpeed;
             IsMoving = true;
-            //while (journeyTime > 0)
+            while (path.Count > 0)
             {
-                while(path.Count > 0)
-                {
-                    OccupiedNode.IsTraversible = true;
-                    OccupiedNode = path.Dequeue();
-                    OccupiedNode.IsTraversible = false;
-                    transform.position = gameManager.HexToWorld(OccupiedNode.Data);
-                    journeyTime -= Time.deltaTime;
-                    OnMoveNode.Invoke();
-                    yield return new WaitForSeconds(0.1f);
-                }
+                OccupiedNode.IsTraversible = true;
+                OccupiedNode = path.Dequeue();
+                OccupiedNode.IsTraversible = false;
+                transform.position = gameManager.HexToWorld(OccupiedNode.Data);
+                journeyTime -= Time.deltaTime;
+                OnMoveNode.Invoke();
+                yield return new WaitForSeconds(0.5f);
             }
             OnFinishMove.Invoke();
             yield return null;
