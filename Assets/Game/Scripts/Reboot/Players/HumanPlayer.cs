@@ -15,7 +15,6 @@ namespace Reboot
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
             m_TileSelector = new Selector<Tile>(m_SelectionLayer);
-            m_Units = GetComponentsInChildren<Unit>().ToList();
         }
 
         bool IsMyUnit(Unit unit)
@@ -39,18 +38,9 @@ namespace Reboot
                     }
 
                     Tile targetTile = m_TileSelector.CurrentSelectable != null ? m_TileSelector.CurrentSelectable.Data : null;
-                    if (targetTile != null && m_TargetTile != targetTile)
+                    if (targetTile != null && targetTile.HexNode != m_TargetNode)
                     {
-                        m_TargetTile = targetTile;
-                        if (m_MoveableTiles.Contains(targetTile.HexNode))
-                        {
-                            UpdateUnitsPath();
-                        }
-                        if (m_AttackableTiles.Contains(targetTile.HexNode))
-                        {
-                            UpdateAttack();
-                        }
-                        Debug.DrawLine(transform.position, m_GameManager.HexToWorld(targetTile.HexNode.Data));
+                        TargetNode(targetTile.HexNode);
                     }
                 }
             }
@@ -122,6 +112,7 @@ namespace Reboot
         {
             if (m_SelectedUnit != null)
             {
+                GUILayout.Label(string.Format("AP: {0}/{1}", m_ActionPoints, m_MaxActionPoints));
                 GUILayout.Label(string.Format("Selected Unit: {0}", m_SelectedUnit.name));
                 GUILayout.Label(string.Format("Health: {0}/{1}", m_SelectedUnit.Health, m_SelectedUnit.MaxHealth));
                 GUILayout.Label(string.Format("Movement Range: {0}", m_SelectedUnit.MovementRange));

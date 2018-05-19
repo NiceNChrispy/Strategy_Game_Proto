@@ -179,13 +179,13 @@ namespace Reboot
             return m_Layout.PixelToHex(worldPosition).HexRound();
         }
 
-        public bool Attack(Tile targetTile, AttackData attackData)
+        public bool Attack(NavNode<Hex> targetHex, AttackData attackData)
         {
             foreach(Player player in PlayersWithoutTurn)
             {
                 foreach (Unit unit in player.Units)
                 {
-                    if(unit.Position == targetTile.HexNode.Data)
+                    if(unit.Position == targetHex.Data)
                     {
                         unit.Damage(attackData.Damage);
                         return true;

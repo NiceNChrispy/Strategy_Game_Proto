@@ -65,9 +65,6 @@ namespace Reboot
         public int Health { get { return m_Health; } set { m_Health = value; } }
         public int MaxHealth { get { return m_MaxHealth; } set { m_MaxHealth = value; } }
 
-        public event Action OnFinishMove = delegate { };
-        public event Action OnMoveNode = delegate { };
-
         private void OnEnable()
         {
             IsSelectable = true;
@@ -90,12 +87,16 @@ namespace Reboot
         {
         }
 
-        public void Move(Queue<NavNode<Hex>> path, GameManager gameManager)
+        public void Move(Queue<NavNode<Hex>> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
         {
-            StartCoroutine(MoveRoutine(path, gameManager));
+            if(path.Peek() == OccupiedNode)
+            {
+                path.Dequeue();
+            }
+            StartCoroutine(MoveRoutine(path, gameManager,OnMoveCallback, OnCompleteMoveCallback));
         }
 
-        public IEnumerator MoveRoutine(Queue<NavNode<Hex>> path, GameManager gameManager)
+        public IEnumerator MoveRoutine(Queue<NavNode<Hex>> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
         {
             float journeyTime = path.Count / m_MovementSpeed;
             IsMoving = true;
@@ -106,10 +107,10 @@ namespace Reboot
                 OccupiedNode.IsTraversible = false;
                 transform.position = gameManager.HexToWorld(OccupiedNode.Data);
                 journeyTime -= Time.deltaTime;
-                OnMoveNode.Invoke();
+                OnMoveCallback.Invoke();
                 yield return new WaitForSeconds(0.5f);
             }
-            OnFinishMove.Invoke();
+            OnCompleteMoveCallback.Invoke();
             yield return null;
         }
 
