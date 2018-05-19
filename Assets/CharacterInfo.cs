@@ -5,10 +5,8 @@ using UnityEngine.UI;
 
 namespace Reboot
 {
-
     public class CharacterInfo : MonoBehaviour
     {
-
         public Unit associatedUnit;
 
         public Text unitName;
@@ -19,7 +17,7 @@ namespace Reboot
         {
             unitName.text = associatedUnit.unitName;
             unitImage = associatedUnit.characterImage;
-            unitHealth.text = associatedUnit.unitHealth.ToString() +  " / " + associatedUnit.maxHealth.ToString();
+            unitHealth.text = string.Format("{0}/{1}", associatedUnit.Health ,associatedUnit.MaxHealth);
         }
     }
 }

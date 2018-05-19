@@ -8,16 +8,15 @@ using NaughtyAttributes;
 
 namespace Reboot
 {
-    public class Unit : MonoBehaviour, ISelectableComponent<Unit>
+    public class Unit : MonoBehaviour, ISelectableComponent<Unit>, IHealth<Unit>
     {
         [Section("Unit Info")]
         public string unitName;
         public Image characterImage;
-        public int unitHealth;
-        public int maxHealth = 10;
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;
         [SerializeField] private float m_MovementSpeed;
-        [SerializeField, Range(0, 10)] private int m_AttackRange = 3;
+
+        [SerializeField] private AttackBehaviour[] m_Attacks;
 
         public bool IsSelectable
         {
@@ -29,13 +28,6 @@ namespace Reboot
             get
             {
                 return m_MovementRange;
-            }
-        }
-        public int AttackRange
-        {
-            get
-            {
-                return m_AttackRange;
             }
         }
 
@@ -59,13 +51,27 @@ namespace Reboot
             get { return OccupiedNode.Data; }
         }
 
+        public AttackBehaviour[] Attacks
+        {
+            get
+            {
+                return m_Attacks;
+            }
+        }
+
+        [SerializeField] private int m_Health = 10;
+        [SerializeField] private int m_MaxHealth = 10;
+
+        public int Health { get { return m_Health; } set { m_Health = value; } }
+        public int MaxHealth { get { return m_MaxHealth; } set { m_MaxHealth = value; } }
+
         public event Action OnFinishMove = delegate { };
         public event Action OnMoveNode = delegate { };
 
         private void OnEnable()
         {
             IsSelectable = true;
-            unitHealth = maxHealth;
+            Health = MaxHealth;
         }
 
         public void Select()
@@ -121,6 +127,33 @@ namespace Reboot
             {
                 GetComponent<Renderer>().material.color = Color.white;
             }
+        }
+
+        public void Heal()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Heal(int amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Damage(int amount)
+        {
+            if (amount > 0)
+            {
+                m_Health = Mathf.Clamp(m_Health - amount, 0, m_MaxHealth);
+            }
+            if (m_Health == 0)
+            {
+                Kill();
+            }
+        }
+
+        public void Kill()
+        {
+            Debug.Log("I AM DEAD");
         }
     }
 }

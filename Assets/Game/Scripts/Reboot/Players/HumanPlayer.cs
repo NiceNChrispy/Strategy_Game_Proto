@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace Reboot
 {
@@ -14,6 +15,7 @@ namespace Reboot
         {
             m_UnitSelector = new Selector<Unit>(m_SelectionLayer);
             m_TileSelector = new Selector<Tile>(m_SelectionLayer);
+            m_Units = GetComponentsInChildren<Unit>().ToList();
         }
 
         bool IsMyUnit(Unit unit)
@@ -121,9 +123,13 @@ namespace Reboot
             if (m_SelectedUnit != null)
             {
                 GUILayout.Label(string.Format("Selected Unit: {0}", m_SelectedUnit.name));
+                GUILayout.Label(string.Format("Health: {0}/{1}", m_SelectedUnit.Health, m_SelectedUnit.MaxHealth));
                 GUILayout.Label(string.Format("Movement Range: {0}", m_SelectedUnit.MovementRange));
-                GUILayout.Label(string.Format("Attack Range: {0}", m_SelectedUnit.AttackRange));
-                if (m_Path != null)
+                if(m_CurrentAttackIndex != -1)
+                {
+                    GUILayout.Label(string.Format("Attack Range: {0}", m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range));
+                }
+                if (m_Path.Count > 0)
                 {
                     GUILayout.Label(string.Format("Path Length: {0}", m_Path.Count - 1));
                 }

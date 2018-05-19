@@ -11,6 +11,7 @@ namespace Reboot
         [Section("Main UI")]
         [SerializeField] private Canvas m_UICanvas;
         [SerializeField] private GameObject m_UIPanel;
+        [SerializeField] private GameObject m_AttackPanel;
         [SerializeField] private Player m_Player;
         [SerializeField] private Text m_TimerText;
         [SerializeField] private GameManager m_GameManager;
@@ -40,6 +41,7 @@ namespace Reboot
         public void OnPlayerDeselectedUnit(Unit unit)
         {
             m_UIPanel.SetActive(false);
+            m_AttackPanel.SetActive(false);
         }
 
         private void Update()

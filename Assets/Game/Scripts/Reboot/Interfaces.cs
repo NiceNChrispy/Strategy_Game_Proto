@@ -30,6 +30,17 @@ namespace Reboot
             Connected = new List<NavNode<T>>();
         }
     }
+
+    public interface IHealth<T>
+    {
+        int Health { get; set; }
+        int MaxHealth { get; set; }
+
+        void Heal(int amount);
+        void Heal();
+        void Damage(int amount);
+        void Kill();
+    }
 }
 
 namespace DataStructures

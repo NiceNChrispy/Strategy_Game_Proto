@@ -9,8 +9,11 @@ namespace Reboot
 {
     public abstract class Player : MonoBehaviour
     {
-        [SerializeField, Range(0, 20)] protected int m_MaxActionPoints;
         [SerializeField, Range(0, 20)] protected int m_ActionPoints;
+        [SerializeField, Range(0, 20)] protected int m_MaxActionPoints;
+
+        public int ActionPoints { get { return m_ActionPoints; } }
+        public int MaxActionPoints { get { return m_MaxActionPoints; } }
 
         [SerializeField] protected List<Unit> m_Units;
 
@@ -51,7 +54,9 @@ namespace Reboot
 
         protected Team m_Team;
 
-        protected Tile m_TargetTile;
+        [SerializeField] protected Tile m_TargetTile;
+
+        protected int m_CurrentAttackIndex = -1;
 
         public float RemainingTime { get { return m_RemainingTime; } }
 
@@ -110,6 +115,7 @@ namespace Reboot
         {
             m_MoveableTiles.Clear();
             m_AttackableTiles.Clear();
+            m_CurrentAttackIndex = -1;
             //m_Path.Clear();
             m_TargetTile = null;
         }
@@ -133,7 +139,16 @@ namespace Reboot
                     }
                     case OrderType.ATTACK:
                     {
-                        m_SelectedUnit.Attack(m_TargetTile.HexNode, m_GameManager);
+                        bool attackSuccessful = m_GameManager.Attack(m_TargetTile, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Data);
+
+                        if(attackSuccessful)
+                        {
+                            AttackEffect effect = Instantiate(m_SelectedUnit.Attacks[m_CurrentAttackIndex].Effect);
+                            effect.transform.position = m_TargetTile.transform.position;
+                            effect.Play();
+                        }
+
+                        Debug.Log(string.Format("Attack {0}", attackSuccessful ? "SUCCEEDED" : "FAILED"));
                         break;
                     }
                     default:
@@ -177,7 +192,19 @@ namespace Reboot
         public void UpdateUnitTiles()
         {
             m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, m_SelectedUnit.MovementRange);
-            m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.AttackRange);
+            if(m_CurrentAttackIndex != -1)
+            {
+                m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
+            }
+        }
+
+        public void SetAttackIndex(int index)
+        {
+            m_CurrentAttackIndex = index;
+            if (m_CurrentAttackIndex != -1)
+            {
+                m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
+            }
         }
 
         public void UpdateUnitsPath()
