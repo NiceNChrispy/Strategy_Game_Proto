@@ -63,6 +63,8 @@ namespace Reboot
 
         public event Action<Tile> OnTargetNewTile;
 
+        [SerializeField] private LineRenderer m_PathLine;
+
         public void Init(GameManager gameManager)
         {
             m_GameManager = gameManager;
@@ -78,6 +80,7 @@ namespace Reboot
 
         protected void TargetNode(NavNode<Hex> node)
         {
+            Debug.Log("TARGETED");
             m_TargetNode = node;
             if (m_MoveableTiles.Contains(node))
             {
@@ -134,7 +137,6 @@ namespace Reboot
         }
 
         //BUG: Ok so weird bug if you click confirm and there is a hex behind the button then the path destination is changed last minute.
-
         public void ConfirmOrder()
         {
             if (m_SelectedUnit != null && m_TargetNode != null)
@@ -153,7 +155,7 @@ namespace Reboot
                     {
                         bool attackSuccessful = m_GameManager.Attack(m_TargetNode, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Data);
 
-                        if(attackSuccessful)
+                        if (attackSuccessful)
                         {
                             AttackEffect effect = Instantiate(m_SelectedUnit.Attacks[m_CurrentAttackIndex].Effect);
                             effect.transform.position = m_GameManager.HexToWorld(m_TargetNode.Data);
@@ -213,13 +215,14 @@ namespace Reboot
         public void OnUnitMove()
         {
             m_ActionPoints--;
+            UpdatePathLineRenderer();
             UpdateUnitTiles();
         }
 
         public void UpdateUnitTiles()
         {
             m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
-            if(m_CurrentAttackIndex != -1)
+            if (m_CurrentAttackIndex != -1)
             {
                 m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
             }
@@ -239,6 +242,17 @@ namespace Reboot
             m_Path = new Queue<NavNode<Hex>>(m_GameManager.GetPath(m_SelectedUnit.Position, m_TargetNode.Data));
         }
 
+        private void UpdatePathLineRenderer()
+        {
+            m_PathLine.positionCount = m_Path.Count + 1;
+            int i = 0;
+            m_PathLine.SetPosition(i++, m_GameManager.HexToWorld(m_SelectedUnit.Position));
+            foreach (NavNode<Hex> hexNode in m_Path)
+            {
+                m_PathLine.SetPosition(i++, m_GameManager.HexToWorld(hexNode.Data));
+            }
+        }
+
         public virtual void TurnBegin()
         {
             //Debug.Log("MY TURN BEGAN");
@@ -249,7 +263,7 @@ namespace Reboot
             //Debug.Log("MY TURN ENDED");
         }
 
-        public void OnDrawGizmos()
+        void DrawHexes()
         {
             if (m_IsMyTurn)
             {
@@ -285,6 +299,11 @@ namespace Reboot
                 }
 
             }
+        }
+
+        public void OnDrawGizmos()
+        {
+            DrawHexes();
         }
 
         public void EndTurn()

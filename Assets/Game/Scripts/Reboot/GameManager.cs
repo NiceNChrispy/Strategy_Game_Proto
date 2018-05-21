@@ -11,7 +11,9 @@ namespace Reboot
         [SerializeField] private List<Player> m_Players;
         private int m_PlayerTurn;
         private int m_StartingPlayerTurn;
-        private Map<Hex> m_Map;
+        //private Map<Hex> m_Map;
+        [SerializeField] private Map<Hex> m_Map;
+
         NavGraph<Hex> m_NavGraph;
         [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private Tile m_TilePrefab;
@@ -24,16 +26,12 @@ namespace Reboot
 
         private Layout m_Layout;
 
-        private List<NavNode<Hex>> m_NodesThatAreInRangeToMove;
-        private List<NavNode<Hex>> m_NodesThatAreInRangeToAttack;
-        private List<NavNode<Hex>> m_NodesThatAreInRangeToAttackAfterMoving;
-
         [SerializeField] private string m_LevelName = "LEVEL.txt";
-        string Path(string file) { return Application.dataPath + "/" + file; }
+        string Path(string file) { return Application.persistentDataPath + "/Maps/" + file; }
 
         public float TimeBeforeNextPlayersTurn { get { return PlayerWithTurn.RemainingTime; } }
 
-        private void Awake()
+        private void Start()
         {
             m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
             if (!Load(Path(m_LevelName), out m_Map))
@@ -89,7 +87,6 @@ namespace Reboot
                 foreach (Unit unit in player.Units)
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
-                    //m_NavGraph.Nodes.Where(x => !x.IsTraversible);
                     unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Data == nearestHex);
 
                     if (unit.OccupiedNode == null)
@@ -127,7 +124,7 @@ namespace Reboot
 
         private void OnDrawGizmos()
         {
-            if (m_Map != null)
+            if (m_Map != null && m_Map.Contents.Count > 0)
             {
                 foreach (NavNode<Hex> node in m_NavGraph.Nodes)
                 {

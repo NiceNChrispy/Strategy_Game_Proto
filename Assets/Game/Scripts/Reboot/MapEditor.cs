@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Reboot
 {
-    [ExecuteInEditMode]
     public class MapEditor : MonoBehaviour
     {
         public enum ToolType
@@ -14,18 +13,14 @@ namespace Reboot
 
         [SerializeField] ToolType m_ToolType;
         [SerializeField] private float m_DrawScale = 1.0f;
-
-        [SerializeField] int teamNumber;
-        Color[] teamColors = { Color.cyan, Color.magenta, Color.yellow };
+        private Map<Hex> m_Map;
 
         Layout m_Layout;
-        Map<Hex> m_Map;
         private Hex m_MouseHex;
 
         [SerializeField] private string m_MapName = "LEVEL.txt";
-        [SerializeField] private string m_GraphName = "GRAPH.txt";
 
-        string Path(string file) { return Application.dataPath + "/" + file; }
+        string Path(string file) { return Application.persistentDataPath + "/Maps/" + file; }
 
         private void OnEnable()
         {
@@ -63,6 +58,10 @@ namespace Reboot
 
         private void Update()
         {
+            if(m_Map == null)
+            {
+                return;
+            }
             Plane checkPlane = new Plane(Vector3.back, 0);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float enter;
@@ -103,21 +102,21 @@ namespace Reboot
                         }
                     }
                     break;
-                    case ToolType.TEAM:
-                    {
-                        if (Input.mouseScrollDelta.y != 0)
-                        {
-                            teamNumber = mod((teamNumber + Mathf.RoundToInt(Input.mouseScrollDelta.y)), teamColors.Length);
-                        }
-                        if (Input.GetMouseButton(0) && isContained)
-                        {
-                            SetTeamHex(0, hitHex);
-                        }
-                        if (Input.GetMouseButton(1) && isContained)
-                        {
-                            SetTeamHex(1, hitHex);
-                        }
-                    }
+                    //case ToolType.TEAM:
+                    //{
+                    //    if (Input.mouseScrollDelta.y != 0)
+                    //    {
+                    //        teamNumber = mod((teamNumber + Mathf.RoundToInt(Input.mouseScrollDelta.y)), teamColors.Length);
+                    //    }
+                    //    if (Input.GetMouseButton(0) && isContained)
+                    //    {
+                    //        SetTeamHex(0, hitHex);
+                    //    }
+                    //    if (Input.GetMouseButton(1) && isContained)
+                    //    {
+                    //        SetTeamHex(1, hitHex);
+                    //    }
+                    //}
                     break;
                     default:
                     break;
@@ -145,15 +144,15 @@ namespace Reboot
 
         private void OnGUI()
         {
-            GUILayout.Label(string.Format("Map: {0}", m_MapName));
-            if (GUILayout.Button("Save"))
-            {
-                Save(m_Map, Path(m_MapName));
-            }
-            if (GUILayout.Button("Load"))
-            {
-                LoadMap();
-            }
+            //GUILayout.Label(string.Format("Map: {0}", m_MapName));
+            //if (GUILayout.Button("Save"))
+            //{
+            //    Save(m_ActiveLevel, Path(m_MapName));
+            //}
+            //if (GUILayout.Button("Load"))
+            //{
+            //    LoadMap();
+            //}
         }
 
         private void LoadMap()
@@ -161,7 +160,7 @@ namespace Reboot
             Map<Hex> loadedMap;
             if (!Load(Path(m_MapName), out loadedMap))
             {
-                throw new System.Exception("FAILED TO LOAD LEVEL");
+                throw new System.Exception(string.Format("FAILED TO LOAD Map AT {0}", Path(m_MapName)));
             }
             else
             {
@@ -198,7 +197,7 @@ namespace Reboot
                         drawColor = Color.white;
                         break;
                         case ToolType.TEAM:
-                        drawColor = teamColors[teamNumber];
+                        //drawColor = teamColors[teamNumber];
                         break;
                         default:
                         break;

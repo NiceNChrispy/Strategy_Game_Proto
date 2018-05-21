@@ -15,12 +15,9 @@ namespace Reboot
                 m_IsBusy = true;
                 SelectUnit(m_Units[Random.Range(0, m_Units.Count)]);
 
-                SetOrder_BUTTON(Random.Range(1,1));
-                TargetNode(m_MoveableTiles[Random.Range(0, m_MoveableTiles.Count)]);
-                ConfirmOrder();
-                //UpdateUnitTiles();
-                //UpdateUnitsPath();
-                //m_SelectedUnit.Move(m_Path, m_GameManager, delegate { }, OnFinishedAction);
+                SetOrder_BUTTON(Random.Range(1,1)); //Pick a random order
+                TargetNode(m_MoveableTiles[Random.Range(0, m_MoveableTiles.Count)]); //Select random tile from moveable tiles
+                ConfirmOrder();// Excecute order
             }
         }
 

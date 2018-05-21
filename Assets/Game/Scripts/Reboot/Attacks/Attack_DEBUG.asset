@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp:Reboot:AttackBehaviour
   m_AttackData:
     Name: ATTACK_DEBUG
-    Range: 10
+    Range: 3
     Cost: 3
     Damage: 2
   m_AttackEffect: {fileID: 114879656419765370, guid: 577e0916184980b4488cc0c295f03f65,

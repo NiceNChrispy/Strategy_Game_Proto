@@ -40,6 +40,7 @@ namespace Reboot
                     Tile targetTile = m_TileSelector.CurrentSelectable != null ? m_TileSelector.CurrentSelectable.Data : null;
                     if (targetTile != null && targetTile.HexNode != m_TargetNode)
                     {
+                        Debug.Log("£U");
                         TargetNode(targetTile.HexNode);
                     }
                 }
