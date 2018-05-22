@@ -16,7 +16,7 @@ namespace Reboot
                 SelectUnit(m_Units[Random.Range(0, m_Units.Count)]);
 
                 SetOrder_BUTTON(Random.Range(1,1)); //Pick a random order
-                TargetNode(m_MoveableTiles[Random.Range(0, m_MoveableTiles.Count)]); //Select random tile from moveable tiles
+                TargetTile(m_MoveableTiles[Random.Range(0, m_MoveableTiles.Count)]); //Select random tile from moveable tiles
                 ConfirmOrder();// Excecute order
             }
         }

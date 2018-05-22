@@ -9,24 +9,29 @@ ModelImporter:
     100002: HexBorderSharp
     100004: HexBorderSmooth
     100006: HexTile
+    100008: HexBorderInnerSmooth
     400000: //RootNode
     400002: HexBorderSharp
     400004: HexBorderSmooth
     400006: HexTile
+    400008: HexBorderInnerSmooth
     2100000: unnamed
     2300000: //RootNode
     2300002: HexBorderSharp
     2300004: HexBorderSmooth
     2300006: HexTile
+    2300008: HexBorderInnerSmooth
     3300000: //RootNode
     3300002: HexBorderSharp
     3300004: HexBorderSmooth
     3300006: HexTile
+    3300008: HexBorderInnerSmooth
     4300000: Circle
     4300002: Hex
     4300004: HexBorderSmooth
     4300006: HexBorderSharp
     4300008: HexTile
+    4300010: HexBorderInnerSmooth
     7400000: Default Take
     9500000: //RootNode
   externalObjects: {}

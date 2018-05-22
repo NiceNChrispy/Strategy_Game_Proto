@@ -18,6 +18,8 @@ namespace Reboot
         [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private Tile m_TilePrefab;
 
+        private Dictionary<NavNode<Hex>, Tile> m_TileDict;
+
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
         [SerializeField, ReadOnly] int m_TurnCount = 0;
         private HexHeuristic m_Heuristic;
@@ -42,7 +44,7 @@ namespace Reboot
             {
                 Debug.Log(string.Format("Loaded Map With {0} Hexes", m_Map.Contents.Count));
                 m_NavGraph = new NavGraph<Hex>();
-
+                m_TileDict = new Dictionary<NavNode<Hex>, Tile>();
                 foreach (Hex hex in m_Map.Contents)
                 {
                     NavNode<Hex> navNode = new NavNode<Hex>(hex, true, 1.0f);
@@ -58,6 +60,7 @@ namespace Reboot
                         }
                     }
                     Tile tile = Instantiate(m_TilePrefab, HexToWorld(navNode.Data), Quaternion.Euler(0, -180, -30));
+                    m_TileDict.Add(navNode, tile);
                     tile.HexNode = navNode;
                     tile.transform.parent = this.transform;
                     tile.name = string.Format("{0},{1},{2}", navNode.Data.q, navNode.Data.r, navNode.Data.s);
@@ -155,15 +158,22 @@ namespace Reboot
             return m_NavGraph.GetPath(from, to, m_Heuristic);
         }
 
-        public List<NavNode<Hex>> GetTilesInRange(Hex from, int range)
+        public List<NavNode<Hex>> GetNodesInRange(Hex from, int range)
         {
             return m_NavGraph.Nodes.Where(x => x.Data.Distance(from) <= range).ToList();
             // m_NavGraph.GetNodesInRange(from, range);
         }
 
-        public List<NavNode<Hex>> GetTilesInMovementRange(Hex from, int range)
+        public List<Tile> GetTilesInRange(Hex from, int range)
         {
-            return m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
+            List<NavNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
+            List<Tile> tilesInRange = new List<Tile>();
+            foreach(NavNode<Hex> node in nodesInRange)
+            {
+                tilesInRange.Add(m_TileDict[node]);
+            }
+
+            return tilesInRange;
         }
 
         public Vector2 HexToWorld(Hex hex)

@@ -41,11 +41,10 @@ namespace Reboot
                     if (targetTile != null && targetTile.HexNode != m_TargetNode)
                     {
                         Debug.Log("£U");
-                        TargetNode(targetTile.HexNode);
+                        TargetTile(targetTile);
                     }
                 }
             }
-
 
             //UpdateUnitUnderCursor();
 

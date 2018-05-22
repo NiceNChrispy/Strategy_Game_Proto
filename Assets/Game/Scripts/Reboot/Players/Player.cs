@@ -35,12 +35,12 @@ namespace Reboot
         [SerializeField] protected Unit m_SelectedUnit;
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
         protected Queue<NavNode<Hex>> m_Path;
-        protected List<NavNode<Hex>> m_MoveableTiles;
-        protected List<NavNode<Hex>> m_AttackableTiles;
+        protected List<Tile> m_MoveableTiles;
+        protected List<NavNode<Hex>> m_AttackableNodes;
 
         public Queue<NavNode<Hex>> Path { get { return m_Path; } }
-        public List<NavNode<Hex>> MoveableTiles { get { return m_MoveableTiles; } }
-        public List<NavNode<Hex>> AttackableTiles { get { return m_AttackableTiles; } }
+        public List<Tile> MoveableTiles { get { return m_MoveableTiles; } }
+        public List<NavNode<Hex>> AttackableNodes { get { return m_AttackableNodes; } }
 
         [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private OrderType m_CurrentOrder;
@@ -71,22 +71,22 @@ namespace Reboot
             m_Team = Team.CreateNewTeam();
 
             m_ActionPoints = m_MaxActionPoints;
-            m_MoveableTiles = new List<NavNode<Hex>>();
-            m_AttackableTiles = new List<NavNode<Hex>>();
+            m_MoveableTiles = new List<Tile>();
+            m_AttackableNodes = new List<NavNode<Hex>>();
             m_Path = new Queue<NavNode<Hex>>();
             m_Units = GetComponentsInChildren<Unit>().ToList();
             //Debug.Log(m_Team.ID);
         }
 
-        protected void TargetNode(NavNode<Hex> node)
+        protected void TargetTile(Tile tile)
         {
             Debug.Log("TARGETED");
-            m_TargetNode = node;
-            if (m_MoveableTiles.Contains(node))
+            m_TargetNode = tile.HexNode;
+            if (m_MoveableTiles.Contains(tile))
             {
                 UpdateUnitsPath();
             }
-            if (m_AttackableTiles.Contains(node))
+            if (m_AttackableNodes.Contains(m_TargetNode))
             {
 
             }
@@ -121,16 +121,18 @@ namespace Reboot
                 OnDeselectUnit.Invoke(m_SelectedUnit);
                 m_SelectedUnit.Deselect();
                 m_SelectedUnit = null;
-                m_TargetNode = null;
-                m_MoveableTiles.Clear();
-                m_Path.Clear();
             }
+            ClearAllUnitInfo();
         }
 
         public void ClearAllUnitInfo()
         {
+            foreach (Tile tile in m_MoveableTiles)
+            {
+                tile.SetState(Tile.State.NONE);
+            }
             m_MoveableTiles.Clear();
-            m_AttackableTiles.Clear();
+            m_AttackableNodes.Clear();
             m_CurrentAttackIndex = -1;
             //m_Path.Clear();
             m_TargetNode = null;
@@ -199,12 +201,15 @@ namespace Reboot
                 }
                 case OrderType.MOVE:
                 {
-                    UpdateUnitTiles();
+                    UpdateMoveableNodes();
                     break;
                 }
                 case OrderType.ATTACK:
                 {
-                    UpdateUnitTiles();
+                    if (m_CurrentAttackIndex != -1)
+                    {
+                        m_AttackableNodes = m_GameManager.GetNodesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
+                    }
                     break;
                 }
                 default:
@@ -212,20 +217,26 @@ namespace Reboot
             }
         }
 
+        private void UpdateMoveableNodes()
+        {
+            foreach (Tile tile in m_MoveableTiles)
+            {
+                tile.SetState(Tile.State.NONE);
+            }
+
+            m_MoveableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
+
+            foreach (Tile tile in m_MoveableTiles)
+            {
+                tile.SetState(Tile.State.MOVEABLE);
+            }
+        }
+
         public void OnUnitMove()
         {
             m_ActionPoints--;
             UpdatePathLineRenderer();
-            UpdateUnitTiles();
-        }
-
-        public void UpdateUnitTiles()
-        {
-            m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
-            if (m_CurrentAttackIndex != -1)
-            {
-                m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
-            }
+            UpdateMoveableNodes();
         }
 
         public void SetAttackIndex(int index)
@@ -233,13 +244,14 @@ namespace Reboot
             m_CurrentAttackIndex = index;
             if (m_CurrentAttackIndex != -1)
             {
-                m_AttackableTiles = m_GameManager.GetTilesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
+                m_AttackableNodes = m_GameManager.GetNodesInRange(m_SelectedUnit.Position, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Range);
             }
         }
 
         public void UpdateUnitsPath()
         {
             m_Path = new Queue<NavNode<Hex>>(m_GameManager.GetPath(m_SelectedUnit.Position, m_TargetNode.Data));
+            UpdatePathLineRenderer();
         }
 
         private void UpdatePathLineRenderer()
@@ -280,15 +292,15 @@ namespace Reboot
                                 m_GameManager.DrawHex(node.Data, Color.yellow, m_DrawScale);
                             }
                         }
-                        foreach (NavNode<Hex> hexNode in m_MoveableTiles)
+                        foreach (Tile tile in m_MoveableTiles)
                         {
-                            m_GameManager.DrawHex(hexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
+                            m_GameManager.DrawHex(tile.HexNode.Data, Color.green, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
                         }
                         break;
                     }
                     case OrderType.ATTACK:
                     {
-                        foreach (NavNode<Hex> hexNode in m_AttackableTiles)
+                        foreach (NavNode<Hex> hexNode in m_AttackableNodes)
                         {
                             m_GameManager.DrawHex(hexNode.Data, Color.red, Mathf.Lerp(0.5f, m_DrawScale - 0.1f, 0.5f * (Mathf.Sin(Time.time) + 1.0f)));
                         }
