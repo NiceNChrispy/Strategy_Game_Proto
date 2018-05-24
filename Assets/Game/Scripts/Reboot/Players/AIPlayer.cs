@@ -6,12 +6,14 @@ namespace Reboot
 {
     public class AIPlayer : Player
     {
-        [SerializeField] private bool m_IsBusy = false;
-
         private void Update()
         {
             if (m_IsMyTurn && !m_IsBusy && m_ActionPoints > 0)
             {
+                if(m_SelectedUnit)
+                {
+                    DeselectSelectedUnit();
+                }
                 m_IsBusy = true;
                 SelectUnit(m_Units[Random.Range(0, m_Units.Count)]);
 
@@ -19,12 +21,6 @@ namespace Reboot
                 TargetTile(m_MoveableTiles[Random.Range(0, m_MoveableTiles.Count)]); //Select random tile from moveable tiles
                 ConfirmOrder();// Excecute order
             }
-        }
-
-        protected override void OnUnitFinishedAction()
-        {
-            m_IsBusy = false;
-            base.OnUnitFinishedAction();
         }
     }
 }

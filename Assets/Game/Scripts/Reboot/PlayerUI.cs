@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using NaughtyAttributes;
@@ -15,8 +14,8 @@ namespace Reboot
         [SerializeField] private Player m_Player;
         [SerializeField] private Text m_TimerText;
         [SerializeField] private GameManager m_GameManager;
-
-
+        [SerializeField] private LineRenderer m_PathLine;
+        
         [Section("Side UI")]
         [SerializeField] private GameObject characterUIPrefab;
         [SerializeField] private GameObject characterUI;
@@ -35,13 +34,28 @@ namespace Reboot
 
         public void OnPlayerSelectedUnit(Unit unit)
         {
+            m_Player.OnPathChanged += UpdatePathLineRenderer;
             m_UIPanel.SetActive(true);
         }
 
         public void OnPlayerDeselectedUnit(Unit unit)
         {
+            m_Player.OnPathChanged -= UpdatePathLineRenderer;
             m_UIPanel.SetActive(false);
             m_AttackPanel.SetActive(false);
+        }
+
+        private void UpdatePathLineRenderer()
+        {
+            m_PathLine.positionCount = m_Player.Path.Count + 1;
+            int i = 0;
+            m_PathLine.SetPosition(i++, m_GameManager.HexToWorld(m_Player.SelectedUnit.Position));
+            foreach (INavNode<Hex> hexNode in m_Player.Path)
+            {
+                Vector3 position = m_GameManager.HexToWorld(hexNode.Position);
+                position.z = -0.001f;
+                m_PathLine.SetPosition(i++, position);
+            }
         }
 
         private void Update()

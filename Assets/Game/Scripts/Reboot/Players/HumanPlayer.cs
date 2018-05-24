@@ -17,14 +17,11 @@ namespace Reboot
             m_TileSelector = new Selector<Tile>(m_SelectionLayer);
         }
 
-        bool IsMyUnit(Unit unit)
-        {
-            return m_Units.Contains(unit);
-        }
+
 
         private void Update()
         {
-            if (m_IsMyTurn)
+            if (m_IsMyTurn && !m_IsBusy)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -38,74 +35,12 @@ namespace Reboot
                     }
 
                     Tile targetTile = m_TileSelector.CurrentSelectable != null ? m_TileSelector.CurrentSelectable.Data : null;
-                    if (targetTile != null && targetTile.HexNode != m_TargetNode)
+                    if (targetTile != null && (INavNode<Hex>)targetTile != m_TargetTile)
                     {
-                        Debug.Log("£U");
                         TargetTile(targetTile);
                     }
                 }
             }
-
-            //UpdateUnitUnderCursor();
-
-            //if (m_SelectedUnit != null && m_UnitSelector.CurrentSelectable != null)
-            //{
-            //    Unit targetUnit = m_UnitSelector.CurrentSelectable.SelectableComponent;
-
-            //    if (!IsMyUnit(targetUnit))
-            //    {
-            //        Debug.DrawLine(m_SelectedUnit.transform.position, targetUnit.transform.position, Color.red);
-            //    }
-            //}
-
-            //if (Input.GetMouseButtonDown(0))
-            //{
-            //    if (m_SelectedUnit != null)
-            //    {
-
-            //    }
-            //    if (m_SelectedUnit != m_UnitSelector.CurrentSelectable)
-            //    {
-            //        if (m_SelectedUnit != null)
-            //        {
-            //            m_SelectedUnit.OnFinishMove -= UpdateUnitsMoveableTiles;
-            //            DeselectUnit();
-            //        }
-            //        if (m_UnitSelector.CurrentSelectable != null && IsMyUnit(m_UnitSelector.CurrentSelectable.SelectableComponent))
-            //        {
-            //            SelectUnit(m_UnitSelector.CurrentSelectable.SelectableComponent);
-            //        }
-            //    }
-            //}
-            //if (m_SelectedUnit != null)
-            //{
-            //    Hex hitHex = GetHexAtCursor();
-
-            //    List<NavNode<Hex>> path = m_GameManager.GetPath(m_SelectedUnit.Position, hitHex);
-            //    if(path != null)
-            //    {
-            //        m_Path = path.Where(x => m_MoveableTiles.Contains(x)).ToList();
-            //    }
-
-            //    //TODO Clamp Path to accessible nodes
-            //    if (m_Path != null)
-            //    {
-            //        for (int i = 0; i < m_Path.Count - 1; i++)
-            //        {
-            //            Debug.DrawLine(m_GameManager.HexToWorld(m_Path[i].Data),
-            //                           m_GameManager.HexToWorld(m_Path[i + 1].Data));
-            //        }
-            //        //Debug.DrawLine(m_SelectedUnit.transform.position, m_GameManager.Layout.HexToPixel(hitHex));
-            //        if (Input.GetMouseButtonDown(1))
-            //        {
-            //            if (m_SelectedUnit != null && Path != null)
-            //            {
-            //                m_SelectedUnit.Move(Path, m_GameManager);
-            //                m_SelectedUnit.OnFinishMove += UpdateUnitsMoveableTiles;
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         private void OnGUI()

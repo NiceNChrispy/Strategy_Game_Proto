@@ -16,7 +16,7 @@ namespace DataStructures
         public int HeapIndex { get; set; }
 
         public AStarData<T> Previous;
-        public NavNode<T> Node;
+        public INavNode<T> Node;
 
         public int CompareTo(AStarData<T> other)
         {
@@ -32,7 +32,7 @@ namespace DataStructures
     public class CostData<T> : IHeapItem<CostData<T>>
     {
         public int Cost { get; set; }
-        public NavNode<T> Node { get; set; }
+        public INavNode<T> Node { get; set; }
         public int HeapIndex { get; set; }
 
         public int CompareTo(CostData<T> other)
@@ -43,14 +43,14 @@ namespace DataStructures
     [Serializable]
     public class NavGraph<T>
     {
-        List<NavNode<T>> m_Nodes = new List<NavNode<T>>();
+        List<INavNode<T>> m_Nodes = new List<INavNode<T>>();
 
-        public List<NavNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
+        public List<INavNode<T>> Nodes { get { return m_Nodes; } private set { m_Nodes = value; } }
 
-        public List<NavNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
+        public List<INavNode<T>> GetPath(T from, T to, IHeuristic<T> heuristic)
         {
-            NavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
-            NavNode<T> toNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(to));
+            INavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Position.Equals(from));
+            INavNode<T> toNode = m_Nodes.SingleOrDefault(x => x.Position.Equals(to));
 
             if (fromNode == null || toNode == null)
             {
@@ -60,7 +60,7 @@ namespace DataStructures
             return GetPath(fromNode, toNode, heuristic);
         }
 
-        public List<NavNode<T>> GetPath(NavNode<T> from, NavNode<T> to, IHeuristic<T> heuristic)
+        public List<INavNode<T>> GetPath(INavNode<T> from, INavNode<T> to, IHeuristic<T> heuristic)
         {
             Heap<AStarData<T>> openSet = new Heap<AStarData<T>>(m_Nodes.Count);
             HashSet<AStarData<T>> closedSet = new HashSet<AStarData<T>>();
@@ -93,7 +93,7 @@ namespace DataStructures
 
                 int currentIndex = m_Nodes.IndexOf(currentNode.Node);
 
-                foreach (NavNode<T> connectedNode in currentNode.Node.Connected)
+                foreach (INavNode<T> connectedNode in currentNode.Node.Connected)
                 {
                     int connectedIndex = m_Nodes.IndexOf(connectedNode);
                     AStarData<T> connectedData = aStarData[connectedIndex];
@@ -102,12 +102,12 @@ namespace DataStructures
                         continue;
                     }
 
-                    float movementCost = aStarData[currentIndex].GCost + heuristic.NeighborDistance(currentNode.Node.Data, connectedNode.Data);
+                    float movementCost = aStarData[currentIndex].GCost + heuristic.NeighborDistance(currentNode.Node.Position, connectedNode.Position);
 
                     if (movementCost < aStarData[connectedIndex].GCost || !openSet.Contains(connectedData))
                     {
                         aStarData[connectedIndex].GCost = movementCost;
-                        aStarData[connectedIndex].HCost = heuristic.Heuristic(connectedNode.Data, to.Data);
+                        aStarData[connectedIndex].HCost = heuristic.Heuristic(connectedNode.Position, to.Position);
                         aStarData[connectedIndex].Previous = aStarData[currentIndex];
 
                         if (!openSet.Contains(connectedData))
@@ -124,9 +124,9 @@ namespace DataStructures
             return null;
         }
 
-        List<NavNode<T>> RetracePath(AStarData<T> start, AStarData<T> end)
+        List<INavNode<T>> RetracePath(AStarData<T> start, AStarData<T> end)
         {
-            List<NavNode<T>> path = new List<NavNode<T>>();
+            List<INavNode<T>> path = new List<INavNode<T>>();
             AStarData<T> currentNode = end;
 
             while (currentNode != start)
@@ -141,15 +141,15 @@ namespace DataStructures
             return path;
         }
 
-        public List<NavNode<T>> GetNodesInRange(T from, int range, IHeuristic<T> heuristic)
+        public List<INavNode<T>> GetNodesInRange(T from, int range, IHeuristic<T> heuristic)
         {
-            NavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Data.Equals(from));
+            INavNode<T> fromNode = m_Nodes.SingleOrDefault(x => x.Position.Equals(from));
             return GetNodesInRange(fromNode, range, heuristic);
         }
 
-        private List<NavNode<T>> GetNodesInRange(NavNode<T> from, int range, IHeuristic<T> heuristic)
+        private List<INavNode<T>> GetNodesInRange(INavNode<T> from, int range, IHeuristic<T> heuristic)
         {
-            List<NavNode<T>> nodesInRange = new List<NavNode<T>>();
+            List<INavNode<T>> nodesInRange = new List<INavNode<T>>();
             Heap<CostData<T>> openSet = new Heap<CostData<T>>(m_Nodes.Count);
             HashSet<CostData<T>> closedSet = new HashSet<CostData<T>>();
 
@@ -173,7 +173,7 @@ namespace DataStructures
 
                 int currentIndex = m_Nodes.IndexOf(currentData.Node);
 
-                foreach (NavNode<T> connectedNode in currentData.Node.Connected)
+                foreach (INavNode<T> connectedNode in currentData.Node.Connected)
                 {
                     int connectedIndex = m_Nodes.IndexOf(connectedNode);
                     CostData<T> connectedData = costData[connectedIndex];

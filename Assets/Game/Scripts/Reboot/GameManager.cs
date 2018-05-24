@@ -1,4 +1,5 @@
 ﻿using DataStructures;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,12 @@ namespace Reboot
         [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private Tile m_TilePrefab;
 
-        private Dictionary<NavNode<Hex>, Tile> m_TileDict;
+        private List<Tile> m_Tiles;
+
+        public List<Tile> Tiles
+        {
+            get { return m_Tiles; }
+        }
 
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
         [SerializeField, ReadOnly] int m_TurnCount = 0;
@@ -33,6 +39,10 @@ namespace Reboot
 
         public float TimeBeforeNextPlayersTurn { get { return PlayerWithTurn.RemainingTime; } }
 
+        public event Action OnPlayerUpdateTiles = delegate { };
+        public event Action OnGameBegin = delegate { };
+        public event Action OnTurnEnd = delegate { };
+
         private void Start()
         {
             m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
@@ -44,26 +54,26 @@ namespace Reboot
             {
                 Debug.Log(string.Format("Loaded Map With {0} Hexes", m_Map.Contents.Count));
                 m_NavGraph = new NavGraph<Hex>();
-                m_TileDict = new Dictionary<NavNode<Hex>, Tile>();
+                m_Tiles = new List<Tile>();
                 foreach (Hex hex in m_Map.Contents)
                 {
-                    NavNode<Hex> navNode = new NavNode<Hex>(hex, true, 1.0f);
-                    m_NavGraph.Nodes.Add(navNode);
+                    Tile tile = Instantiate(m_TilePrefab);
+                    tile.transform.parent = this.transform;
+                    tile.transform.localPosition = (Vector3)HexToWorld(hex);
+                    tile.Position = hex;
+                    tile.name = string.Format("{0},{1},{2}", hex.q, hex.r, hex.s);
+                    m_NavGraph.Nodes.Add(tile);
+                    m_Tiles.Add(tile);
                 }
-                foreach (NavNode<Hex> navNode in m_NavGraph.Nodes)
+                foreach (var navNode in m_NavGraph.Nodes)
                 {
-                    foreach (Hex neighbor in navNode.Data.AllNeighbors())
+                    foreach(Hex hex in navNode.Position.AllNeighbors())
                     {
-                        if (m_Map.Contains(neighbor))
+                        if (m_Map.Contains(hex))
                         {
-                            navNode.Connected.Add(m_NavGraph.Nodes.Single(x => x.Data == neighbor));
+                            navNode.Connected.Add(m_NavGraph.Nodes.Single(x => x.Position == hex));
                         }
                     }
-                    Tile tile = Instantiate(m_TilePrefab, HexToWorld(navNode.Data), Quaternion.Euler(0, -180, -30));
-                    m_TileDict.Add(navNode, tile);
-                    tile.HexNode = navNode;
-                    tile.transform.parent = this.transform;
-                    tile.name = string.Format("{0},{1},{2}", navNode.Data.q, navNode.Data.r, navNode.Data.s);
                 }
             }
             Begin();
@@ -87,10 +97,11 @@ namespace Reboot
             foreach (Player player in m_Players)
             {
                 player.Init(this);
+                player.OnTilesUpdated += OnPlayerUpdateTiles;
                 foreach (Unit unit in player.Units)
                 {
                     Hex nearestHex = WorldToHex(unit.transform.position);
-                    unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Data == nearestHex);
+                    unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Position == nearestHex);
 
                     if (unit.OccupiedNode == null)
                     {
@@ -100,10 +111,11 @@ namespace Reboot
                     unit.transform.position = HexToWorld(nearestHex);
                 }
             }
-            m_PlayerTurn = Random.Range(0, m_Players.Count);
+            m_PlayerTurn = UnityEngine.Random.Range(0, m_Players.Count);
             m_StartingPlayerTurn = m_PlayerTurn;
             m_TurnCount = 0;
             StartCoroutine(PlayerWithTurn.CountDown((float)m_TurnLength, OnTurnComplete));
+            OnGameBegin.Invoke();
         }
 
         public void OnTurnComplete()
@@ -129,9 +141,9 @@ namespace Reboot
         {
             if (m_Map != null && m_Map.Contents.Count > 0)
             {
-                foreach (NavNode<Hex> node in m_NavGraph.Nodes)
+                foreach (INavNode<Hex> node in m_NavGraph.Nodes)
                 {
-                    DrawHex(node.Data, Color.grey, m_DrawScale);
+                    DrawHex(node.Position, Color.grey, m_DrawScale);
                 }
             }
             if (Application.isPlaying)
@@ -153,24 +165,35 @@ namespace Reboot
             }
         }
 
-        public List<NavNode<Hex>> GetPath(Hex from, Hex to)
+        public List<Tile> GetPath(Hex from, Hex to)
         {
-            return m_NavGraph.GetPath(from, to, m_Heuristic);
-        }
-
-        public List<NavNode<Hex>> GetNodesInRange(Hex from, int range)
-        {
-            return m_NavGraph.Nodes.Where(x => x.Data.Distance(from) <= range).ToList();
-            // m_NavGraph.GetNodesInRange(from, range);
-        }
-
-        public List<Tile> GetTilesInRange(Hex from, int range)
-        {
-            List<NavNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
-            List<Tile> tilesInRange = new List<Tile>();
-            foreach(NavNode<Hex> node in nodesInRange)
+            List<INavNode<Hex>> pathNodes = m_NavGraph.GetPath(from, to, m_Heuristic);
+            List<Tile> pathTiles = new List<Tile>();
+            foreach (INavNode<Hex> node in pathNodes)
             {
-                tilesInRange.Add(m_TileDict[node]);
+                pathTiles.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
+            }
+            return pathTiles;
+        }
+
+        public List<Tile> GetTilesInAttackRange(Hex from, int range)
+        {
+            List<INavNode<Hex>> nodesInRange = m_NavGraph.Nodes.Where(x => x.Position.Distance(from) <= range).ToList();
+            List<Tile> tilesInRange = new List<Tile>();
+            foreach (INavNode<Hex> node in nodesInRange)
+            {
+                tilesInRange.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
+            }
+            return tilesInRange;
+        }
+
+        public List<Tile> GetTilesInMovementRange(Hex from, int range)
+        {
+            List<INavNode<Hex>> nodesInRange = m_NavGraph.GetNodesInRange(from, range, m_Heuristic);
+            List<Tile> tilesInRange = new List<Tile>();
+            foreach (INavNode<Hex> node in nodesInRange)
+            {
+                tilesInRange.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
             }
 
             return tilesInRange;
@@ -186,20 +209,18 @@ namespace Reboot
             return m_Layout.PixelToHex(worldPosition).HexRound();
         }
 
-        public bool Attack(NavNode<Hex> targetHex, AttackData attackData)
+        public void Attack(INavNode<Hex> targetHex, AttackData attackData)
         {
-            foreach(Player player in PlayersWithoutTurn)
+            foreach (Player player in PlayersWithoutTurn)
             {
                 foreach (Unit unit in player.Units)
                 {
-                    if(unit.Position == targetHex.Data)
+                    if (unit.Position == targetHex.Position)
                     {
                         unit.Damage(attackData.Damage);
-                        return true;
                     }
                 }
             }
-            return false;
         }
     }
 }

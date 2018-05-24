@@ -45,10 +45,10 @@ namespace Reboot
         }
         public bool IsMoving { get; set; }
 
-        public NavNode<Hex> OccupiedNode { get; set; }
+        public INavNode<Hex> OccupiedNode { get; set; }
         public Hex Position
         {
-            get { return OccupiedNode.Data; }
+            get { return OccupiedNode.Position; }
         }
 
         public AttackBehaviour[] Attacks
@@ -83,20 +83,20 @@ namespace Reboot
             IsSelected = false;
         }
 
-        public void Attack(NavNode<Hex> targetNode, GameManager gameManager)
+        public void Attack(INavNode<Hex> targetNode, GameManager gameManager)
         {
         }
 
-        public void Move(Queue<NavNode<Hex>> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
+        public void Move(Queue<Tile> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
         {
-            if(path.Peek() == OccupiedNode)
+            if((INavNode<Hex>)path.Peek() == OccupiedNode)
             {
                 path.Dequeue();
             }
             StartCoroutine(MoveRoutine(path, gameManager,OnMoveCallback, OnCompleteMoveCallback));
         }
 
-        public IEnumerator MoveRoutine(Queue<NavNode<Hex>> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
+        public IEnumerator MoveRoutine(Queue<Tile> path, GameManager gameManager, Action OnMoveCallback, Action OnCompleteMoveCallback)
         {
             float journeyTime = path.Count / m_MovementSpeed;
             IsMoving = true;
@@ -105,7 +105,7 @@ namespace Reboot
                 OccupiedNode.IsTraversible = true;
                 OccupiedNode = path.Dequeue();
                 OccupiedNode.IsTraversible = false;
-                transform.position = gameManager.HexToWorld(OccupiedNode.Data);
+                transform.position = gameManager.HexToWorld(OccupiedNode.Position);
                 journeyTime -= Time.deltaTime;
                 OnMoveCallback.Invoke();
                 yield return new WaitForSeconds(0.5f);
