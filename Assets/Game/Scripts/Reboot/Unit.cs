@@ -10,7 +10,7 @@ namespace Reboot
 {
     public class Unit : MonoBehaviour, ISelectableComponent<Unit>, IHealth<Unit>
     {
-        [Section("Unit Info")]
+        [Header("Unit Info")]
         public string unitName;
         public Image characterImage;
         [SerializeField, Range(0, 10)] private int m_MovementRange = 5;

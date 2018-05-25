@@ -15,6 +15,8 @@ namespace Reboot
         [SerializeField] private float m_DrawScale = 1.0f;
         private Map<Hex> m_Map;
 
+        [SerializeField] private LevelData m_Level;
+
         Layout m_Layout;
         private Hex m_MouseHex;
 

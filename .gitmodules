@@ -1,0 +1,3 @@
+[submodule ".\\Assets\\Plugins\\NaughtyAttributes"]
+	path = .\\Assets\\Plugins\\NaughtyAttributes
+	url = git@github.com:dbrizov/NaughtyAttributes.git

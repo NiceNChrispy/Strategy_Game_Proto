@@ -7,7 +7,7 @@ namespace Reboot
 {
     public class PlayerUI : MonoBehaviour
     {
-        [Section("Main UI")]
+        [Header("Main UI")]
         [SerializeField] private Canvas m_UICanvas;
         [SerializeField] private GameObject m_UIPanel;
         [SerializeField] private GameObject m_AttackPanel;
@@ -16,7 +16,7 @@ namespace Reboot
         [SerializeField] private GameManager m_GameManager;
         [SerializeField] private LineRenderer m_PathLine;
         
-        [Section("Side UI")]
+        [Header("Side UI")]
         [SerializeField] private GameObject characterUIPrefab;
         [SerializeField] private GameObject characterUI;
         [SerializeField] private GameObject characterUIHolder;
