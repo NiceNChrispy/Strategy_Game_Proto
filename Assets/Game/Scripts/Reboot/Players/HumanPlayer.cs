@@ -85,7 +85,7 @@ namespace Reboot
             {
                 hitPoint = ray.GetPoint(enter);
             }
-            return m_GameManager.WorldToHex((Vector2)hitPoint);
+            return GameManager.Instance.WorldToHex((Vector2)hitPoint);
         }
     }
 }

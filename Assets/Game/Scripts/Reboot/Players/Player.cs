@@ -29,8 +29,6 @@ namespace Reboot
 
         Coroutine m_CountdownRoutine;
 
-        protected GameManager m_GameManager;
-
         [SerializeField] protected Unit m_SelectedUnit;
         public Unit SelectedUnit { get { return m_SelectedUnit; } private set { m_SelectedUnit = value; } }
         protected Queue<Tile> m_Path;
@@ -75,15 +73,14 @@ namespace Reboot
             return m_Units.Contains(unit);
         }
 
-        public void Init(GameManager gameManager)
+        public void Init()
         {
-            m_GameManager = gameManager;
-
             m_ActionPoints = m_MaxActionPoints;
             m_MoveableTiles = new List<Tile>();
             m_AttackableTiles = new List<Tile>();
             m_Path = new Queue<Tile>();
             m_Units = GetComponentsInChildren<Unit>().ToList();
+            OnTilesUpdated.Invoke();
         }
 
         protected void TargetTile(Tile tile)
@@ -139,16 +136,16 @@ namespace Reboot
                     break;
                     case OrderType.MOVE:
                     {
-                        m_SelectedUnit.Move(m_Path, m_GameManager, OnUnitMove, OnUnitFinishedAction);
+                        m_SelectedUnit.Move(m_Path, GameManager.Instance, OnUnitMove, OnUnitFinishedAction);
                         m_IsBusy = true;
                         break;
                     }
                     case OrderType.ATTACK:
                     {
-                        m_GameManager.Attack(m_TargetTile, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Data);
+                        GameManager.Instance.Attack(m_TargetTile, m_SelectedUnit.Attacks[m_CurrentAttackIndex].Data);
 
                         AttackEffect effect = Instantiate(m_SelectedUnit.Attacks[m_CurrentAttackIndex].Effect);
-                        effect.transform.position = m_GameManager.HexToWorld(m_TargetTile.Position);
+                        effect.transform.position = GameManager.Instance.HexToWorld(m_TargetTile.Position);
                         effect.Play();
                         m_IsBusy = true;
                         break;
@@ -203,7 +200,7 @@ namespace Reboot
 
         private void UpdateMoveableTiles()
         {
-            m_MoveableTiles = m_GameManager.GetTilesInMovementRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
+            m_MoveableTiles = GameManager.Instance.GetTilesInMovementRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
             OnTilesUpdated();
         }
 
@@ -211,7 +208,7 @@ namespace Reboot
         {
             if (m_CurrentAttackIndex != -1)
             {
-                m_AttackableTiles = m_GameManager.GetTilesInAttackRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
+                m_AttackableTiles = GameManager.Instance.GetTilesInAttackRange(m_SelectedUnit.Position, Mathf.Min(m_SelectedUnit.MovementRange, m_ActionPoints));
             }
             OnTilesUpdated();
         }
@@ -231,7 +228,7 @@ namespace Reboot
 
         public void UpdateUnitsPath()
         {
-            m_Path = new Queue<Tile>(m_GameManager.GetPath(m_SelectedUnit.Position, m_TargetTile.Position));
+            m_Path = new Queue<Tile>(GameManager.Instance.GetPath(m_SelectedUnit.Position, m_TargetTile.Position));
             OnPathChanged.Invoke();
         }
 

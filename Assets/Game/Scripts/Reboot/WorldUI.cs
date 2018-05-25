@@ -6,7 +6,6 @@ namespace Reboot
 {
     public class WorldUI : MonoBehaviour
     {
-        [SerializeField] private GameManager m_GameManager;
         [SerializeField] private Renderer m_TileMarker;
 
         [SerializeField] private Color m_DefaultColor;
@@ -17,14 +16,14 @@ namespace Reboot
 
         private void Start()
         {
-            m_GameManager.OnGameBegin += InitMarkers;
+            GameManager.Instance.OnGameBegin += InitMarkers;
         }
 
         private void InitMarkers()
         {
             m_TileMarkers = new Dictionary<Tile, Renderer>();
 
-            foreach(Tile tile in m_GameManager.Tiles)
+            foreach(Tile tile in GameManager.Instance.Tiles)
             {
                 Renderer tileMarker = Instantiate(m_TileMarker);
                 tileMarker.transform.parent = this.transform;
@@ -35,29 +34,29 @@ namespace Reboot
 
         private void OnEnable()
         {
-            m_GameManager.OnPlayerUpdateTiles += OnTilesUpdated;
+            GameManager.Instance.OnPlayerUpdateTiles += OnTilesUpdated;
         }
 
         private void OnDisable()
         {
-            m_GameManager.OnPlayerUpdateTiles += OnTilesUpdated;
+            GameManager.Instance.OnPlayerUpdateTiles += OnTilesUpdated;
         }
 
         private void OnTilesUpdated()
         {
-            foreach(Tile tile in m_GameManager.Tiles)
+            foreach(Tile tile in GameManager.Instance.Tiles)
             {
                 m_TileMarkers[tile].material.color = m_DefaultColor;
                 Vector3 tilePos = tile.transform.position;
                 tilePos.z -= 0.0001f;
                 m_TileMarkers[tile].transform.position = tilePos;
             }
-            switch (m_GameManager.PlayerWithTurn.CurrentOrder)
+            switch (GameManager.Instance.PlayerWithTurn.CurrentOrder)
             {
                 case OrderType.NONE:
                 break;
                 case OrderType.MOVE:
-                foreach (Tile tile in m_GameManager.PlayerWithTurn.MoveableTiles)
+                foreach (Tile tile in GameManager.Instance.PlayerWithTurn.MoveableTiles)
                 {
                     m_TileMarkers[tile].material.color = m_MoveColor;
                     Vector3 tilePos = tile.transform.position;
@@ -66,7 +65,7 @@ namespace Reboot
                 }
                 break;
                 case OrderType.ATTACK:
-                foreach (Tile tile in m_GameManager.PlayerWithTurn.AttackableTiles)
+                foreach (Tile tile in GameManager.Instance.PlayerWithTurn.AttackableTiles)
                 {
                     m_TileMarkers[tile].material.color = m_AttackColor;
                     Vector3 tilePos = tile.transform.position;

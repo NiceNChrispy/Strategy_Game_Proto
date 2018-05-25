@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Reboot
 {
-    [CreateAssetMenu(fileName = "Level", menuName = "Reboot/Level")]
-    public class Level : ScriptableObject
+    public class Level : MonoBehaviour
     {
         [SerializeField] private Map<Hex> m_Map = new Map<Hex>();
 

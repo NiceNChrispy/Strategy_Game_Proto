@@ -7,16 +7,15 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : Singleton<GameManager>
     {
-        [SerializeField] private List<Player> m_Players;
+        private List<Player> m_Players;
         private int m_PlayerTurn;
         private int m_StartingPlayerTurn;
         //private Map<Hex> m_Map;
         [SerializeField] private Map<Hex> m_Map;
 
         NavGraph<Hex> m_NavGraph;
-        [SerializeField] private float m_DrawScale = 1.0f;
         [SerializeField] private Tile m_TilePrefab;
 
         private List<Tile> m_Tiles;
@@ -46,6 +45,12 @@ namespace Reboot
         private void Start()
         {
             m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
+            m_Players = GetComponentsInChildren<Player>().ToList();
+            if(m_Players.Count == 0)
+            {
+                throw new Exception("At least one player must join");
+            }
+            Debug.Log(string.Format("{0} players joined", m_Players.Count));
             if (!Load(Path(m_LevelName), out m_Map))
             {
                 throw new System.Exception("FAILED TO LOAD LEVEL");
@@ -96,7 +101,7 @@ namespace Reboot
         {
             foreach (Player player in m_Players)
             {
-                player.Init(this);
+                player.Init();
                 player.OnTilesUpdated += OnPlayerUpdateTiles;
                 foreach (Unit unit in player.Units)
                 {
@@ -134,34 +139,6 @@ namespace Reboot
             if (Input.GetKeyDown(KeyCode.Alpha8))
             {
                 PlayerWithTurn.EndTurn();
-            }
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (m_Map != null && m_Map.Contents.Count > 0)
-            {
-                foreach (INavNode<Hex> node in m_NavGraph.Nodes)
-                {
-                    DrawHex(node.Position, Color.grey, m_DrawScale);
-                }
-            }
-            if (Application.isPlaying)
-            {
-                foreach (Unit unit in PlayerWithTurn.Units)
-                {
-                    DrawHex(unit.Position, Color.green, m_DrawScale);
-                }
-            }
-        }
-
-        public void DrawHex(Hex hex, Color color, float drawScale)
-        {
-            Gizmos.color = color;
-            List<Vector2> points = m_Layout.PolygonCorners(hex, drawScale);
-            for (int i = 0; i < 6; i++)
-            {
-                Gizmos.DrawLine(points[i], points[(i + 1) % 6]);
             }
         }
 
