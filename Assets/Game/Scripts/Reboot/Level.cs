@@ -3,25 +3,19 @@ using UnityEngine;
 
 namespace Reboot
 {
-    public class Level : MonoBehaviour
+    [CreateAssetMenu(fileName = "Level", menuName = "Reboot/Level", order = 1)]
+    public class Level : ScriptableObject
     {
-        [SerializeField] private Map<Hex> m_Map = new Map<Hex>();
+        [NaughtyAttributes.ReorderableList]
+        public List<Tile> Tiles = new List<Tile>();
 
-        public List<Hex> Contents { get { return m_Map.Contents; } set { m_Map.Contents = value; } } 
-
-        public bool Contains(Hex hex)
+        private Layout m_Layout = new Layout(Layout.POINTY, Vector2.one, Vector2.zero);
+        public Layout Layout
         {
-            return m_Map.Contains(hex);
-        }
-
-        public void Add(Hex hex)
-        {
-            m_Map.Add(hex);
-        }
-
-        public void Remove(Hex hex)
-        {
-            m_Map.Remove(hex);
+            get
+            {
+                return m_Layout;
+            }
         }
     }
 }
