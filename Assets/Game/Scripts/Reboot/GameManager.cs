@@ -1,7 +1,6 @@
 ﻿using DataStructures;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -13,25 +12,18 @@ namespace Reboot
         private int m_PlayerTurn;
         private int m_StartingPlayerTurn;
         //private Map<Hex> m_Map;
-        [SerializeField] private Map<Hex> m_Map;
+        private MapData m_Map;
 
         NavGraph<Hex> m_NavGraph;
         [SerializeField] private Tile m_TilePrefab;
 
-        private List<Tile> m_Tiles;
-
-        public List<Tile> Tiles
-        {
-            get { return m_Tiles; }
-        }
+        public List<Tile> Tiles { get; private set; }
 
         [SerializeField, Range(0, 180)] int m_TurnLength = 30;
         [SerializeField, ReadOnly] int m_TurnCount = 0;
         private HexHeuristic m_Heuristic;
         public Player PlayerWithTurn { get { return m_Players[m_PlayerTurn]; } }
         public List<Player> PlayersWithoutTurn { get { return m_Players.Where(x => x != PlayerWithTurn).ToList(); } }
-
-        private Layout m_Layout;
 
         [SerializeField] private string m_LevelName = "LEVEL.txt";
         string Path(string file) { return Application.persistentDataPath + "/Maps/" + file; }
@@ -44,23 +36,22 @@ namespace Reboot
 
         private void Start()
         {
-            m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
             m_Players = GetComponentsInChildren<Player>().ToList();
             if(m_Players.Count == 0)
             {
                 throw new Exception("At least one player must join");
             }
             Debug.Log(string.Format("{0} players joined", m_Players.Count));
-            if (!Load(Path(m_LevelName), out m_Map))
+            if (!MapData.Load(Path(m_LevelName), out m_Map))
             {
                 throw new System.Exception("FAILED TO LOAD LEVEL");
             }
             else
             {
-                Debug.Log(string.Format("Loaded Map With {0} Hexes", m_Map.Contents.Count));
+                Debug.Log(string.Format("Loaded Map With {0} Hexes", m_Map.Count));
                 m_NavGraph = new NavGraph<Hex>();
-                m_Tiles = new List<Tile>();
-                foreach (Hex hex in m_Map.Contents)
+                Tiles = new List<Tile>();
+                foreach (Hex hex in m_Map)
                 {
                     Tile tile = Instantiate(m_TilePrefab);
                     tile.transform.parent = this.transform;
@@ -68,7 +59,7 @@ namespace Reboot
                     tile.Position = hex;
                     tile.name = string.Format("{0},{1},{2}", hex.q, hex.r, hex.s);
                     m_NavGraph.Nodes.Add(tile);
-                    m_Tiles.Add(tile);
+                    Tiles.Add(tile);
                 }
                 foreach (var navNode in m_NavGraph.Nodes)
                 {
@@ -84,19 +75,6 @@ namespace Reboot
             Begin();
         }
 
-        private bool Load<T>(string filePath, out T loaded)
-        {
-            if (File.Exists(filePath))
-            {
-                StreamReader sr = new StreamReader(filePath);
-                loaded = JsonUtility.FromJson<T>(sr.ReadToEnd());
-                sr.Close();
-                return true;
-            }
-            loaded = default(T);
-            return false;
-        }
-
         public void Begin()
         {
             foreach (Player player in m_Players)
@@ -105,6 +83,10 @@ namespace Reboot
                 player.OnTilesUpdated += OnPlayerUpdateTiles;
                 foreach (Unit unit in player.Units)
                 {
+                    if(!unit.enabled)
+                    {
+                        continue;
+                    }
                     Hex nearestHex = WorldToHex(unit.transform.position);
                     unit.OccupiedNode = m_NavGraph.Nodes.SingleOrDefault(x => x.Position == nearestHex);
 
@@ -148,7 +130,7 @@ namespace Reboot
             List<Tile> pathTiles = new List<Tile>();
             foreach (INavNode<Hex> node in pathNodes)
             {
-                pathTiles.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
+                pathTiles.Add(Tiles.Single(x => (INavNode<Hex>)x == node));
             }
             return pathTiles;
         }
@@ -159,7 +141,7 @@ namespace Reboot
             List<Tile> tilesInRange = new List<Tile>();
             foreach (INavNode<Hex> node in nodesInRange)
             {
-                tilesInRange.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
+                tilesInRange.Add(Tiles.Single(x => (INavNode<Hex>)x == node));
             }
             return tilesInRange;
         }
@@ -170,7 +152,7 @@ namespace Reboot
             List<Tile> tilesInRange = new List<Tile>();
             foreach (INavNode<Hex> node in nodesInRange)
             {
-                tilesInRange.Add(m_Tiles.Single(x => (INavNode<Hex>)x == node));
+                tilesInRange.Add(Tiles.Single(x => (INavNode<Hex>)x == node));
             }
 
             return tilesInRange;
@@ -178,12 +160,12 @@ namespace Reboot
 
         public Vector2 HexToWorld(Hex hex)
         {
-            return m_Layout.HexToPixel(hex);
+            return Layout.Default.HexToPixel(hex);
         }
 
         public Hex WorldToHex(Vector2 worldPosition)
         {
-            return m_Layout.PixelToHex(worldPosition).HexRound();
+            return Layout.Default.PixelToHex(worldPosition).HexRound();
         }
 
         public void Attack(INavNode<Hex> targetHex, AttackData attackData)

@@ -7,6 +7,10 @@ using UnityEngine;
 [System.Serializable]
 public struct Hex
 {
+    public int q;
+    public int r;
+    public int s;
+
     public Hex(int q, int r, int s)
     {
         this.q = q;
@@ -17,10 +21,6 @@ public struct Hex
             throw new ArgumentException("q + r + s must be 0");
         }
     }
-
-    public int q;
-    public int r;
-    public int s;
 
     public Hex Add(Hex b)
     {
@@ -47,11 +47,11 @@ public struct Hex
         return new Hex(-r, -s, -q);
     }
 
-    static public List<Hex> directions = new List<Hex>{new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1), new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)};
+    static public List<Hex> Directions = new List<Hex>{new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1), new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)};
 
     static public Hex Direction(int direction)
     {
-        return Hex.directions[direction];
+        return Hex.Directions[direction];
     }
 
     public Hex Neighbor(int direction)
@@ -69,11 +69,11 @@ public struct Hex
         return neighbors;
     }
 
-    static public List<Hex> diagonals = new List<Hex>{new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)};
+    static public List<Hex> Diagonals = new List<Hex>{new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)};
 
     public Hex DiagonalNeighbor(int direction)
     {
-        return Add(Hex.diagonals[direction]);
+        return Add(Hex.Diagonals[direction]);
     }
 
     public int Length()
@@ -84,6 +84,28 @@ public struct Hex
     public int Distance(Hex b)
     {
         return Subtract(b).Length();
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is Hex))
+        {
+            return false;
+        }
+
+        var hex = (Hex)obj;
+        return q == hex.q &&
+               r == hex.r &&
+               s == hex.s;
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = -332974341;
+        hashCode = hashCode * -1521134295 + q.GetHashCode();
+        hashCode = hashCode * -1521134295 + r.GetHashCode();
+        hashCode = hashCode * -1521134295 + s.GetHashCode();
+        return hashCode;
     }
 
     public static bool operator ==(Hex a, Hex b)
@@ -233,6 +255,8 @@ public struct Layout
         this.Size = size;
         this.Origin = origin;
     }
+
+    public static Layout Default { get { return new Layout(FLAT, Vector2.one, Vector2.zero); } }
 
     public Orientation Orientation;
     public Vector2 Size;

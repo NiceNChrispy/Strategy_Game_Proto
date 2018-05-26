@@ -6,17 +6,14 @@ namespace Reboot
 {
     public class MapEditor : MonoBehaviour
     {
-        public enum ToolType
-        {
-            BUILD, TEAM
-        }
-
-        [SerializeField] ToolType m_ToolType;
         [SerializeField] private float m_DrawScale = 1.0f;
-        private Map<Hex> m_Map;
+        [SerializeField] private HashSet<Hex> m_RawMapData;
+        [SerializeField] private Tile m_TileObject;
 
-        [SerializeField] private LevelData m_Level;
-
+        private Renderer m_PreviewRenderer;
+        private Tile m_TilePreview;
+        Dictionary<Hex, Tile> m_Tiles;
+        [SerializeField] int height = 0;
         Layout m_Layout;
         private Hex m_MouseHex;
 
@@ -27,158 +24,101 @@ namespace Reboot
         private void OnEnable()
         {
             m_Layout = new Layout(Layout.FLAT, new Vector2(1f, 1f), Vector2.zero);
-            LoadMap();
+            m_TilePreview = Instantiate(m_TileObject);
+            m_TilePreview.hideFlags = HideFlags.HideAndDontSave;
+            m_Tiles = new Dictionary<Hex, Tile>();
+            m_PreviewRenderer = m_TilePreview.GetComponent<Renderer>();
+            m_PreviewRenderer.material = new Material(Shader.Find("Unlit/Color"));
+            LoadOrCreateMap();
         }
 
-        private bool Save(object obj, string filepath)
+        private void SaveMap()
         {
-            StreamWriter sw = new StreamWriter(filepath, false);
-            string data = JsonUtility.ToJson(obj, true);
-            sw.Write(data);
-            sw.Close();
-            return true;
-        }
-
-        private bool Load<T>(string filePath, out T loaded)
-        {
-            if (File.Exists(filePath))
+            MapData mapData = new MapData(m_RawMapData);
+            if(MapData.Save(Path(m_MapName), mapData))
             {
-                StreamReader sr = new StreamReader(filePath);
-                loaded = JsonUtility.FromJson<T>(sr.ReadToEnd());
-                sr.Close();
-                return true;
+                Debug.Log("Saved Map");
             }
-            loaded = default(T);
-            return false;
-        }
-
-        int mod(int x, int m)
-        {
-            int r = x % m;
-            return r < 0 ? r + m : r;
-        }
-
-        private void Update()
-        {
-            if(m_Map == null)
-            {
-                return;
-            }
-            Plane checkPlane = new Plane(Vector3.back, 0);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            float enter;
-
-            if(Input.GetKeyDown(KeyCode.T))
-            {
-                if(m_ToolType == ToolType.BUILD)
-                {
-                    m_ToolType = ToolType.TEAM;
-                }
-                else
-                {
-                    m_ToolType = ToolType.BUILD;
-                }
-            }
-
-            if (checkPlane.Raycast(ray, out enter))
-            {
-                Vector3 hitPoint = ray.GetPoint(enter);
-
-                Hex hitHex = m_Layout.PixelToHex((Vector2)hitPoint).HexRound();
-
-                m_MouseHex = hitHex;
-
-                bool isContained = m_Map.Contains(hitHex);
-
-                switch (m_ToolType)
-                {
-                    case ToolType.BUILD:
-                    {
-                        if (Input.GetMouseButton(0) && !isContained)
-                        {
-                            AddNode(hitHex);
-                        }
-                        if (Input.GetMouseButton(1) && isContained)
-                        {
-                            RemoveNode(hitHex);
-                        }
-                    }
-                    break;
-                    //case ToolType.TEAM:
-                    //{
-                    //    if (Input.mouseScrollDelta.y != 0)
-                    //    {
-                    //        teamNumber = mod((teamNumber + Mathf.RoundToInt(Input.mouseScrollDelta.y)), teamColors.Length);
-                    //    }
-                    //    if (Input.GetMouseButton(0) && isContained)
-                    //    {
-                    //        SetTeamHex(0, hitHex);
-                    //    }
-                    //    if (Input.GetMouseButton(1) && isContained)
-                    //    {
-                    //        SetTeamHex(1, hitHex);
-                    //    }
-                    //}
-                    break;
-                    default:
-                    break;
-                }
-
-            }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                if (Save(m_Map, Path(m_MapName)))
-                {
-                    Debug.Log("Saved Map");
-                }
-            }
-            if (Input.GetKeyDown(KeyCode.L))
-            {
-                LoadMap();
-            }
-        }
-
-        private void SetTeamHex(int teamNumber, Hex hex)
-        {
-
-        }
-
-        private void OnGUI()
-        {
-            //GUILayout.Label(string.Format("Map: {0}", m_MapName));
-            //if (GUILayout.Button("Save"))
-            //{
-            //    Save(m_ActiveLevel, Path(m_MapName));
-            //}
-            //if (GUILayout.Button("Load"))
-            //{
-            //    LoadMap();
-            //}
         }
 
         private void LoadMap()
         {
-            Map<Hex> loadedMap;
-            if (!Load(Path(m_MapName), out loadedMap))
+            MapData loadedMapData;
+            if (MapData.Load(Path(m_MapName), out loadedMapData))
             {
-                throw new System.Exception(string.Format("FAILED TO LOAD Map AT {0}", Path(m_MapName)));
-            }
-            else
-            {
-                m_Map = loadedMap;
-                Debug.Log(string.Format("Loaded {0} with {1} hexes", m_MapName, m_Map.Contents.Count));
+                m_RawMapData = new HashSet<Hex>(loadedMapData);
+                Debug.Log("Loaded Map");
+                foreach (Hex hex in loadedMapData)
+                {
+                    CreateTileAt(hex);
+                }
             }
         }
 
-        private void AddNode(Hex hex)
+        private void CreateTileAt(Hex hex)
         {
-            m_Map.Add(hex);
+            Tile tile = Instantiate(m_TileObject, this.transform);
+            tile.transform.position = (Vector3)m_Layout.HexToPixel(hex) + (Vector3.back * height * 0.2f);
+            tile.hideFlags = HideFlags.HideAndDontSave;
+            m_Tiles.Add(hex, tile);
         }
 
-        private void RemoveNode(Hex hex)
+        private void LoadOrCreateMap()
         {
-            m_Map.Remove(hex);
+            if (!File.Exists(Path(m_MapName)))
+            {
+                m_RawMapData = new HashSet<Hex>();
+                SaveMap();
+            }
+            LoadMap();
+        }
+
+        private void Update()
+        {
+            if (m_RawMapData == null)
+            {
+                return;
+            }
+
+            height = Mathf.Clamp(height + (int)Input.mouseScrollDelta.y, 0, 3);
+            Plane checkPlane = new Plane(Vector3.back, 0);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float enter;
+
+            if (checkPlane.Raycast(ray, out enter))
+            {
+                Vector3 hitPoint = ray.GetPoint(enter);
+                Hex hitHex = m_Layout.PixelToHex((Vector2)hitPoint).HexRound();
+                m_TilePreview.transform.position = (Vector3)m_Layout.HexToPixel(hitHex) + (Vector3.back * height * 0.2f);
+                m_MouseHex = hitHex;
+
+                m_PreviewRenderer.material.color = m_RawMapData.Contains(hitHex) ? Color.red : Color.green;
+
+                if (Input.GetMouseButton(0))
+                {
+                    if (m_RawMapData.Add(hitHex))
+                    {
+                        CreateTileAt(hitHex);
+                    }
+                }
+                if (Input.GetMouseButton(1))
+                {
+                    if (m_RawMapData.Remove(hitHex))
+                    {
+                        Destroy(m_Tiles[hitHex].gameObject);
+                        m_Tiles.Remove(hitHex);
+                    }
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                SaveMap();
+            }
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                LoadOrCreateMap();
+            }
         }
 
         private void OnDrawGizmosSelected()
@@ -188,22 +128,11 @@ namespace Reboot
 
         private void Draw()
         {
-            if (m_Map != null)
+            if (m_RawMapData != null)
             {
                 Color drawColor = Color.white;
-                foreach (Hex hex in m_Map.Contents)
+                foreach (Hex hex in m_RawMapData)
                 {
-                    switch (m_ToolType)
-                    {
-                        case ToolType.BUILD:
-                        drawColor = Color.white;
-                        break;
-                        case ToolType.TEAM:
-                        //drawColor = teamColors[teamNumber];
-                        break;
-                        default:
-                        break;
-                    }
                     List<Vector2> points = m_Layout.PolygonCorners(hex, m_DrawScale);
                     List<Vector2> points2 = m_Layout.PolygonCorners(hex, m_DrawScale * 0.95f);
                     Gizmos.color = drawColor;
@@ -213,8 +142,8 @@ namespace Reboot
                         Gizmos.DrawLine(points2[i], points2[(i + 1) % 6]);
                     }
                 }
-                
-                Gizmos.color = m_Map.Contains(m_MouseHex) ? Color.red : Color.green;
+
+                Gizmos.color = m_RawMapData.Contains(m_MouseHex) ? Color.red : Color.green;
                 List<Vector2> mousePoints = m_Layout.PolygonCorners(m_MouseHex, m_DrawScale);
                 for (int i = 0; i < 6; i++)
                 {

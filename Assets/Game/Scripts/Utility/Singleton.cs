@@ -25,7 +25,7 @@ public abstract class Singleton : MonoBehaviour
     public abstract void Setup();
     public abstract void Clear();
 
-    protected virtual void Awake()
+    protected virtual void OnEnable()
     {
         Setup();
     }
