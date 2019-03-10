@@ -69,15 +69,11 @@ namespace Reboot
 
         public static bool Save(string path, MapData saveMapData)
         {
-            if (File.Exists(path))
-            {
-                StreamWriter sw = new StreamWriter(path, false);
-                string data = JsonUtility.ToJson(saveMapData, true);
-                sw.Write(data);
-                sw.Close();
-                return true;
-            }
-            return false;
+            StreamWriter sw = new StreamWriter(path, false);
+            string data = JsonUtility.ToJson(saveMapData, true);
+            sw.Write(data);
+            sw.Close();
+            return true;
         }
     }
 }

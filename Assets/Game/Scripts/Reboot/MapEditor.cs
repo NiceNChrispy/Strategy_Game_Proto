@@ -17,9 +17,10 @@ namespace Reboot
         Layout m_Layout;
         private Hex m_MouseHex;
 
-        [SerializeField] private string m_MapName = "LEVEL.txt";
+        [SerializeField] private string m_Suffix = ".level";
+        [SerializeField] private string m_MapName = "LEVEL";
 
-        string Path(string file) { return Application.persistentDataPath + "/Maps/" + file; }
+        string Path(string file) { return Application.dataPath + "/Levels/" + file + m_Suffix; }
 
         private void OnEnable()
         {
@@ -35,9 +36,13 @@ namespace Reboot
         private void SaveMap()
         {
             MapData mapData = new MapData(m_RawMapData);
-            if(MapData.Save(Path(m_MapName), mapData))
+            if (MapData.Save(Path(m_MapName), mapData))
             {
                 Debug.Log("Saved Map");
+            }
+            else
+            {
+                Debug.Log("Could not save map:" + Path(m_MapName));
             }
         }
 
@@ -52,6 +57,10 @@ namespace Reboot
                 {
                     CreateTileAt(hex);
                 }
+            }
+            else
+            {
+                Debug.Log("Could not load map: " + Path(m_MapName));
             }
         }
 

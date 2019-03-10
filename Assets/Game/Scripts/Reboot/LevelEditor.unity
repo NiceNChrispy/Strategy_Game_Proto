@@ -158,7 +158,8 @@ MonoBehaviour:
   m_TileObject: {fileID: 114668319401214856, guid: 6ec796a45cad3164ab3fe5cd14f57d4a,
     type: 2}
   height: 0
-  m_MapName: LEVEL.txt
+  m_Suffix: .level
+  m_MapName: LEVEL
 --- !u!20 &840148033
 Camera:
   m_ObjectHideFlags: 0

@@ -40,6 +40,7 @@ namespace Reboot
         public List<Tile> AttackableTiles { get { return m_AttackableTiles; } }
 
         [SerializeField] private OrderType m_CurrentOrder;
+        IEnumerator borderRoutine;
 
         public List<Unit> Units
         {
@@ -258,6 +259,39 @@ namespace Reboot
             }
             EndTurn();
             onComplete.Invoke();
+        }
+
+        [NaughtyAttributes.Button]
+        public void GetBorder()
+        {
+            if (borderRoutine == null)
+            {
+                borderRoutine = BorderDetector.GetBorder(m_MoveableTiles);
+            }
+            borderRoutine.MoveNext();
+            //Debug.Log(BorderDetector.edges.Count);
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (borderRoutine != null)
+            {
+                for (int i = 0; i < BorderDetector.edges.Count; i++)
+                {
+                    BorderDetector.Edge edgeStart = BorderDetector.edges[i];
+                    BorderDetector.Edge edgeEnd = BorderDetector.edges[(i + 1) % BorderDetector.edges.Count];
+                    Gizmos.DrawLine(Layout.Default.HexToPixel(edgeStart.Hex) + Layout.Default.HexCornerOffset(edgeStart.Index),
+                                    Layout.Default.HexToPixel(edgeEnd.Hex) + Layout.Default.HexCornerOffset(edgeEnd.Index));
+                }
+
+                Gizmos.color = Color.green;
+
+                if (BorderDetector.currentEdge != null)
+                {
+                    Gizmos.DrawLine(Layout.Default.HexToPixel(BorderDetector.currentEdge.Hex) + Layout.Default.HexCornerOffset(BorderDetector.currentEdge.Index),
+                                    Layout.Default.HexToPixel(BorderDetector.currentEdge.Hex) + Layout.Default.HexCornerOffset((BorderDetector.currentEdge.Index - 1) % 6));
+                }
+            }
         }
     }
 }

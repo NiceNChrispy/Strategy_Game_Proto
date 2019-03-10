@@ -40,6 +40,7 @@ namespace DataStructures
             return other.Cost.CompareTo(Cost);
         }
     }
+    
     [Serializable]
     public class NavGraph<T>
     {

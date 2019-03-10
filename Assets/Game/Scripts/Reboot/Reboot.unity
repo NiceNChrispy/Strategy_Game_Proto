@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 8
+  serializedVersion: 9
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -39,6 +39,7 @@ RenderSettings:
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -54,11 +55,10 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 1
   m_LightmapEditorSettings:
-    serializedVersion: 9
+    serializedVersion: 10
     m_Resolution: 2
     m_BakeResolution: 40
-    m_TextureWidth: 1024
-    m_TextureHeight: 1024
+    m_AtlasSize: 1024
     m_AO: 0
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
@@ -197,7 +197,7 @@ GameObject:
   - component: {fileID: 95979548}
   - component: {fileID: 95979547}
   m_Layer: 0
-  m_Name: PathLine
+  m_Name: Unit Path
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -216,6 +216,7 @@ LineRenderer:
   m_MotionVectors: 0
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 48c1b6f3660c6604dbd8a1d5458982fc, type: 2}
   m_StaticBatchInfo:
@@ -244,12 +245,15 @@ LineRenderer:
     widthCurve:
       serializedVersion: 2
       m_Curve:
-      - serializedVersion: 2
+      - serializedVersion: 3
         time: 0
         value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -295,8 +299,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 95979546}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -84.82529, y: -56.57032, z: -5.723526}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 163867124}
@@ -386,7 +390,7 @@ GameObject:
   - component: {fileID: 163867124}
   - component: {fileID: 163867125}
   m_Layer: 0
-  m_Name: WorldUI
+  m_Name: UI_World
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -422,6 +426,7 @@ MonoBehaviour:
   m_DefaultColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_MoveColor: {r: 0, g: 1, b: 0, a: 1}
   m_AttackColor: {r: 1, g: 0, b: 0, a: 1}
+  m_GameManager: {fileID: 585687732}
 --- !u!1 &212777605
 GameObject:
   m_ObjectHideFlags: 0
@@ -640,6 +645,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:
@@ -1243,9 +1249,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TilePrefab: {fileID: 114668319401214856, guid: 6ec796a45cad3164ab3fe5cd14f57d4a,
     type: 2}
-  m_TurnLength: 20
+  m_TurnLength: 180
   m_TurnCount: 0
-  m_LevelName: LEVEL.txt
+  m_LevelName: LEVEL.level
 --- !u!4 &585687733
 Transform:
   m_ObjectHideFlags: 0
@@ -1723,6 +1729,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:
@@ -2188,6 +2195,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:
@@ -2483,7 +2491,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1040007612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2587,6 +2595,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:
@@ -3084,6 +3093,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:
@@ -3604,6 +3614,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 0b778eba4cc79044b988448ca8ab2563, type: 2}
   m_StaticBatchInfo:

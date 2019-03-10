@@ -25,8 +25,8 @@ namespace Reboot
         public Player PlayerWithTurn { get { return m_Players[m_PlayerTurn]; } }
         public List<Player> PlayersWithoutTurn { get { return m_Players.Where(x => x != PlayerWithTurn).ToList(); } }
 
-        [SerializeField] private string m_LevelName = "LEVEL.txt";
-        string Path(string file) { return Application.persistentDataPath + "/Maps/" + file; }
+        [SerializeField] private string m_LevelName = "LEVEL.level";
+        string Path(string file) { return Application.dataPath + "/Levels/" + file; }
 
         public float TimeBeforeNextPlayersTurn { get { return PlayerWithTurn.RemainingTime; } }
 
@@ -44,7 +44,7 @@ namespace Reboot
             Debug.Log(string.Format("{0} players joined", m_Players.Count));
             if (!MapData.Load(Path(m_LevelName), out m_Map))
             {
-                throw new System.Exception("FAILED TO LOAD LEVEL");
+                throw new Exception("FAILED TO LOAD LEVEL");
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Reboot
 
                     if (unit.OccupiedNode == null)
                     {
-                        throw new System.Exception("Unit on inaccessible node");
+                        throw new Exception("Unit on inaccessible node");
                     }
                     unit.OccupiedNode.IsTraversible = false;
                     unit.transform.position = HexToWorld(nearestHex);
